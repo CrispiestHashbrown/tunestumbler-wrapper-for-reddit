@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ca.tunestumbler.api.ui.model.request.UserDetailsRequestModel;
+import ca.tunestumbler.api.ui.model.response.UserDetailsResponseModel;
 
 @RestController
 @RequestMapping("users") // http://localhost:8080/users
@@ -20,8 +21,8 @@ public class UserController {
 	}
 
 	@PostMapping
-	public String createUser(@RequestBody UserDetailsRequestModel userDetails) {
-		return "create user was called";
+	public UserDetailsResponseModel createUser(@RequestBody UserDetailsRequestModel userDetails) {
+		return null;
 	}
 
 	@PutMapping
