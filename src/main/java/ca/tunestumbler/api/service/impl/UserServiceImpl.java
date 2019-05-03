@@ -2,6 +2,9 @@ package ca.tunestumbler.api.service.impl;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import ca.tunestumbler.api.UserRepository;
@@ -19,6 +22,9 @@ public class UserServiceImpl implements UserService {
 	@Autowired
 	SharedUtils sharedUtils;
 
+	@Autowired
+	BCryptPasswordEncoder bCryptPasswordEncoder;
+	
 	@Override
 	public UserDTO createUser(UserDTO user) {
 
@@ -30,10 +36,8 @@ public class UserServiceImpl implements UserService {
 		BeanUtils.copyProperties(user, userEntity);
 		
 		String publicUserId = sharedUtils.generateUserId(50);
-		// For testing
-		// TODO: Encrypt password and generate public user ID
 		userEntity.setUserId(publicUserId);
-		userEntity.setEncryptedPassword("testUserPassword");
+		userEntity.setEncryptedPassword(bCryptPasswordEncoder.encode(user.getPassword()));
 
 		UserEntity storedUserDetails = userRepository.save(userEntity);
 
@@ -41,6 +45,12 @@ public class UserServiceImpl implements UserService {
 		BeanUtils.copyProperties(storedUserDetails, newUser);
 
 		return newUser;
+	}
+
+	@Override
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
