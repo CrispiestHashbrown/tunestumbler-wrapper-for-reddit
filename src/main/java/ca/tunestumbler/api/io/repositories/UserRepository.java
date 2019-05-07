@@ -1,4 +1,4 @@
-package ca.tunestumbler.api;
+package ca.tunestumbler.api.io.repositories;
 
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;

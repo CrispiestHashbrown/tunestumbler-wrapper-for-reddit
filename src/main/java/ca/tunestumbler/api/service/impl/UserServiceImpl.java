@@ -10,8 +10,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import ca.tunestumbler.api.UserRepository;
 import ca.tunestumbler.api.io.entity.UserEntity;
+import ca.tunestumbler.api.io.repositories.UserRepository;
 import ca.tunestumbler.api.service.UserService;
 import ca.tunestumbler.api.shared.SharedUtils;
 import ca.tunestumbler.api.shared.dto.UserDTO;
@@ -48,6 +48,19 @@ public class UserServiceImpl implements UserService {
 		BeanUtils.copyProperties(storedUserDetails, newUser);
 
 		return newUser;
+	}
+
+	@Override
+	public UserDTO getUser(String email) {
+		UserEntity userEntity = userRepository.findByEmail(email);
+
+		if (userEntity == null) {
+			throw new UsernameNotFoundException(email);
+		}
+
+		UserDTO existingUser = new UserDTO();
+		BeanUtils.copyProperties(userEntity, existingUser);
+		return existingUser;
 	}
 
 	@Override
