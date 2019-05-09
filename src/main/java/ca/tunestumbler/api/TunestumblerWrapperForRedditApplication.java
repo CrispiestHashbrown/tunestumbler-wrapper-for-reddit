@@ -5,6 +5,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import ca.tunestumbler.api.security.ApplicationProperties;
+
 @SpringBootApplication
 public class TunestumblerWrapperForRedditApplication {
 
@@ -22,4 +24,9 @@ public class TunestumblerWrapperForRedditApplication {
 		return new SpringApplicationContext();
 	}
 
+	@Bean(name="ApplicationProperties")
+	public ApplicationProperties applicationProperties() {
+		return new ApplicationProperties();
+	}
+	
 }
