@@ -12,9 +12,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import ca.tunestumbler.api.exceptions.UserServiceException;
 import ca.tunestumbler.api.service.UserService;
 import ca.tunestumbler.api.shared.dto.UserDTO;
 import ca.tunestumbler.api.ui.model.request.UserDetailsRequestModel;
+import ca.tunestumbler.api.ui.model.response.ErrorMessages;
 import ca.tunestumbler.api.ui.model.response.UserDetailsResponseModel;
 
 @RestController
@@ -36,8 +38,12 @@ public class UserController {
 
 	@PostMapping(consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }, produces = {
 			MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
-	public UserDetailsResponseModel createUser(@RequestBody UserDetailsRequestModel userDetails) {
+	public UserDetailsResponseModel createUser(@RequestBody UserDetailsRequestModel userDetails) throws Exception {
 		UserDetailsResponseModel newUser = new UserDetailsResponseModel();
+
+		if (userDetails.getFirstName().isEmpty()) {
+			throw new UserServiceException(ErrorMessages.MISSING_REQUIRED_FIELD.getErrorMessage());
+		}
 
 		UserDTO userDTO = new UserDTO();
 		BeanUtils.copyProperties(userDetails, userDTO);
