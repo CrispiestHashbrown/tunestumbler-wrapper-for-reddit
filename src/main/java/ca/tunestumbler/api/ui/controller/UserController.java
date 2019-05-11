@@ -36,8 +36,8 @@ public class UserController {
 		return user;
 	}
 
-	@PostMapping(consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }, produces = {
-			MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
+	@PostMapping(consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }, 
+			produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	public UserDetailsResponseModel createUser(@RequestBody UserDetailsRequestModel userDetails) throws Exception {
 		UserDetailsResponseModel newUser = new UserDetailsResponseModel();
 
@@ -54,9 +54,23 @@ public class UserController {
 		return newUser;
 	}
 
-	@PutMapping
-	public String updateUser() {
-		return "update user was called";
+	@PutMapping(path = "/{userId}",
+			consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }, 
+			produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
+	public UserDetailsResponseModel updateUser(@PathVariable String userId, @RequestBody UserDetailsRequestModel userDetails) {
+		UserDetailsResponseModel user = new UserDetailsResponseModel();
+
+		if (userDetails.getFirstName().isEmpty()) {
+			throw new UserServiceException(ErrorMessages.MISSING_REQUIRED_FIELD.getErrorMessage());
+		}
+
+		UserDTO userDTO = new UserDTO();
+		BeanUtils.copyProperties(userDetails, userDTO);
+
+		UserDTO updatedUser = userService.updateUser(userId, userDTO);
+		BeanUtils.copyProperties(updatedUser, user);
+		
+		return user;
 	}
 
 	@DeleteMapping
