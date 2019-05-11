@@ -10,11 +10,13 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import ca.tunestumbler.api.exceptions.UserServiceException;
 import ca.tunestumbler.api.io.entity.UserEntity;
 import ca.tunestumbler.api.io.repositories.UserRepository;
 import ca.tunestumbler.api.service.UserService;
 import ca.tunestumbler.api.shared.SharedUtils;
 import ca.tunestumbler.api.shared.dto.UserDTO;
+import ca.tunestumbler.api.ui.model.response.ErrorMessages;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -87,4 +89,25 @@ public class UserServiceImpl implements UserService {
 		return new User(userEntity.getEmail(), userEntity.getEncryptedPassword(), new ArrayList<>());
 	}
 
+	@Override
+	public UserDTO updateUser(String userId, UserDTO user) {
+		UserDTO userToUpdate = new UserDTO();
+		
+		UserEntity userEntity = userRepository.findByUserId(userId);
+		
+		if (userEntity == null) {
+			throw new UserServiceException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
+		}
+
+		// TODO: Update desired fields
+		userEntity.setFirstName(user.getFirstName());
+		userEntity.setLastName(user.getLastName());
+		
+		UserEntity updatedUserDetails = userRepository.save(userEntity);		
+		
+		BeanUtils.copyProperties(updatedUserDetails, userToUpdate);
+
+		return userToUpdate;
+	}
+	
 }
