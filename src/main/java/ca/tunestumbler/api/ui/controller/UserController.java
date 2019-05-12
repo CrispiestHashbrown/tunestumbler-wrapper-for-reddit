@@ -17,6 +17,9 @@ import ca.tunestumbler.api.service.UserService;
 import ca.tunestumbler.api.shared.dto.UserDTO;
 import ca.tunestumbler.api.ui.model.request.UserDetailsRequestModel;
 import ca.tunestumbler.api.ui.model.response.ErrorMessages;
+import ca.tunestumbler.api.ui.model.response.OperationStatusModel;
+import ca.tunestumbler.api.ui.model.response.RequestOperationName;
+import ca.tunestumbler.api.ui.model.response.RequestOperationStatus;
 import ca.tunestumbler.api.ui.model.response.UserDetailsResponseModel;
 
 @RestController
@@ -28,18 +31,18 @@ public class UserController {
 
 	@GetMapping(path = "/{userId}", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	public UserDetailsResponseModel getUser(@PathVariable String userId) {
-		UserDetailsResponseModel user = new UserDetailsResponseModel();
+		UserDetailsResponseModel existingUserResponse = new UserDetailsResponseModel();
 
 		UserDTO userDTO = userService.getUserByUserId(userId);
-		BeanUtils.copyProperties(userDTO, user);
+		BeanUtils.copyProperties(userDTO, existingUserResponse);
 
-		return user;
+		return existingUserResponse;
 	}
 
 	@PostMapping(consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }, 
 			produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	public UserDetailsResponseModel createUser(@RequestBody UserDetailsRequestModel userDetails) throws Exception {
-		UserDetailsResponseModel newUser = new UserDetailsResponseModel();
+		UserDetailsResponseModel newUserResponse = new UserDetailsResponseModel();
 
 		if (userDetails.getFirstName().isEmpty()) {
 			throw new UserServiceException(ErrorMessages.MISSING_REQUIRED_FIELD.getErrorMessage());
@@ -49,16 +52,16 @@ public class UserController {
 		BeanUtils.copyProperties(userDetails, userDTO);
 
 		UserDTO createdUser = userService.createUser(userDTO);
-		BeanUtils.copyProperties(createdUser, newUser);
+		BeanUtils.copyProperties(createdUser, newUserResponse);
 
-		return newUser;
+		return newUserResponse;
 	}
 
 	@PutMapping(path = "/{userId}",
 			consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }, 
 			produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	public UserDetailsResponseModel updateUser(@PathVariable String userId, @RequestBody UserDetailsRequestModel userDetails) {
-		UserDetailsResponseModel user = new UserDetailsResponseModel();
+		UserDetailsResponseModel updatedUserResponse = new UserDetailsResponseModel();
 
 		if (userDetails.getFirstName().isEmpty()) {
 			throw new UserServiceException(ErrorMessages.MISSING_REQUIRED_FIELD.getErrorMessage());
@@ -68,14 +71,21 @@ public class UserController {
 		BeanUtils.copyProperties(userDetails, userDTO);
 
 		UserDTO updatedUser = userService.updateUser(userId, userDTO);
-		BeanUtils.copyProperties(updatedUser, user);
+		BeanUtils.copyProperties(updatedUser, updatedUserResponse);
 		
-		return user;
+		return updatedUserResponse;
 	}
 
-	@DeleteMapping
-	public String deleteUser() {
-		return "delete user was called";
+	@DeleteMapping(path = "/{userId}", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
+	public OperationStatusModel deleteUser(@PathVariable String userId) {
+		OperationStatusModel deletedUserResponse = new OperationStatusModel();
+		deletedUserResponse.setOperationName(RequestOperationName.DELETE.name());
+		
+		userService.deleteUser(userId);
+		
+		deletedUserResponse.setOperationResult(RequestOperationStatus.SUCCESS.name());
+		
+		return deletedUserResponse;
 	}
 
 }
