@@ -1,5 +1,7 @@
 package ca.tunestumbler.api.service;
 
+import java.util.List;
+
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import ca.tunestumbler.api.shared.dto.UserDTO;
@@ -14,4 +16,6 @@ public interface UserService extends UserDetailsService {
 	UserDTO updateUser(String userId, UserDTO user);
 	
 	void deleteUser(String userId);
+
+	List<UserDTO> getUsers(int page, int limit);
 }
