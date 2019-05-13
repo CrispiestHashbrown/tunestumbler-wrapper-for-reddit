@@ -2,14 +2,21 @@ package ca.tunestumbler.api;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import ca.tunestumbler.api.security.ApplicationProperties;
 
 @SpringBootApplication
-public class TunestumblerWrapperForRedditApplication {
+public class TunestumblerWrapperForRedditApplication extends SpringBootServletInitializer {
 
+	@Override
+	protected SpringApplicationBuilder configure(org.springframework.boot.builder.SpringApplicationBuilder application) {
+		return application.sources(TunestumblerWrapperForRedditApplication.class);
+	}
+	
 	public static void main(String[] args) {
 		SpringApplication.run(TunestumblerWrapperForRedditApplication.class, args);
 	}
