@@ -13,6 +13,7 @@ public class UserDTO implements Serializable {
 	private String encryptedPassword;
 	private String emailVerificationToken;
 	private Boolean emailVerificationStatus = false;
+	private String redditAccountName;
 
 	public long getId() {
 		return id;
@@ -84,6 +85,14 @@ public class UserDTO implements Serializable {
 
 	public void setEmailVerificationStatus(Boolean emailVerificationStatus) {
 		this.emailVerificationStatus = emailVerificationStatus;
+	}
+
+	public String getRedditAccountName() {
+		return redditAccountName;
+	}
+
+	public void setRedditAccountName(String redditAccountName) {
+		this.redditAccountName = redditAccountName;
 	}
 
 }
