@@ -15,7 +15,7 @@ public class UserEntity implements Serializable {
 	@GeneratedValue
 	private long id;
 
-	@Column(nullable = false, unique=true)
+	@Column(nullable = false, unique = true)
 	private String userId;
 
 	@Column(nullable = false, length = 50)
@@ -24,9 +24,20 @@ public class UserEntity implements Serializable {
 	@Column(nullable = false, length = 50)
 	private String lastName;
 
-	@Column(nullable = false, length = 120, unique=true)
+	@Column(nullable = false, length = 120, unique = true)
 	private String email;
 
+	@Column(nullable = false)
+	private String encryptedPassword;
+
+	private String emailVerificationToken;
+
+	@Column(nullable = false)
+	private Boolean emailVerificationStatus = false;
+
+	@Column(nullable = false, length = 20)
+	private String redditAccountName;
+	
 	public long getId() {
 		return id;
 	}
@@ -90,13 +101,5 @@ public class UserEntity implements Serializable {
 	public void setEmailVerificationStatus(Boolean emailVerificationStatus) {
 		this.emailVerificationStatus = emailVerificationStatus;
 	}
-
-	@Column(nullable = false)
-	private String encryptedPassword;
-
-	private String emailVerificationToken;
-
-	@Column(nullable = false)
-	private Boolean emailVerificationStatus = false;
 
 }
