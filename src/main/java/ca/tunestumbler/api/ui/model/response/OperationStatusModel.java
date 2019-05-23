@@ -1,7 +1,6 @@
 package ca.tunestumbler.api.ui.model.response;
 
 public class OperationStatusModel {
-
 	private String operationResult;
 	private String operationName;
 
