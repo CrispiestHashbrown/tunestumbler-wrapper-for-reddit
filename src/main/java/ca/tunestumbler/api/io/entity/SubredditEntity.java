@@ -3,9 +3,15 @@ package ca.tunestumbler.api.io.entity;
 import java.io.Serializable;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
+import ca.tunestumbler.api.shared.dto.UserDTO;
+
+@Entity(name = "subreddit")
 public class SubredditEntity implements Serializable {
 	private static final long serialVersionUID = 3861524434851634472L;
 
@@ -13,11 +19,15 @@ public class SubredditEntity implements Serializable {
 	@GeneratedValue
 	private long id;
 
+	@Column(nullable = false, unique = true)
+	private String subredditId;
+
 	@Column(nullable = false, length = 21)
 	private String subreddit;
 
-	@Column(nullable = false)
-	private String userId;
+	@ManyToOne
+	@JoinColumn(name = "users_id")
+	private UserDTO userDTO;
 
 	public long getId() {
 		return id;
@@ -25,6 +35,14 @@ public class SubredditEntity implements Serializable {
 
 	public void setId(long id) {
 		this.id = id;
+	}
+
+	public String getSubredditId() {
+		return subredditId;
+	}
+
+	public void setSubredditId(String subredditId) {
+		this.subredditId = subredditId;
 	}
 
 	public String getSubreddit() {
@@ -35,12 +53,12 @@ public class SubredditEntity implements Serializable {
 		this.subreddit = subreddit;
 	}
 
-	public String getUserId() {
-		return userId;
+	public UserDTO getUserDTO() {
+		return userDTO;
 	}
 
-	public void setUserId(String userId) {
-		this.userId = userId;
+	public void setUserDTO(UserDTO userDTO) {
+		this.userDTO = userDTO;
 	}
 
 }
