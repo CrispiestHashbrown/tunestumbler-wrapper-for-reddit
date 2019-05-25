@@ -18,12 +18,6 @@ public class UserEntity implements Serializable {
 	@Column(nullable = false, unique = true)
 	private String userId;
 
-	@Column(nullable = false, length = 50)
-	private String firstName;
-
-	@Column(nullable = false, length = 50)
-	private String lastName;
-
 	@Column(nullable = false, length = 120, unique = true)
 	private String email;
 
@@ -37,7 +31,7 @@ public class UserEntity implements Serializable {
 
 	@Column(nullable = false, length = 20)
 	private String redditAccountName;
-	
+
 	public long getId() {
 		return id;
 	}
@@ -52,22 +46,6 @@ public class UserEntity implements Serializable {
 
 	public void setUserId(String userId) {
 		this.userId = userId;
-	}
-
-	public String getFirstName() {
-		return firstName;
-	}
-
-	public void setFirstName(String firstName) {
-		this.firstName = firstName;
-	}
-
-	public String getLastName() {
-		return lastName;
-	}
-
-	public void setLastName(String lastName) {
-		this.lastName = lastName;
 	}
 
 	public String getEmail() {
@@ -100,6 +78,14 @@ public class UserEntity implements Serializable {
 
 	public void setEmailVerificationStatus(Boolean emailVerificationStatus) {
 		this.emailVerificationStatus = emailVerificationStatus;
+	}
+
+	public String getRedditAccountName() {
+		return redditAccountName;
+	}
+
+	public void setRedditAccountName(String redditAccountName) {
+		this.redditAccountName = redditAccountName;
 	}
 
 }

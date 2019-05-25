@@ -6,7 +6,7 @@ public class SubredditDTO implements Serializable {
 	private static final long serialVersionUID = -8630017465738870844L;
 	private long id;
 	private String subreddit;
-	private String userId;
+	private UserDTO userDTO;
 
 	public long getId() {
 		return id;
@@ -24,12 +24,12 @@ public class SubredditDTO implements Serializable {
 		this.subreddit = subreddit;
 	}
 
-	public String getUserId() {
-		return userId;
+	public UserDTO getUserDTO() {
+		return userDTO;
 	}
 
-	public void setUserId(String userId) {
-		this.userId = userId;
+	public void setUserDTO(UserDTO userDTO) {
+		this.userDTO = userDTO;
 	}
 
 }

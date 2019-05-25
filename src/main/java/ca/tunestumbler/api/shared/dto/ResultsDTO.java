@@ -6,8 +6,8 @@ import java.io.Serializable;
 public class ResultsDTO implements Serializable {
 	private static final long serialVersionUID = 1103952203234348723L;
 	private long id;
-	private long resultsId;
-	private long userId;
+	private String resultsId;
+	private SubredditAggregateDTO subredditAggregateDTO;
 	private String resultsUrl;
 	private String subreddit;
 	private String title;
@@ -33,20 +33,20 @@ public class ResultsDTO implements Serializable {
 		this.id = id;
 	}
 
-	public long getResultsId() {
+	public String getResultsId() {
 		return resultsId;
 	}
 
-	public void setResultsId(long resultsId) {
+	public void setResultsId(String resultsId) {
 		this.resultsId = resultsId;
 	}
 
-	public long getUserId() {
-		return userId;
+	public SubredditAggregateDTO getSubredditAggregateDTO() {
+		return subredditAggregateDTO;
 	}
 
-	public void setUserId(long userId) {
-		this.userId = userId;
+	public void setSubredditAggregateDTO(SubredditAggregateDTO subredditAggregateDTO) {
+		this.subredditAggregateDTO = subredditAggregateDTO;
 	}
 
 	public String getResultsUrl() {
