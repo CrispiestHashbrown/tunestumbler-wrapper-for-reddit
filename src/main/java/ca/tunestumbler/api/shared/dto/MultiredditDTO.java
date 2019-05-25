@@ -5,9 +5,10 @@ import java.io.Serializable;
 public class MultiredditDTO implements Serializable {
 	private static final long serialVersionUID = -5037000521917475599L;
 	private long id;
+	private String multiredditId;
 	private String multireddit;
 	private String subreddit;
-	private String userId;
+	private UserDTO userDTO;
 
 	public long getId() {
 		return id;
@@ -15,6 +16,14 @@ public class MultiredditDTO implements Serializable {
 
 	public void setId(long id) {
 		this.id = id;
+	}
+
+	public String getMultiredditId() {
+		return multiredditId;
+	}
+
+	public void setMultiredditId(String multiredditId) {
+		this.multiredditId = multiredditId;
 	}
 
 	public String getMultireddit() {
@@ -25,7 +34,6 @@ public class MultiredditDTO implements Serializable {
 		this.multireddit = multireddit;
 	}
 
-
 	public String getSubreddit() {
 		return subreddit;
 	}
@@ -34,12 +42,12 @@ public class MultiredditDTO implements Serializable {
 		this.subreddit = subreddit;
 	}
 
-	public String getUserId() {
-		return userId;
+	public UserDTO getUserDTO() {
+		return userDTO;
 	}
 
-	public void setUserId(String userId) {
-		this.userId = userId;
+	public void setUserDTO(UserDTO userDTO) {
+		this.userDTO = userDTO;
 	}
 
 }
