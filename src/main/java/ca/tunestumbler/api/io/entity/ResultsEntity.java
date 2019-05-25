@@ -3,9 +3,16 @@ package ca.tunestumbler.api.io.entity;
 import java.io.Serializable;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
+import ca.tunestumbler.api.shared.dto.SubredditAggregateDTO;
+import ca.tunestumbler.api.shared.dto.UserDTO;
+
+@Entity(name = "result")
 public class ResultsEntity implements Serializable {
 	private static final long serialVersionUID = -8505575230126284466L;
 
@@ -14,10 +21,15 @@ public class ResultsEntity implements Serializable {
 	private long id;
 
 	@Column(nullable = false, unique = true)
-	private long resultsId;
+	private String resultsId;
 
-	@Column(nullable = false)
-	private long userId;
+	@ManyToOne
+	@JoinColumn(name = "subreddit_aggregate_id")
+	private SubredditAggregateDTO subredditAggregateDTO;
+
+	@ManyToOne
+	@JoinColumn(name = "users_id")
+	private UserDTO userDTO;
 
 	@Column(nullable = false)
 	private String resultsUrl;
@@ -52,14 +64,19 @@ public class ResultsEntity implements Serializable {
 	@Column(nullable = false)
 	private String stickied;
 
+	@Column
 	private String mediaUrl;
 
+	@Column
 	private String mediaEmbedId;
 
+	@Column
 	private String secureMediaId;
 
+	@Column
 	private String secureMediaEmbedId;
 
+	@Column
 	private String mediaId;
 
 	public long getId() {
@@ -70,20 +87,28 @@ public class ResultsEntity implements Serializable {
 		this.id = id;
 	}
 
-	public long getResultsId() {
+	public String getResultsId() {
 		return resultsId;
 	}
 
-	public void setResultsId(long resultsId) {
+	public void setResultsId(String resultsId) {
 		this.resultsId = resultsId;
 	}
 
-	public long getUserId() {
-		return userId;
+	public SubredditAggregateDTO getSubredditAggregateDTO() {
+		return subredditAggregateDTO;
 	}
 
-	public void setUserId(long userId) {
-		this.userId = userId;
+	public void setSubredditAggregateDTO(SubredditAggregateDTO subredditAggregateDTO) {
+		this.subredditAggregateDTO = subredditAggregateDTO;
+	}
+
+	public UserDTO getUserDTO() {
+		return userDTO;
+	}
+
+	public void setUserDTO(UserDTO userDTO) {
+		this.userDTO = userDTO;
 	}
 
 	public String getResultsUrl() {
