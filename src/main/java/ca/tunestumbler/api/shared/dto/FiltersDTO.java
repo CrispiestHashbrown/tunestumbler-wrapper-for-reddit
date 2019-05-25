@@ -6,7 +6,7 @@ public class FiltersDTO implements Serializable {
 	private static final long serialVersionUID = -5370336446817047806L;
 	private long id;
 	private String filtersId;
-	private String userId;
+	private UserDTO userDTO;
 	private String multireddit;
 	private String subreddit;
 	private Boolean allowNSFWFlag = false;
@@ -31,12 +31,12 @@ public class FiltersDTO implements Serializable {
 		this.filtersId = filtersId;
 	}
 
-	public String getUserId() {
-		return userId;
+	public UserDTO getUserDTO() {
+		return userDTO;
 	}
 
-	public void setUserId(String userId) {
-		this.userId = userId;
+	public void setUserDTO(UserDTO userDTO) {
+		this.userDTO = userDTO;
 	}
 
 	public String getMultireddit() {

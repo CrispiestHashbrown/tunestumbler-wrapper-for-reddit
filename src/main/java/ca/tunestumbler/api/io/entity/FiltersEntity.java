@@ -6,8 +6,12 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
-@Entity(name = "filters")
+import ca.tunestumbler.api.shared.dto.UserDTO;
+
+@Entity(name = "filter")
 public class FiltersEntity implements Serializable {
 	private static final long serialVersionUID = 661201748897792032L;
 
@@ -15,12 +19,14 @@ public class FiltersEntity implements Serializable {
 	@GeneratedValue
 	private long id;
 
-	@Column(length = 30, nullable = false, unique = true)
+	@Column(nullable = false, unique = true)
 	private String filtersId;
 
-	@Column(nullable = false)
-	private String userId;
+	@ManyToOne
+	@JoinColumn(name = "users_id")
+	private UserDTO userDTO;
 
+	@Column(length = 50)
 	private String multireddit;
 
 	@Column(length = 21)
@@ -57,12 +63,12 @@ public class FiltersEntity implements Serializable {
 		this.filtersId = filtersId;
 	}
 
-	public String getUserId() {
-		return userId;
+	public UserDTO getUserDTO() {
+		return userDTO;
 	}
 
-	public void setUserId(String userId) {
-		this.userId = userId;
+	public void setUserDTO(UserDTO userDTO) {
+		this.userDTO = userDTO;
 	}
 
 	public String getMultireddit() {
