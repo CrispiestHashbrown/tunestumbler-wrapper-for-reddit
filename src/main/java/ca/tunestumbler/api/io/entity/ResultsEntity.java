@@ -2,12 +2,14 @@ package ca.tunestumbler.api.io.entity;
 
 import java.io.Serializable;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 
 import ca.tunestumbler.api.shared.dto.SubredditAggregateDTO;
 import ca.tunestumbler.api.shared.dto.UserDTO;
@@ -21,6 +23,7 @@ public class ResultsEntity implements Serializable {
 	private long id;
 
 	@Column(nullable = false, unique = true)
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "resultsDTO")
 	private String resultsId;
 
 	@ManyToOne

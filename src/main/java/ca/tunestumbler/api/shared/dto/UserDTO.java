@@ -12,6 +12,8 @@ public class UserDTO implements Serializable {
 	private String emailVerificationToken;
 	private Boolean emailVerificationStatus = false;
 	private String redditAccountName;
+	private String token;
+	private String refreshToken;
 
 	public long getId() {
 		return id;
@@ -75,6 +77,22 @@ public class UserDTO implements Serializable {
 
 	public void setRedditAccountName(String redditAccountName) {
 		this.redditAccountName = redditAccountName;
+	}
+
+	public String getToken() {
+		return token;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
+	}
+
+	public String getRefreshToken() {
+		return refreshToken;
+	}
+
+	public void setRefreshToken(String refreshToken) {
+		this.refreshToken = refreshToken;
 	}
 
 }
