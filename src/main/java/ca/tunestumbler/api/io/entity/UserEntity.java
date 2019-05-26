@@ -2,10 +2,12 @@ package ca.tunestumbler.api.io.entity;
 
 import java.io.Serializable;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 
 @Entity(name = "users")
 public class UserEntity implements Serializable {
@@ -16,6 +18,7 @@ public class UserEntity implements Serializable {
 	private long id;
 
 	@Column(nullable = false, unique = true)
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "userDTO")
 	private String userId;
 
 	@Column(nullable = false, length = 120, unique = true)
@@ -31,6 +34,12 @@ public class UserEntity implements Serializable {
 
 	@Column(nullable = false, length = 20)
 	private String redditAccountName;
+
+	@Column(nullable = false, unique = true)
+	private String token;
+
+	@Column(nullable = false, unique = true)
+	private String refreshToken;
 
 	public long getId() {
 		return id;
@@ -86,6 +95,22 @@ public class UserEntity implements Serializable {
 
 	public void setRedditAccountName(String redditAccountName) {
 		this.redditAccountName = redditAccountName;
+	}
+
+	public String getToken() {
+		return token;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
+	}
+
+	public String getRefreshToken() {
+		return refreshToken;
+	}
+
+	public void setRefreshToken(String refreshToken) {
+		this.refreshToken = refreshToken;
 	}
 
 }
