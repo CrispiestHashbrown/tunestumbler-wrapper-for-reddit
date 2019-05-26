@@ -18,7 +18,7 @@ public class UserEntity implements Serializable {
 	private long id;
 
 	@Column(nullable = false, unique = true)
-	@OneToMany(cascade = CascadeType.ALL, mappedBy = "userDTO")
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "userEntity")
 	private String userId;
 
 	@Column(nullable = false, length = 120, unique = true)

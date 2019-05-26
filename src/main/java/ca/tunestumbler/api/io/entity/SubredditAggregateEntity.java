@@ -11,10 +11,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
-import ca.tunestumbler.api.shared.dto.MultiredditDTO;
-import ca.tunestumbler.api.shared.dto.SubredditDTO;
-import ca.tunestumbler.api.shared.dto.UserDTO;
-
 @Entity(name = "subreddit_aggregate")
 public class SubredditAggregateEntity implements Serializable {
 	private static final long serialVersionUID = 275525728395895620L;
@@ -24,20 +20,20 @@ public class SubredditAggregateEntity implements Serializable {
 	private long id;
 
 	@Column(nullable = false, unique = true)
-	@OneToMany(cascade = CascadeType.ALL, mappedBy = "subredditAggregateDTO")
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "subredditAggregateEntity")
 	private String subredditAggregateId;
 
 	@ManyToOne
 	@JoinColumn(name = "users_id")
-	private UserDTO userDTO;
+	private UserEntity userEntity;
 
 	@ManyToOne
 	@JoinColumn(name = "subreddit_id")
-	private SubredditDTO subredditDTO;
+	private SubredditEntity subredditEntity;
 
 	@ManyToOne
 	@JoinColumn(name = "multireddit_id")
-	private MultiredditDTO multiredditDTO;
+	private MultiredditEntity multiredditEntity;
 
 	public long getId() {
 		return id;
@@ -55,28 +51,28 @@ public class SubredditAggregateEntity implements Serializable {
 		this.subredditAggregateId = subredditAggregateId;
 	}
 
-	public UserDTO getUserDTO() {
-		return userDTO;
+	public UserEntity getUserEntity() {
+		return userEntity;
 	}
 
-	public void setUserDTO(UserDTO userDTO) {
-		this.userDTO = userDTO;
+	public void setUserEntity(UserEntity userEntity) {
+		this.userEntity = userEntity;
 	}
 
-	public SubredditDTO getSubredditDTO() {
-		return subredditDTO;
+	public SubredditEntity getSubredditEntity() {
+		return subredditEntity;
 	}
 
-	public void setSubredditDTO(SubredditDTO subredditDTO) {
-		this.subredditDTO = subredditDTO;
+	public void setSubredditEntity(SubredditEntity subredditEntity) {
+		this.subredditEntity = subredditEntity;
 	}
 
-	public MultiredditDTO getMultiredditDTO() {
-		return multiredditDTO;
+	public MultiredditEntity getMultiredditEntity() {
+		return multiredditEntity;
 	}
 
-	public void setMultiredditDTO(MultiredditDTO multiredditDTO) {
-		this.multiredditDTO = multiredditDTO;
+	public void setMultiredditEntity(MultiredditEntity multiredditEntity) {
+		this.multiredditEntity = multiredditEntity;
 	}
 
 }

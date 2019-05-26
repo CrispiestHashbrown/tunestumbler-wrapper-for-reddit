@@ -11,8 +11,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
-import ca.tunestumbler.api.shared.dto.UserDTO;
-
 @Entity(name = "multireddit")
 public class MultiredditEntity implements Serializable {
 	private static final long serialVersionUID = 9178020527307904668L;
@@ -22,7 +20,7 @@ public class MultiredditEntity implements Serializable {
 	private long id;
 
 	@Column(nullable = false, unique = true)
-	@OneToMany(cascade = CascadeType.ALL, mappedBy = "multiredditDTO")
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "multiredditEntity")
 	private String multiredditId;
 
 	@Column(nullable = false, length = 50)
@@ -33,7 +31,7 @@ public class MultiredditEntity implements Serializable {
 
 	@ManyToOne
 	@JoinColumn(name = "users_id")
-	private UserDTO userDTO;
+	private UserEntity userEntity;
 
 	public long getId() {
 		return id;
@@ -67,12 +65,12 @@ public class MultiredditEntity implements Serializable {
 		this.subreddit = subreddit;
 	}
 
-	public UserDTO getUserDTO() {
-		return userDTO;
+	public UserEntity getUserEntity() {
+		return userEntity;
 	}
 
-	public void setUserDTO(UserDTO userDTO) {
-		this.userDTO = userDTO;
+	public void setUserEntity(UserEntity userEntity) {
+		this.userEntity = userEntity;
 	}
 
 }

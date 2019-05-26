@@ -8,8 +8,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
-import ca.tunestumbler.api.shared.dto.ResultsDTO;
-
 public class ResultsPaginationEntity implements Serializable {
 	private static final long serialVersionUID = -1635177118264295579L;
 
@@ -28,7 +26,7 @@ public class ResultsPaginationEntity implements Serializable {
 
 	@ManyToOne
 	@JoinColumn(name = "results_id")
-	private ResultsDTO resultsDTO;
+	private ResultsEntity resultsEntity;
 
 	public long getId() {
 		return id;
@@ -62,12 +60,12 @@ public class ResultsPaginationEntity implements Serializable {
 		this.afterResultsId = afterResultsId;
 	}
 
-	public ResultsDTO getResultsDTO() {
-		return resultsDTO;
+	public ResultsEntity getResultsEntity() {
+		return resultsEntity;
 	}
 
-	public void setResultsDTO(ResultsDTO resultsDTO) {
-		this.resultsDTO = resultsDTO;
+	public void setResultsEntity(ResultsEntity resultsEntity) {
+		this.resultsEntity = resultsEntity;
 	}
 
 }
