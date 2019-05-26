@@ -11,9 +11,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
-import ca.tunestumbler.api.shared.dto.SubredditAggregateDTO;
-import ca.tunestumbler.api.shared.dto.UserDTO;
-
 @Entity(name = "result")
 public class ResultsEntity implements Serializable {
 	private static final long serialVersionUID = -8505575230126284466L;
@@ -23,16 +20,16 @@ public class ResultsEntity implements Serializable {
 	private long id;
 
 	@Column(nullable = false, unique = true)
-	@OneToMany(cascade = CascadeType.ALL, mappedBy = "resultsDTO")
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "resultsEntity")
 	private String resultsId;
 
 	@ManyToOne
 	@JoinColumn(name = "subreddit_aggregate_id")
-	private SubredditAggregateDTO subredditAggregateDTO;
+	private SubredditAggregateEntity subredditAggregateEntity;
 
 	@ManyToOne
 	@JoinColumn(name = "users_id")
-	private UserDTO userDTO;
+	private UserEntity userEntity;
 
 	@Column(nullable = false)
 	private String resultsUrl;
@@ -98,20 +95,20 @@ public class ResultsEntity implements Serializable {
 		this.resultsId = resultsId;
 	}
 
-	public SubredditAggregateDTO getSubredditAggregateDTO() {
-		return subredditAggregateDTO;
+	public SubredditAggregateEntity getSubredditAggregateEntity() {
+		return subredditAggregateEntity;
 	}
 
-	public void setSubredditAggregateDTO(SubredditAggregateDTO subredditAggregateDTO) {
-		this.subredditAggregateDTO = subredditAggregateDTO;
+	public void setSubredditAggregateEntity(SubredditAggregateEntity subredditAggregateEntity) {
+		this.subredditAggregateEntity = subredditAggregateEntity;
 	}
 
-	public UserDTO getUserDTO() {
-		return userDTO;
+	public UserEntity getUserEntity() {
+		return userEntity;
 	}
 
-	public void setUserDTO(UserDTO userDTO) {
-		this.userDTO = userDTO;
+	public void setUserEntity(UserEntity userEntity) {
+		this.userEntity = userEntity;
 	}
 
 	public String getResultsUrl() {
