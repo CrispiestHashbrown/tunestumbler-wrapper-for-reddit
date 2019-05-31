@@ -24,6 +24,8 @@ public class ResultsDTO implements Serializable {
 	private String secureMediaId;
 	private String secureMediaEmbedId;
 	private String mediaId;
+	private String beforeResultsId;
+	private String afterResultsId;
 
 	public long getId() {
 		return id;
@@ -175,6 +177,22 @@ public class ResultsDTO implements Serializable {
 
 	public void setMediaId(String mediaId) {
 		this.mediaId = mediaId;
+	}
+
+	public String getBeforeResultsId() {
+		return beforeResultsId;
+	}
+
+	public void setBeforeResultsId(String beforeResultsId) {
+		this.beforeResultsId = beforeResultsId;
+	}
+
+	public String getAfterResultsId() {
+		return afterResultsId;
+	}
+
+	public void setAfterResultsId(String afterResultsId) {
+		this.afterResultsId = afterResultsId;
 	}
 
 }
