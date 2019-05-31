@@ -17,6 +17,7 @@ public class ResultsEntity implements Serializable {
 
 	@Id
 	@GeneratedValue
+	@Column(nullable = false, unique = true)
 	private long id;
 
 	@Column(nullable = false, unique = true)
@@ -78,6 +79,12 @@ public class ResultsEntity implements Serializable {
 
 	@Column
 	private String mediaId;
+
+	@Column
+	private String beforeResultsId;
+
+	@Column
+	private String afterResultsId;
 
 	public long getId() {
 		return id;
@@ -237,6 +244,22 @@ public class ResultsEntity implements Serializable {
 
 	public void setMediaId(String mediaId) {
 		this.mediaId = mediaId;
+	}
+
+	public String getBeforeResultsId() {
+		return beforeResultsId;
+	}
+
+	public void setBeforeResultsId(String beforeResultsId) {
+		this.beforeResultsId = beforeResultsId;
+	}
+
+	public String getAfterResultsId() {
+		return afterResultsId;
+	}
+
+	public void setAfterResultsId(String afterResultsId) {
+		this.afterResultsId = afterResultsId;
 	}
 
 }
