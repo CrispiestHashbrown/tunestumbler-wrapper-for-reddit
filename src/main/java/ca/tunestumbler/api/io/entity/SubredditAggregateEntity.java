@@ -15,10 +15,11 @@ import javax.persistence.OneToMany;
 public class SubredditAggregateEntity implements Serializable {
 	private static final long serialVersionUID = 275525728395895620L;
 
-	@Id
 	@GeneratedValue
+	@Column(nullable = false, unique = true)
 	private long id;
 
+	@Id
 	@Column(nullable = false, unique = true)
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "subredditAggregateEntity")
 	private String subredditAggregateId;
@@ -34,6 +35,9 @@ public class SubredditAggregateEntity implements Serializable {
 	@ManyToOne
 	@JoinColumn(name = "multireddit_id")
 	private MultiredditEntity multiredditEntity;
+
+	@Column(nullable = false)
+	private String datetime;
 
 	public long getId() {
 		return id;
@@ -73,6 +77,14 @@ public class SubredditAggregateEntity implements Serializable {
 
 	public void setMultiredditEntity(MultiredditEntity multiredditEntity) {
 		this.multiredditEntity = multiredditEntity;
+	}
+
+	public String getDatetime() {
+		return datetime;
+	}
+
+	public void setDatetime(String datetime) {
+		this.datetime = datetime;
 	}
 
 }

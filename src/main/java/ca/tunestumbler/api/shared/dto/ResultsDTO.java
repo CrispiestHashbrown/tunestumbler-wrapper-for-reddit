@@ -26,6 +26,7 @@ public class ResultsDTO implements Serializable {
 	private String mediaId;
 	private String beforeResultsId;
 	private String afterResultsId;
+	private String datetime;
 
 	public long getId() {
 		return id;
@@ -193,6 +194,14 @@ public class ResultsDTO implements Serializable {
 
 	public void setAfterResultsId(String afterResultsId) {
 		this.afterResultsId = afterResultsId;
+	}
+
+	public String getDatetime() {
+		return datetime;
+	}
+
+	public void setDatetime(String datetime) {
+		this.datetime = datetime;
 	}
 
 }

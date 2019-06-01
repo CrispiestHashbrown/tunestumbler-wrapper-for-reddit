@@ -27,7 +27,7 @@ import ca.tunestumbler.api.ui.model.response.RequestOperationStatus;
 import ca.tunestumbler.api.ui.model.response.UserDetailsResponseModel;
 
 @RestController
-@RequestMapping("users") // http://localhost:8080/users
+@RequestMapping("/users") // http://localhost:8080/users
 public class UserController {
 
 	@Autowired
@@ -48,10 +48,6 @@ public class UserController {
 	public UserDetailsResponseModel createUser(@RequestBody UserDetailsRequestModel userDetails) throws Exception {
 		UserDetailsResponseModel newUserResponse = new UserDetailsResponseModel();
 
-		if (userDetails.getFirstName().isEmpty()) {
-			throw new UserServiceException(ErrorMessages.MISSING_REQUIRED_FIELD.getErrorMessage());
-		}
-
 		UserDTO userDTO = new UserDTO();
 		BeanUtils.copyProperties(userDetails, userDTO);
 
@@ -66,10 +62,6 @@ public class UserController {
 			produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	public UserDetailsResponseModel updateUser(@PathVariable String userId, @RequestBody UserDetailsRequestModel userDetails) {
 		UserDetailsResponseModel updatedUserResponse = new UserDetailsResponseModel();
-
-		if (userDetails.getFirstName().isEmpty()) {
-			throw new UserServiceException(ErrorMessages.MISSING_REQUIRED_FIELD.getErrorMessage());
-		}
 
 		UserDTO userDTO = new UserDTO();
 		BeanUtils.copyProperties(userDetails, userDTO);
@@ -106,5 +98,5 @@ public class UserController {
 		
 		return existingUsers;
 	}
-	
+
 }

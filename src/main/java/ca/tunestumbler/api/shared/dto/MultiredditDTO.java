@@ -9,6 +9,7 @@ public class MultiredditDTO implements Serializable {
 	private String multireddit;
 	private String subreddit;
 	private UserDTO userDTO;
+	private String datetime;
 
 	public long getId() {
 		return id;
@@ -48,6 +49,14 @@ public class MultiredditDTO implements Serializable {
 
 	public void setUserDTO(UserDTO userDTO) {
 		this.userDTO = userDTO;
+	}
+
+	public String getDatetime() {
+		return datetime;
+	}
+
+	public void setDatetime(String datetime) {
+		this.datetime = datetime;
 	}
 
 }

@@ -13,10 +13,11 @@ import javax.persistence.ManyToOne;
 public class FiltersEntity implements Serializable {
 	private static final long serialVersionUID = 661201748897792032L;
 
-	@Id
 	@GeneratedValue
+	@Column(nullable = false, unique = true)
 	private long id;
 
+	@Id
 	@Column(nullable = false, unique = true)
 	private String filtersId;
 
@@ -44,6 +45,9 @@ public class FiltersEntity implements Serializable {
 
 	@Column(length = 15)
 	private String showByDomain;
+
+	@Column(nullable = false)
+	private String datetime;
 
 	public long getId() {
 		return id;
@@ -123,6 +127,14 @@ public class FiltersEntity implements Serializable {
 
 	public void setShowByDomain(String showByDomain) {
 		this.showByDomain = showByDomain;
+	}
+
+	public String getDatetime() {
+		return datetime;
+	}
+
+	public void setDatetime(String datetime) {
+		this.datetime = datetime;
 	}
 
 }

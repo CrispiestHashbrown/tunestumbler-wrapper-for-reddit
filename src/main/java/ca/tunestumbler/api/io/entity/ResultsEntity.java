@@ -15,11 +15,11 @@ import javax.persistence.OneToMany;
 public class ResultsEntity implements Serializable {
 	private static final long serialVersionUID = -8505575230126284466L;
 
-	@Id
 	@GeneratedValue
 	@Column(nullable = false, unique = true)
 	private long id;
 
+	@Id
 	@Column(nullable = false, unique = true)
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "resultsEntity")
 	private String resultsId;
@@ -85,6 +85,9 @@ public class ResultsEntity implements Serializable {
 
 	@Column
 	private String afterResultsId;
+
+	@Column(nullable = false)
+	private String datetime;
 
 	public long getId() {
 		return id;
@@ -260,6 +263,14 @@ public class ResultsEntity implements Serializable {
 
 	public void setAfterResultsId(String afterResultsId) {
 		this.afterResultsId = afterResultsId;
+	}
+
+	public String getDatetime() {
+		return datetime;
+	}
+
+	public void setDatetime(String datetime) {
+		this.datetime = datetime;
 	}
 
 }
