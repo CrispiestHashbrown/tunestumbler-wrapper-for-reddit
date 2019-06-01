@@ -103,10 +103,6 @@ public class UserServiceImpl implements UserService {
 			throw new UserServiceException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
 		}
 
-		// TODO: Update desired fields
-		userEntity.setFirstName(user.getFirstName());
-		userEntity.setLastName(user.getLastName());
-
 		UserEntity updatedUserDetails = userRepository.save(userEntity);
 
 		BeanUtils.copyProperties(updatedUserDetails, userToUpdate);
