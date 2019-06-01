@@ -4,7 +4,6 @@ import java.io.Serializable;
 
 public class UserDTO implements Serializable {
 	private static final long serialVersionUID = 9002611090405917353L;
-	private long id;
 	private String userId;
 	private String email;
 	private String password;
@@ -14,14 +13,7 @@ public class UserDTO implements Serializable {
 	private String redditAccountName;
 	private String token;
 	private String refreshToken;
-
-	public long getId() {
-		return id;
-	}
-
-	public void setId(long id) {
-		this.id = id;
-	}
+	private String datetime;
 
 	public String getUserId() {
 		return userId;
@@ -93,6 +85,14 @@ public class UserDTO implements Serializable {
 
 	public void setRefreshToken(String refreshToken) {
 		this.refreshToken = refreshToken;
+	}
+
+	public String getDatetime() {
+		return datetime;
+	}
+
+	public void setDatetime(String datetime) {
+		this.datetime = datetime;
 	}
 
 }

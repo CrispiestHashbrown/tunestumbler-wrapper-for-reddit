@@ -14,6 +14,7 @@ public class FiltersDTO implements Serializable {
 	private String showByKeyword;
 	private String hideByDomain;
 	private String showByDomain;
+	private String datetime;
 
 	public long getId() {
 		return id;
@@ -93,6 +94,14 @@ public class FiltersDTO implements Serializable {
 
 	public void setShowByDomain(String showByDomain) {
 		this.showByDomain = showByDomain;
+	}
+
+	public String getDatetime() {
+		return datetime;
+	}
+
+	public void setDatetime(String datetime) {
+		this.datetime = datetime;
 	}
 
 }

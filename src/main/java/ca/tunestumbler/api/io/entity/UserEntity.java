@@ -5,7 +5,6 @@ import java.io.Serializable;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
@@ -14,9 +13,6 @@ public class UserEntity implements Serializable {
 	private static final long serialVersionUID = -4547528289363043198L;
 
 	@Id
-	@GeneratedValue
-	private long id;
-
 	@Column(nullable = false, unique = true)
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "userEntity")
 	private String userId;
@@ -41,13 +37,8 @@ public class UserEntity implements Serializable {
 	@Column(nullable = false, unique = true)
 	private String refreshToken;
 
-	public long getId() {
-		return id;
-	}
-
-	public void setId(long id) {
-		this.id = id;
-	}
+	@Column(nullable = false)
+	private String datetime;
 
 	public String getUserId() {
 		return userId;
@@ -111,6 +102,14 @@ public class UserEntity implements Serializable {
 
 	public void setRefreshToken(String refreshToken) {
 		this.refreshToken = refreshToken;
+	}
+
+	public String getDatetime() {
+		return datetime;
+	}
+
+	public void setDatetime(String datetime) {
+		this.datetime = datetime;
 	}
 
 }
