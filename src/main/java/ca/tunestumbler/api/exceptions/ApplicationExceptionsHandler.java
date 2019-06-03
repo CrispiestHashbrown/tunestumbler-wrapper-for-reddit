@@ -14,13 +14,21 @@ import ca.tunestumbler.api.ui.model.response.ErrorMessage;
 @ControllerAdvice
 public class ApplicationExceptionsHandler {
 
+	@ExceptionHandler(value = { AuthValidationServiceException.class })
+	public ResponseEntity<Object> handleAuthValidationServiceException(AuthValidationServiceException exception,
+			WebRequest request) {
+		ErrorMessage errorMessage = new ErrorMessage(new Date(), exception.getMessage());
+
+		return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+
 	@ExceptionHandler(value = { UserServiceException.class })
 	public ResponseEntity<Object> handleUserServiceException(UserServiceException exception, WebRequest request) {
 		ErrorMessage errorMessage = new ErrorMessage(new Date(), exception.getMessage());
 
 		return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
 	}
-	
+
 	@ExceptionHandler(value = { Exception.class })
 	public ResponseEntity<Object> handleOtherExceptions(Exception exception, WebRequest request) {
 		ErrorMessage errorMessage = new ErrorMessage(new Date(), exception.getMessage());
