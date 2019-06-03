@@ -4,22 +4,28 @@ import java.io.Serializable;
 
 import javax.persistence.Column;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
-public class AuthStateEntity implements Serializable {
+public class AuthValidationEntity implements Serializable {
 	private static final long serialVersionUID = 2081466087724011120L;
 
 	@Id
 	@Column(nullable = false, unique = true)
 	private String stateId;
 
-	@Column(nullable = false, unique = true)
-	private String stateCode;
-
 	@Column(nullable = false)
 	private Boolean isValidated = false;
 
+	@Column(nullable = false, unique = true)
+	private String code;
+
 	@Column(nullable = false)
 	private String lastModified;
+
+	@ManyToOne
+	@JoinColumn(name = "users_id")
+	private UserEntity userEntity;
 
 	public String getStateId() {
 		return stateId;
@@ -27,14 +33,6 @@ public class AuthStateEntity implements Serializable {
 
 	public void setStateId(String stateId) {
 		this.stateId = stateId;
-	}
-
-	public String getStateCode() {
-		return stateCode;
-	}
-
-	public void setStateCode(String stateCode) {
-		this.stateCode = stateCode;
 	}
 
 	public Boolean getIsValidated() {
@@ -45,12 +43,28 @@ public class AuthStateEntity implements Serializable {
 		this.isValidated = isValidated;
 	}
 
+	public String getCode() {
+		return code;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
+	}
+
 	public String getLastModified() {
 		return lastModified;
 	}
 
 	public void setLastModified(String lastModified) {
 		this.lastModified = lastModified;
+	}
+
+	public UserEntity getUserEntity() {
+		return userEntity;
+	}
+
+	public void setUserEntity(UserEntity userEntity) {
+		this.userEntity = userEntity;
 	}
 
 }
