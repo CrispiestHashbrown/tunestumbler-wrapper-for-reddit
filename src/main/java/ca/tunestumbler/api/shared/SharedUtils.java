@@ -10,7 +10,35 @@ public class SharedUtils {
 	private final Random RANDOM = new SecureRandom();
 	private final String ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
+	public String generateStateId(int length) {
+		return generateRandomString(length);
+	}
+
 	public String generateUserId(int length) {
+		return generateRandomString(length);
+	}
+
+	public String generateSubredditId(int length) {
+		return generateRandomString(length);
+	}
+
+	public String generateMultiredditId(int length) {
+		return generateRandomString(length);
+	}
+
+	public String generateSubredditAggregateId(int length) {
+		return generateRandomString(length);
+	}
+
+	public String generateFiltersId(int length) {
+		return generateRandomString(length);
+	}
+
+	public String generateResultsId(int length) {
+		return generateRandomString(length);
+	}
+
+	public String generateResultsPaginationId(int length) {
 		return generateRandomString(length);
 	}
 
