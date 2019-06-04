@@ -3,10 +3,12 @@ package ca.tunestumbler.api.io.entity;
 import java.io.Serializable;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
+@Entity(name = "validation")
 public class AuthValidationEntity implements Serializable {
 	private static final long serialVersionUID = 2081466087724011120L;
 
@@ -17,14 +19,14 @@ public class AuthValidationEntity implements Serializable {
 	@Column(nullable = false)
 	private Boolean isValidated = false;
 
-	@Column(nullable = false, unique = true)
+	@Column(unique = true)
 	private String code;
 
 	@Column(nullable = false)
 	private String lastModified;
 
 	@ManyToOne
-	@JoinColumn(name = "users_id")
+	@JoinColumn(name = "users_userId")
 	private UserEntity userEntity;
 
 	public String getStateId() {

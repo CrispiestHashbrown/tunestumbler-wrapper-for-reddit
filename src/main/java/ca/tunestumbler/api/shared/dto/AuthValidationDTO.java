@@ -5,7 +5,7 @@ import java.io.Serializable;
 public class AuthValidationDTO implements Serializable {
 	private static final long serialVersionUID = 3907437247642169765L;
 	private String stateId;
-	private Boolean isValidated;
+	private Boolean isValidated = false;
 	private String code;
 	private String lastModified;
 	private UserDTO userDTO;
