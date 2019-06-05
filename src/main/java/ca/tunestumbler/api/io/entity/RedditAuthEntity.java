@@ -3,10 +3,12 @@ package ca.tunestumbler.api.io.entity;
 import java.io.Serializable;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 
+@Entity(name = "auth")
 public class RedditAuthEntity implements Serializable {
 	private static final long serialVersionUID = 4973442855950016187L;
 
@@ -23,8 +25,8 @@ public class RedditAuthEntity implements Serializable {
 	@Column(nullable = false)
 	private String scope;
 
-	@ManyToOne
-	@JoinColumn(name = "users_id")
+	@OneToOne()
+	@JoinColumn(name = "users_userId")
 	private UserEntity userEntity;
 
 	public String getAuthId() {
