@@ -13,7 +13,7 @@ public class UserDTO implements Serializable {
 	private String redditAccountName;
 	private String token;
 	private String refreshToken;
-	private String datetime;
+	private String lastModified;
 
 	public String getUserId() {
 		return userId;
@@ -88,11 +88,11 @@ public class UserDTO implements Serializable {
 	}
 
 	public String getDatetime() {
-		return datetime;
+		return lastModified;
 	}
 
 	public void setDatetime(String datetime) {
-		this.datetime = datetime;
+		this.lastModified = datetime;
 	}
 
 }
