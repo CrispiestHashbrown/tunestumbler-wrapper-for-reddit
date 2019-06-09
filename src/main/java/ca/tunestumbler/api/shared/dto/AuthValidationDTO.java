@@ -5,7 +5,7 @@ import java.io.Serializable;
 public class AuthValidationDTO implements Serializable {
 	private static final long serialVersionUID = 3907437247642169765L;
 	private String stateId;
-	private Boolean isValidated = false;
+	private Boolean validated = false;
 	private String code;
 	private String lastModified;
 	private UserDTO userDTO;
@@ -18,12 +18,12 @@ public class AuthValidationDTO implements Serializable {
 		this.stateId = stateId;
 	}
 
-	public Boolean getIsValidated() {
-		return isValidated;
+	public Boolean getValidated() {
+		return validated;
 	}
 
-	public void setIsValidated(Boolean isValidated) {
-		this.isValidated = isValidated;
+	public void setValidated(Boolean validated) {
+		this.validated = validated;
 	}
 
 	public String getCode() {

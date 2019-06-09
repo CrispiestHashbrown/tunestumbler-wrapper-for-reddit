@@ -17,7 +17,7 @@ public class AuthValidationEntity implements Serializable {
 	private String stateId;
 
 	@Column(nullable = false)
-	private Boolean isValidated = false;
+	private Boolean validated = false;
 
 	@Column(unique = true)
 	private String code;
@@ -37,12 +37,12 @@ public class AuthValidationEntity implements Serializable {
 		this.stateId = stateId;
 	}
 
-	public Boolean getIsValidated() {
-		return isValidated;
+	public Boolean getValidated() {
+		return validated;
 	}
 
-	public void setIsValidated(Boolean isValidated) {
-		this.isValidated = isValidated;
+	public void setValidated(Boolean validated) {
+		this.validated = validated;
 	}
 
 	public String getCode() {

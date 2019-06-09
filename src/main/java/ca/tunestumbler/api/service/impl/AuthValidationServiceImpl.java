@@ -63,7 +63,7 @@ public class AuthValidationServiceImpl implements AuthValidationService {
 
 	@Override
 	public AuthValidationDTO getAuthState(String stateId) {
-		AuthValidationEntity authValidationEntity = authValidationRepository.findByStateId(stateId);
+		AuthValidationEntity authValidationEntity = authValidationRepository.findByStateIdAndValidated(stateId, false);
 
 		if (authValidationEntity == null) {
 			throw new AuthValidationServiceException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
@@ -78,13 +78,13 @@ public class AuthValidationServiceImpl implements AuthValidationService {
 	public AuthValidationDTO updateState(String stateId, String code, AuthValidationDTO authState) {
 		AuthValidationDTO authValiationToUpdate = new AuthValidationDTO();
 
-		AuthValidationEntity authValidationEntity = authValidationRepository.findByStateId(stateId);
+		AuthValidationEntity authValidationEntity = authValidationRepository.findByStateIdAndValidated(stateId, false);
 
 		if (authValidationEntity == null) {
 			throw new AuthValidationServiceException(ErrorMessages.BAD_REQUEST.getErrorMessage());
 		}
 
-		authState.setIsValidated(true);
+		authState.setValidated(true);
 		authState.setCode(code);
 		authState.setLastModified(sharedUtils.getCurrentTime());
 
