@@ -137,4 +137,65 @@ public class AuthValidationController {
 		}
 	}
 
+	@GetMapping(path = "/refresh_token/{userId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<Void> getNewToken(@PathVariable String userId) throws Exception {
+		UserDTO userDTO = userService.getUserByUserId(userId);
+
+		if (userDTO == null) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
+
+		String refreshToken = userDTO.getRefreshToken();
+		String baseUrl = "https://www.reddit.com";
+		String uri = "/api/v1/access_token";
+		String userAgentHeader = "web:ca.tunestumbler.api:v0.0.1 (by /u/CrispiestHashbrown";
+		String creds = Base64.getEncoder().encodeToString(SecurityConstants.getAuth().getBytes());
+		String authHeader = "Basic " + creds;
+
+		WebClient client = WebClient
+				.builder()
+					.baseUrl(baseUrl)
+					.defaultHeader(HttpHeaders.USER_AGENT, userAgentHeader)
+					.defaultHeader(HttpHeaders.AUTHORIZATION, authHeader)
+					.defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+					.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+				.build();
+		WebClient.UriSpec<WebClient.RequestBodySpec> request = client.method(HttpMethod.POST);
+		WebClient.RequestBodySpec requestUri = request.uri(uri);
+		
+		LinkedMultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+		map.add("grant_type", "refresh_token");
+		map.add("refresh_token", refreshToken);
+		BodyInserter<MultiValueMap<String, Object>, ClientHttpRequest> inserter = BodyInserters.fromMultipartData(map);
+		ResponseEntity<?> response = requestUri
+				.body(inserter)
+					.acceptCharset(Charset.forName("UTF-8"))
+				.exchange()
+				.block()
+				.bodyToMono(ResponseEntity.class)
+				.block();
+
+		if (response.getStatusCode() != HttpStatus.OK) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		} else {
+			ObjectMapper objectMapper = new ObjectMapper();
+			JsonNode responseBody = objectMapper.readTree(response.getBody().toString());
+			String token = responseBody.get("access_token").asText();
+			String scope = responseBody.get("scope").asText();
+			String validScopes = "account history mysubreddits read save subscribe vote";
+			if (!scope.equals(validScopes)) {
+				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+			}
+
+			userDTO.setToken(token);
+			UserDTO updatedUserDTO = userService.updateUser(userId, userDTO);
+
+			if (updatedUserDTO.getToken() == null) {
+				return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+			} else {
+				return new ResponseEntity<>(HttpStatus.OK);
+			}
+		}
+	}
+
 }
