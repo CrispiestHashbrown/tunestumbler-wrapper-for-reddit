@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import ca.tunestumbler.api.exceptions.AuthValidationServiceException;
 import ca.tunestumbler.api.io.entity.AuthValidationEntity;
+import ca.tunestumbler.api.io.entity.UserEntity;
 import ca.tunestumbler.api.io.repositories.AuthValidationRepository;
 import ca.tunestumbler.api.io.repositories.UserRepository;
 import ca.tunestumbler.api.service.AuthValidationService;
@@ -28,37 +29,22 @@ public class AuthValidationServiceImpl implements AuthValidationService {
 
 	@Override
 	public AuthValidationDTO createAuthState(UserDTO user) {
-		if (userRepository.findByEmail(user.getEmail()) != null) {
-			throw new AuthValidationServiceException(ErrorMessages.RECORD_ALREADY_EXISTS.getErrorMessage());
-		}
-
 		String stateId = sharedUtils.generateStateId(50);
 
-		// If stateId already exists, generate a new one
-		for (int i = 5; i > 0; i--) {
-			if (authValidationRepository.findByStateId(stateId) != null) {
-				if (i <= 0) {
-					throw new AuthValidationServiceException(
-							ErrorMessages.COULD_NOT_GENERATE_UNIQUE_STATE.getErrorMessage());
-				}
-				stateId = sharedUtils.generateStateId(50);
-			} else {
-				break;
-			}
-		}
-
+		UserEntity userEntity = new UserEntity();
+		BeanUtils.copyProperties(user, userEntity);
 		AuthValidationEntity authValidationEntity = new AuthValidationEntity();
-		BeanUtils.copyProperties(user, authValidationEntity);
 
+		authValidationEntity.setUserEntity(userEntity);
 		authValidationEntity.setStateId(stateId);
 		authValidationEntity.setLastModified(sharedUtils.getCurrentTime());
 
 		AuthValidationEntity storedAuthValidation = authValidationRepository.save(authValidationEntity);
 
-		AuthValidationDTO newAuthValidationDTO = new AuthValidationDTO();
-		BeanUtils.copyProperties(storedAuthValidation, newAuthValidationDTO);
+		AuthValidationDTO authValidationDTO = new AuthValidationDTO();
+		BeanUtils.copyProperties(storedAuthValidation, authValidationDTO);
 
-		return newAuthValidationDTO;
+		return authValidationDTO;
 	}
 
 	@Override
@@ -84,9 +70,9 @@ public class AuthValidationServiceImpl implements AuthValidationService {
 			throw new AuthValidationServiceException(ErrorMessages.BAD_REQUEST.getErrorMessage());
 		}
 
-		authState.setValidated(true);
-		authState.setCode(code);
-		authState.setLastModified(sharedUtils.getCurrentTime());
+		authValidationEntity.setValidated(true);
+		authValidationEntity.setCode(code);
+		authValidationEntity.setLastModified(sharedUtils.getCurrentTime());
 
 		AuthValidationEntity updatedAuthValidation = authValidationRepository.save(authValidationEntity);
 		BeanUtils.copyProperties(updatedAuthValidation, authValiationToUpdate);

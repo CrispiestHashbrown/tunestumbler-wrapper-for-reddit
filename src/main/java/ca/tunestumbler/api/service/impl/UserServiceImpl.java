@@ -36,7 +36,6 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public UserDTO createUser(UserDTO user) {
-
 		if (userRepository.findByEmail(user.getEmail()) != null) {
 			throw new RuntimeException("Record already exists");
 		}
@@ -47,6 +46,7 @@ public class UserServiceImpl implements UserService {
 		String publicUserId = sharedUtils.generateUserId(50);
 		userEntity.setUserId(publicUserId);
 		userEntity.setEncryptedPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+		userEntity.setLastModified(sharedUtils.getCurrentTime());
 
 		UserEntity storedUserDetails = userRepository.save(userEntity);
 
