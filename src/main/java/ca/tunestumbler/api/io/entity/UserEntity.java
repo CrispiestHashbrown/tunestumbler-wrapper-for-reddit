@@ -1,6 +1,7 @@
 package ca.tunestumbler.api.io.entity;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -14,7 +15,6 @@ public class UserEntity implements Serializable {
 
 	@Id
 	@Column(nullable = false, unique = true)
-	@OneToMany(cascade = CascadeType.ALL, mappedBy = "userEntity")
 	private String userId;
 
 	@Column(nullable = false, length = 120, unique = true)
@@ -28,17 +28,38 @@ public class UserEntity implements Serializable {
 	@Column(nullable = false)
 	private Boolean emailVerificationStatus = false;
 
-	@Column(nullable = false, length = 20)
+	@Column(nullable = true, length = 20)
 	private String redditAccountName;
 
-	@Column(nullable = false, unique = true)
+	@Column(nullable = true, unique = true)
 	private String token;
 
-	@Column(nullable = false, unique = true)
+	@Column(nullable = true, unique = true)
 	private String refreshToken;
 
 	@Column(nullable = false)
 	private String lastModified;
+
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "userEntity")
+	private List<AuthValidationEntity> validation;
+
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "userEntity")
+	private List<SubredditEntity> subreddit;
+
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "userEntity")
+	private List<MultiredditEntity> multireddit;
+
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "userEntity")
+	private List<FiltersEntity> filters;
+
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "userEntity")
+	private List<AggregateEntity> aggregate;
+
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "userEntity")
+	private List<ResultsEntity> results;
+
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "userEntity")
+	private List<FilteredResultsEntity> filtered;
 
 	public String getUserId() {
 		return userId;
@@ -110,6 +131,62 @@ public class UserEntity implements Serializable {
 
 	public void setLastModified(String lastModified) {
 		this.lastModified = lastModified;
+	}
+
+	public List<AuthValidationEntity> getValidation() {
+		return validation;
+	}
+
+	public void setValidation(List<AuthValidationEntity> validation) {
+		this.validation = validation;
+	}
+
+	public List<SubredditEntity> getSubreddit() {
+		return subreddit;
+	}
+
+	public void setSubreddit(List<SubredditEntity> subreddit) {
+		this.subreddit = subreddit;
+	}
+
+	public List<MultiredditEntity> getMultireddit() {
+		return multireddit;
+	}
+
+	public void setMultireddit(List<MultiredditEntity> multireddit) {
+		this.multireddit = multireddit;
+	}
+
+	public List<FiltersEntity> getFilters() {
+		return filters;
+	}
+
+	public void setFilters(List<FiltersEntity> filters) {
+		this.filters = filters;
+	}
+
+	public List<AggregateEntity> getAggregate() {
+		return aggregate;
+	}
+
+	public void setAggregate(List<AggregateEntity> aggregate) {
+		this.aggregate = aggregate;
+	}
+
+	public List<ResultsEntity> getResults() {
+		return results;
+	}
+
+	public void setResults(List<ResultsEntity> results) {
+		this.results = results;
+	}
+
+	public List<FilteredResultsEntity> getFiltered() {
+		return filtered;
+	}
+
+	public void setFiltered(List<FilteredResultsEntity> filtered) {
+		this.filtered = filtered;
 	}
 
 }

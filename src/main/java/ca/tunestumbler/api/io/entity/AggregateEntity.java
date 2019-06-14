@@ -1,6 +1,7 @@
 package ca.tunestumbler.api.io.entity;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -11,8 +12,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
-@Entity(name = "subreddit_aggregate")
-public class SubredditAggregateEntity implements Serializable {
+@Entity(name = "aggregate")
+public class AggregateEntity implements Serializable {
 	private static final long serialVersionUID = 275525728395895620L;
 
 	@GeneratedValue
@@ -21,23 +22,25 @@ public class SubredditAggregateEntity implements Serializable {
 
 	@Id
 	@Column(nullable = false, unique = true)
-	@OneToMany(cascade = CascadeType.ALL, mappedBy = "subredditAggregateEntity")
-	private String subredditAggregateId;
+	private String aggregateId;
 
 	@ManyToOne
-	@JoinColumn(name = "users_id")
+	@JoinColumn(name = "users_userId")
 	private UserEntity userEntity;
 
 	@ManyToOne
-	@JoinColumn(name = "subreddit_id")
+	@JoinColumn(name = "subreddit_subredditId")
 	private SubredditEntity subredditEntity;
 
 	@ManyToOne
-	@JoinColumn(name = "multireddit_id")
+	@JoinColumn(name = "multireddit_multiredditId")
 	private MultiredditEntity multiredditEntity;
 
 	@Column(nullable = false)
-	private String datetime;
+	private String lastModified;
+
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "aggregateEntity")
+	private List<ResultsEntity> results;
 
 	public long getId() {
 		return id;
@@ -47,12 +50,12 @@ public class SubredditAggregateEntity implements Serializable {
 		this.id = id;
 	}
 
-	public String getSubredditAggregateId() {
-		return subredditAggregateId;
+	public String getAggregateId() {
+		return aggregateId;
 	}
 
-	public void setSubredditAggregateId(String subredditAggregateId) {
-		this.subredditAggregateId = subredditAggregateId;
+	public void setAggregateId(String aggregateId) {
+		this.aggregateId = aggregateId;
 	}
 
 	public UserEntity getUserEntity() {
@@ -79,12 +82,20 @@ public class SubredditAggregateEntity implements Serializable {
 		this.multiredditEntity = multiredditEntity;
 	}
 
-	public String getDatetime() {
-		return datetime;
+	public String getLastModified() {
+		return lastModified;
 	}
 
-	public void setDatetime(String datetime) {
-		this.datetime = datetime;
+	public void setLastModified(String lastModified) {
+		this.lastModified = lastModified;
+	}
+
+	public List<ResultsEntity> getResults() {
+		return results;
+	}
+
+	public void setResults(List<ResultsEntity> results) {
+		this.results = results;
 	}
 
 }

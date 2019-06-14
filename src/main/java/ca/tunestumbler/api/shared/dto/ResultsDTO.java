@@ -1,13 +1,15 @@
 package ca.tunestumbler.api.shared.dto;
 
 import java.io.Serializable;
+import java.util.List;
 
 // Aggregate Results before filters are applied
 public class ResultsDTO implements Serializable {
 	private static final long serialVersionUID = 1103952203234348723L;
 	private long id;
 	private String resultsId;
-	private SubredditAggregateDTO subredditAggregateDTO;
+	private AggregateDTO aggregateDTO;
+	private UserDTO userDTO;
 	private String resultsUrl;
 	private String subreddit;
 	private String title;
@@ -26,7 +28,8 @@ public class ResultsDTO implements Serializable {
 	private String mediaId;
 	private String beforeResultsId;
 	private String afterResultsId;
-	private String datetime;
+	private String lastModified;
+	private List<FilteredResultsDTO> filtered;
 
 	public long getId() {
 		return id;
@@ -44,12 +47,20 @@ public class ResultsDTO implements Serializable {
 		this.resultsId = resultsId;
 	}
 
-	public SubredditAggregateDTO getSubredditAggregateDTO() {
-		return subredditAggregateDTO;
+	public AggregateDTO getAggregateDTO() {
+		return aggregateDTO;
 	}
 
-	public void setSubredditAggregateDTO(SubredditAggregateDTO subredditAggregateDTO) {
-		this.subredditAggregateDTO = subredditAggregateDTO;
+	public void setAggregateDTO(AggregateDTO aggregateDTO) {
+		this.aggregateDTO = aggregateDTO;
+	}
+
+	public UserDTO getUserDTO() {
+		return userDTO;
+	}
+
+	public void setUserDTO(UserDTO userDTO) {
+		this.userDTO = userDTO;
 	}
 
 	public String getResultsUrl() {
@@ -196,12 +207,20 @@ public class ResultsDTO implements Serializable {
 		this.afterResultsId = afterResultsId;
 	}
 
-	public String getDatetime() {
-		return datetime;
+	public String getLastModified() {
+		return lastModified;
 	}
 
-	public void setDatetime(String datetime) {
-		this.datetime = datetime;
+	public void setLastModified(String lastModified) {
+		this.lastModified = lastModified;
+	}
+
+	public List<FilteredResultsDTO> getFiltered() {
+		return filtered;
+	}
+
+	public void setFiltered(List<FilteredResultsDTO> filtered) {
+		this.filtered = filtered;
 	}
 
 }

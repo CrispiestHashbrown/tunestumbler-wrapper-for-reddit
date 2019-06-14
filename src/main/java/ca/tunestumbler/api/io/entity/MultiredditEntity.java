@@ -1,6 +1,7 @@
 package ca.tunestumbler.api.io.entity;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -21,7 +22,6 @@ public class MultiredditEntity implements Serializable {
 
 	@Id
 	@Column(nullable = false, unique = true)
-	@OneToMany(cascade = CascadeType.ALL, mappedBy = "multiredditEntity")
 	private String multiredditId;
 
 	@Column(nullable = false, length = 50)
@@ -31,11 +31,14 @@ public class MultiredditEntity implements Serializable {
 	private String subreddit;
 
 	@ManyToOne
-	@JoinColumn(name = "users_id")
+	@JoinColumn(name = "users_userId")
 	private UserEntity userEntity;
 
 	@Column(nullable = false)
-	private String datetime;
+	private String lastModified;
+
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "multiredditEntity")
+	private List<AggregateEntity> aggregate;
 
 	public long getId() {
 		return id;
@@ -77,12 +80,20 @@ public class MultiredditEntity implements Serializable {
 		this.userEntity = userEntity;
 	}
 
-	public String getDatetime() {
-		return datetime;
+	public String getLastModified() {
+		return lastModified;
 	}
 
-	public void setDatetime(String datetime) {
-		this.datetime = datetime;
+	public void setLastModified(String lastModified) {
+		this.lastModified = lastModified;
+	}
+
+	public List<AggregateEntity> getAggregate() {
+		return aggregate;
+	}
+
+	public void setAggregate(List<AggregateEntity> aggregate) {
+		this.aggregate = aggregate;
 	}
 
 }

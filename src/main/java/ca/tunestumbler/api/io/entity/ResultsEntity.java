@@ -1,6 +1,7 @@
 package ca.tunestumbler.api.io.entity;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -11,7 +12,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
-@Entity(name = "result")
+@Entity(name = "results")
 public class ResultsEntity implements Serializable {
 	private static final long serialVersionUID = -8505575230126284466L;
 
@@ -21,15 +22,14 @@ public class ResultsEntity implements Serializable {
 
 	@Id
 	@Column(nullable = false, unique = true)
-	@OneToMany(cascade = CascadeType.ALL, mappedBy = "resultsEntity")
 	private String resultsId;
 
 	@ManyToOne
-	@JoinColumn(name = "subreddit_aggregate_id")
-	private SubredditAggregateEntity subredditAggregateEntity;
+	@JoinColumn(name = "aggregate_aggregateId")
+	private AggregateEntity aggregateEntity;
 
 	@ManyToOne
-	@JoinColumn(name = "users_id")
+	@JoinColumn(name = "users_userId")
 	private UserEntity userEntity;
 
 	@Column(nullable = false)
@@ -87,7 +87,10 @@ public class ResultsEntity implements Serializable {
 	private String afterResultsId;
 
 	@Column(nullable = false)
-	private String datetime;
+	private String lastModified;
+
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "resultsEntity")
+	private List<FilteredResultsEntity> filtered;
 
 	public long getId() {
 		return id;
@@ -105,12 +108,12 @@ public class ResultsEntity implements Serializable {
 		this.resultsId = resultsId;
 	}
 
-	public SubredditAggregateEntity getSubredditAggregateEntity() {
-		return subredditAggregateEntity;
+	public AggregateEntity getAggregateEntity() {
+		return aggregateEntity;
 	}
 
-	public void setSubredditAggregateEntity(SubredditAggregateEntity subredditAggregateEntity) {
-		this.subredditAggregateEntity = subredditAggregateEntity;
+	public void setAggregateEntity(AggregateEntity aggregateEntity) {
+		this.aggregateEntity = aggregateEntity;
 	}
 
 	public UserEntity getUserEntity() {
@@ -265,12 +268,20 @@ public class ResultsEntity implements Serializable {
 		this.afterResultsId = afterResultsId;
 	}
 
-	public String getDatetime() {
-		return datetime;
+	public String getLastModified() {
+		return lastModified;
 	}
 
-	public void setDatetime(String datetime) {
-		this.datetime = datetime;
+	public void setLastModified(String lastModified) {
+		this.lastModified = lastModified;
+	}
+
+	public List<FilteredResultsEntity> getFiltered() {
+		return filtered;
+	}
+
+	public void setFiltered(List<FilteredResultsEntity> filtered) {
+		this.filtered = filtered;
 	}
 
 }
