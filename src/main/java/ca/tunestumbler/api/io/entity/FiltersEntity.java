@@ -1,15 +1,18 @@
 package ca.tunestumbler.api.io.entity;
 
 import java.io.Serializable;
+import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 
-@Entity(name = "filter")
+@Entity(name = "filters")
 public class FiltersEntity implements Serializable {
 	private static final long serialVersionUID = 661201748897792032L;
 
@@ -22,7 +25,7 @@ public class FiltersEntity implements Serializable {
 	private String filtersId;
 
 	@ManyToOne
-	@JoinColumn(name = "users_id")
+	@JoinColumn(name = "users_usersId")
 	private UserEntity userEntity;
 
 	@Column(length = 50)
@@ -47,7 +50,10 @@ public class FiltersEntity implements Serializable {
 	private String showByDomain;
 
 	@Column(nullable = false)
-	private String datetime;
+	private String lastModified;
+
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "filtersEntity")
+	private List<FilteredResultsEntity> filtered;
 
 	public long getId() {
 		return id;
@@ -129,12 +135,20 @@ public class FiltersEntity implements Serializable {
 		this.showByDomain = showByDomain;
 	}
 
-	public String getDatetime() {
-		return datetime;
+	public String getLastModified() {
+		return lastModified;
 	}
 
-	public void setDatetime(String datetime) {
-		this.datetime = datetime;
+	public void setLastModified(String lastModified) {
+		this.lastModified = lastModified;
+	}
+
+	public List<FilteredResultsEntity> getFiltered() {
+		return filtered;
+	}
+
+	public void setFiltered(List<FilteredResultsEntity> filtered) {
+		this.filtered = filtered;
 	}
 
 }

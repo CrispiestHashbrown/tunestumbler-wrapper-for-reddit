@@ -14,4 +14,10 @@ public class SecurityConstants {
 		return applicationProperties.getTokenSecret();
 	}
 
+	public static String getAuth() {
+		ApplicationProperties applicationProperties = (ApplicationProperties) SpringApplicationContext
+				.getBean("ApplicationProperties");
+		return applicationProperties.getAuth();
+	}
+
 }

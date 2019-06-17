@@ -14,4 +14,8 @@ public class ApplicationProperties {
 		return env.getProperty("tokenSecret");
 	}
 
+	public String getAuth() {
+		return env.getProperty("basicAuth");
+	}
+
 }
