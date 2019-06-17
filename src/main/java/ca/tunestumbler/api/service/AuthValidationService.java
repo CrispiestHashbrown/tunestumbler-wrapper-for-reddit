@@ -8,7 +8,7 @@ public interface AuthValidationService {
 
 	AuthValidationDTO getAuthState(String stateId);
 
-	AuthValidationDTO updateState(String stateId, String code, AuthValidationDTO authState);
+	AuthValidationDTO updateState(String stateId, String code);
 
 	void deleteState(String stateId);
 }

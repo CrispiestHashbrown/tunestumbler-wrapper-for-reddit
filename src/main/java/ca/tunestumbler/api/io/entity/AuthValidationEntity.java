@@ -29,6 +29,9 @@ public class AuthValidationEntity implements Serializable {
 	@JoinColumn(name = "users_userId")
 	private UserEntity userEntity;
 
+	@Column()
+	private String userId;
+
 	public String getStateId() {
 		return stateId;
 	}
@@ -67,6 +70,14 @@ public class AuthValidationEntity implements Serializable {
 
 	public void setUserEntity(UserEntity userEntity) {
 		this.userEntity = userEntity;
+	}
+
+	public String getUserId() {
+		return userId;
+	}
+
+	public void setUserId(String userId) {
+		this.userId = userId;
 	}
 
 }

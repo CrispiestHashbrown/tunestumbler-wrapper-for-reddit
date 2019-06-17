@@ -12,5 +12,5 @@ public interface AuthValidationRepository extends CrudRepository<AuthValidationE
 
 	AuthValidationEntity findByStateIdAndValidated(String stateId, Boolean validated);
 
-	AuthValidationEntity findByUserId(@Param("userId") String userId);
+	AuthValidationEntity findByUserEntity(@Param("userId") String userId);
 }

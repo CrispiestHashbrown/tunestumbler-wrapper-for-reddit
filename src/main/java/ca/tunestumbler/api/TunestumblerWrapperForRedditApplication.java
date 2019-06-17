@@ -6,6 +6,7 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import ca.tunestumbler.api.security.ApplicationProperties;
 
@@ -13,10 +14,11 @@ import ca.tunestumbler.api.security.ApplicationProperties;
 public class TunestumblerWrapperForRedditApplication extends SpringBootServletInitializer {
 
 	@Override
-	protected SpringApplicationBuilder configure(org.springframework.boot.builder.SpringApplicationBuilder application) {
+	protected SpringApplicationBuilder configure(
+			org.springframework.boot.builder.SpringApplicationBuilder application) {
 		return application.sources(TunestumblerWrapperForRedditApplication.class);
 	}
-	
+
 	public static void main(String[] args) {
 		SpringApplication.run(TunestumblerWrapperForRedditApplication.class, args);
 	}
@@ -31,9 +33,14 @@ public class TunestumblerWrapperForRedditApplication extends SpringBootServletIn
 		return new SpringApplicationContext();
 	}
 
-	@Bean(name="ApplicationProperties")
+	@Bean(name = "ApplicationProperties")
 	public ApplicationProperties applicationProperties() {
 		return new ApplicationProperties();
 	}
-	
+
+	@Bean
+	public WebClient.Builder getWebClientBuilder() {
+		return WebClient.builder();
+	}
+
 }

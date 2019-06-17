@@ -37,6 +37,7 @@ public class AuthValidationServiceImpl implements AuthValidationService {
 
 		authValidationEntity.setUserEntity(userEntity);
 		authValidationEntity.setStateId(stateId);
+		authValidationEntity.setUserId(userEntity.getUserId());
 		authValidationEntity.setLastModified(sharedUtils.getCurrentTime());
 
 		AuthValidationEntity storedAuthValidation = authValidationRepository.save(authValidationEntity);
@@ -61,7 +62,7 @@ public class AuthValidationServiceImpl implements AuthValidationService {
 	}
 
 	@Override
-	public AuthValidationDTO updateState(String stateId, String code, AuthValidationDTO authState) {
+	public AuthValidationDTO updateState(String stateId, String code) {
 		AuthValidationDTO authValiationToUpdate = new AuthValidationDTO();
 
 		AuthValidationEntity authValidationEntity = authValidationRepository.findByStateIdAndValidated(stateId, false);
