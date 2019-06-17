@@ -1,26 +1,9 @@
 package ca.tunestumbler.api.ui.model.request;
 
 public class UserDetailsRequestModel {
-	private String firstName;
-	private String lastName;
 	private String email;
 	private String password;
-
-	public String getFirstName() {
-		return firstName;
-	}
-
-	public void setFirstName(String firstName) {
-		this.firstName = firstName;
-	}
-
-	public String getLastName() {
-		return lastName;
-	}
-
-	public void setLastName(String lastName) {
-		this.lastName = lastName;
-	}
+	private String redditAccountName;
 
 	public String getEmail() {
 		return email;
@@ -36,6 +19,14 @@ public class UserDetailsRequestModel {
 
 	public void setPassword(String password) {
 		this.password = password;
+	}
+
+	public String getRedditAccount() {
+		return redditAccountName;
+	}
+
+	public void setRedditAccount(String redditAccount) {
+		this.redditAccountName = redditAccount;
 	}
 
 }

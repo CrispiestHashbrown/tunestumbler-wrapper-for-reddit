@@ -3,7 +3,6 @@ package ca.tunestumbler.api.ui.model.response;
 import java.util.Date;
 
 public class ErrorMessage {
-
 	private Date timestamp;
 	private String message;
 
