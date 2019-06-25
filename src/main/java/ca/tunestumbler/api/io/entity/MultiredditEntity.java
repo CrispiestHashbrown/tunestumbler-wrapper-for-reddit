@@ -34,6 +34,9 @@ public class MultiredditEntity implements Serializable {
 	@JoinColumn(name = "users_userId")
 	private UserEntity userEntity;
 
+	@Column()
+	private String userId;
+
 	@Column(nullable = false)
 	private String lastModified;
 
@@ -78,6 +81,14 @@ public class MultiredditEntity implements Serializable {
 
 	public void setUserEntity(UserEntity userEntity) {
 		this.userEntity = userEntity;
+	}
+
+	public String getUserId() {
+		return userId;
+	}
+
+	public void setUserId(String userId) {
+		this.userId = userId;
 	}
 
 	public String getLastModified() {

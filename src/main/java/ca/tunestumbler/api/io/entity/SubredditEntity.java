@@ -31,6 +31,15 @@ public class SubredditEntity implements Serializable {
 	@JoinColumn(name = "users_userId")
 	private UserEntity userEntity;
 
+	@Column()
+	private String userId;
+
+	@Column()
+	private String after;
+
+	@Column()
+	private String before;
+
 	@Column(nullable = false)
 	private String lastModified;
 
@@ -67,6 +76,30 @@ public class SubredditEntity implements Serializable {
 
 	public void setUserEntity(UserEntity userEntity) {
 		this.userEntity = userEntity;
+	}
+
+	public String getUserId() {
+		return userId;
+	}
+
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+
+	public String getAfter() {
+		return after;
+	}
+
+	public void setAfter(String after) {
+		this.after = after;
+	}
+
+	public String getBefore() {
+		return before;
+	}
+
+	public void setBefore(String before) {
+		this.before = before;
 	}
 
 	public String getLastModified() {

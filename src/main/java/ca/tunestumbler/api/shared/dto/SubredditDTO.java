@@ -9,6 +9,9 @@ public class SubredditDTO implements Serializable {
 	private String subredditId;
 	private String subreddit;
 	private UserDTO userDTO;
+	private String userId;
+	private String after;
+	private String before;
 	private String lastModified;
 	private List<AggregateDTO> aggregate;
 
@@ -42,6 +45,30 @@ public class SubredditDTO implements Serializable {
 
 	public void setUserDTO(UserDTO userDTO) {
 		this.userDTO = userDTO;
+	}
+
+	public String getUserId() {
+		return userId;
+	}
+
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+
+	public String getAfter() {
+		return after;
+	}
+
+	public void setAfter(String after) {
+		this.after = after;
+	}
+
+	public String getBefore() {
+		return before;
+	}
+
+	public void setBefore(String before) {
+		this.before = before;
 	}
 
 	public String getLastModified() {
