@@ -3,17 +3,23 @@ package ca.tunestumbler.api.io.repositories;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
 import ca.tunestumbler.api.io.entity.MultiredditEntity;
 
-public interface MultiredditRepository {
+public interface MultiredditRepository extends CrudRepository<MultiredditEntity, String> {
 	MultiredditEntity findByMultiredditId(String multiredditId);
 
-	@Query(value = "SELECT MAX(multi.id) FROM multireddit multi WHERE multi.userId = :userId", nativeQuery = true)
-	long getMaxIdByUserId(@Param("userId") String userId);
+	MultiredditEntity findByUserId(String userId);
 
-	@Query(value = "SELECT * FROM multireddit multi WHERE userId = :userId AND multi.id > :maxId", nativeQuery = true)
+	@Query(value = "SELECT MAX(id) FROM multireddit", nativeQuery = true)
+	Long getMaxId();
+
+	@Query(value = "SELECT MAX(id) FROM multireddit WHERE user_d = :userId", nativeQuery = true)
+	Long getMaxIdByUserId(@Param("userId") String userId);
+
+	@Query(value = "SELECT * FROM multireddit WHERE user_id = :userId AND id > :maxId", nativeQuery = true)
 	List<MultiredditEntity> findSubredditsByUserIdAndGreaterThanMaxId(@Param("userId") String userId,
 			@Param("maxId") long maxId);
 }

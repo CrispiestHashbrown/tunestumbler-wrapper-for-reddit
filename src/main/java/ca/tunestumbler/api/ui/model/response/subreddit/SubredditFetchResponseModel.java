@@ -1,6 +1,6 @@
 package ca.tunestumbler.api.ui.model.response.subreddit;
 
-public class SubredditResponseModel {
+public class SubredditFetchResponseModel {
 	private SubredditDataModel data;
 
 	public SubredditDataModel getData() {

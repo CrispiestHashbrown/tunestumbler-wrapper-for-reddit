@@ -7,6 +7,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -16,11 +17,11 @@ import javax.persistence.OneToMany;
 public class MultiredditEntity implements Serializable {
 	private static final long serialVersionUID = 9178020527307904668L;
 
-	@GeneratedValue
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(nullable = false, unique = true)
 	private long id;
 
-	@Id
 	@Column(nullable = false, unique = true)
 	private String multiredditId;
 
@@ -36,6 +37,9 @@ public class MultiredditEntity implements Serializable {
 
 	@Column()
 	private String userId;
+
+	@Column()
+	private long startId;
 
 	@Column(nullable = false)
 	private String lastModified;
@@ -89,6 +93,14 @@ public class MultiredditEntity implements Serializable {
 
 	public void setUserId(String userId) {
 		this.userId = userId;
+	}
+
+	public long getStartId() {
+		return startId;
+	}
+
+	public void setStartId(long startId) {
+		this.startId = startId;
 	}
 
 	public String getLastModified() {

@@ -11,6 +11,7 @@ public class MultiredditDTO implements Serializable {
 	private String subreddit;
 	private UserDTO userDTO;
 	private String userId;
+	private long startId;
 	private String lastModified;
 	private List<AggregateDTO> aggregate;
 
@@ -60,6 +61,14 @@ public class MultiredditDTO implements Serializable {
 
 	public void setUserId(String userId) {
 		this.userId = userId;
+	}
+
+	public long getStartId() {
+		return startId;
+	}
+
+	public void setStartId(long startId) {
+		this.startId = startId;
 	}
 
 	public String getLastModified() {
