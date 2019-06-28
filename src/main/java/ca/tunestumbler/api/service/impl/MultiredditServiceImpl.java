@@ -112,27 +112,19 @@ public class MultiredditServiceImpl implements MultiredditService {
 	}
 
 	@Override
-	public MultiredditDTO getMultiredditsById(String multiredditId) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public List<MultiredditDTO> getMultiredditsByUserId(String userId) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+		List<MultiredditDTO> existingMultireddits = new ArrayList<>();
 
-	@Override
-	public List<MultiredditDTO> getMultiredditsByUserIdAndId(String userId, String id) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+		Long startId = multiredditRepository.getMaxStartIdByUserId(userId);
+		List<MultiredditEntity> multiredditList = multiredditRepository.findSubredditsByUserIdAndMaxId(userId, startId);
 
-	@Override
-	public void deleteMultireddits(String userId) {
-		// TODO Auto-generated method stub
+		for (MultiredditEntity multireddit : multiredditList) {
+			MultiredditDTO multiredditDTO = new MultiredditDTO();
+			BeanUtils.copyProperties(multireddit, multiredditDTO);
+			existingMultireddits.add(multiredditDTO);
+		}
 
+		return existingMultireddits;
 	}
 
 }

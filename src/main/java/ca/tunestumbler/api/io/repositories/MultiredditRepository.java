@@ -19,7 +19,9 @@ public interface MultiredditRepository extends CrudRepository<MultiredditEntity,
 	@Query(value = "SELECT MAX(id) FROM multireddit WHERE user_id = :userId", nativeQuery = true)
 	Long getMaxIdByUserId(@Param("userId") String userId);
 
+	@Query(value = "SELECT MAX(start_id) FROM multireddit WHERE user_id = :userId", nativeQuery = true)
+	Long getMaxStartIdByUserId(@Param("userId") String userId);
+
 	@Query(value = "SELECT * FROM multireddit WHERE user_id = :userId AND id > :maxId", nativeQuery = true)
-	List<MultiredditEntity> findSubredditsByUserIdAndGreaterThanMaxId(@Param("userId") String userId,
-			@Param("maxId") long maxId);
+	List<MultiredditEntity> findSubredditsByUserIdAndMaxId(@Param("userId") String userId, @Param("maxId") long maxId);
 }

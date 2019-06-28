@@ -37,6 +37,7 @@ public class SubredditServiceImpl implements SubredditService {
 	@Autowired
 	SharedUtils sharedUtils;
 
+//	TODO: Get subreddits from paginated results
 	@Override
 	public List<SubredditDTO> fetchAndUpdateSubreddits(UserDTO user) {
 		String token = user.getToken();
@@ -112,27 +113,19 @@ public class SubredditServiceImpl implements SubredditService {
 	}
 
 	@Override
-	public List<SubredditDTO> getSubredditsById(String subredditId) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public List<SubredditDTO> getSubredditsByUserId(String userId) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+		List<SubredditDTO> existingSubreddits = new ArrayList<>();
+		
+		Long startId = subredditRepository.getMaxStartIdByUserId(userId);
+		List<SubredditEntity> subredditList = subredditRepository.findSubredditsByUserIdAndMaxId(userId, startId);
 
-	@Override
-	public List<SubredditDTO> getSubredditsByUserIdAndId(String userId, String id) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+		for (SubredditEntity subreddit : subredditList) {
+			SubredditDTO subredditDTO = new SubredditDTO();
+			BeanUtils.copyProperties(subreddit, subredditDTO);
+			existingSubreddits.add(subredditDTO);
+		}
 
-	@Override
-	public void deleteSubreddits(String userId) {
-		// TODO Auto-generated method stub
-
+		return existingSubreddits;
 	}
 
 }
