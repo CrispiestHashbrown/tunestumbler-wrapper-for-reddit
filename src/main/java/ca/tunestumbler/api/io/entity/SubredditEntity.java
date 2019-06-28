@@ -7,6 +7,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -16,11 +17,11 @@ import javax.persistence.OneToMany;
 public class SubredditEntity implements Serializable {
 	private static final long serialVersionUID = 3861524434851634472L;
 
-	@GeneratedValue
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(nullable = false, unique = true)
 	private long id;
 
-	@Id
 	@Column(nullable = false, unique = true)
 	private String subredditId;
 
@@ -30,6 +31,18 @@ public class SubredditEntity implements Serializable {
 	@ManyToOne
 	@JoinColumn(name = "users_userId")
 	private UserEntity userEntity;
+
+	@Column()
+	private String userId;
+
+	@Column()
+	private String afterId;
+
+	@Column()
+	private String beforeId;
+
+	@Column()
+	private long startId;
 
 	@Column(nullable = false)
 	private String lastModified;
@@ -67,6 +80,38 @@ public class SubredditEntity implements Serializable {
 
 	public void setUserEntity(UserEntity userEntity) {
 		this.userEntity = userEntity;
+	}
+
+	public String getUserId() {
+		return userId;
+	}
+
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+
+	public String getAfterId() {
+		return afterId;
+	}
+
+	public void setAfterId(String afterId) {
+		this.afterId = afterId;
+	}
+
+	public String getBeforeId() {
+		return beforeId;
+	}
+
+	public void setBeforeId(String beforeId) {
+		this.beforeId = beforeId;
+	}
+
+	public long getStartId() {
+		return startId;
+	}
+
+	public void setStartId(long startId) {
+		this.startId = startId;
 	}
 
 	public String getLastModified() {

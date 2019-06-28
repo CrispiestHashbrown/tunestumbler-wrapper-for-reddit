@@ -1,27 +1,11 @@
-package ca.tunestumbler.api.shared.dto;
+package ca.tunestumbler.api.ui.model.response.multireddit;
 
-import java.io.Serializable;
-import java.util.List;
-
-public class MultiredditDTO implements Serializable {
-	private static final long serialVersionUID = -5037000521917475599L;
-	private long id;
+public class MultiredditObjectResponseModel {
 	private String multiredditId;
 	private String multireddit;
 	private String subreddit;
-	private UserDTO userDTO;
 	private String userId;
-	private long startId;
 	private String lastModified;
-	private List<AggregateDTO> aggregate;
-
-	public long getId() {
-		return id;
-	}
-
-	public void setId(long id) {
-		this.id = id;
-	}
 
 	public String getMultiredditId() {
 		return multiredditId;
@@ -47,14 +31,6 @@ public class MultiredditDTO implements Serializable {
 		this.subreddit = subreddit;
 	}
 
-	public UserDTO getUserDTO() {
-		return userDTO;
-	}
-
-	public void setUserDTO(UserDTO userDTO) {
-		this.userDTO = userDTO;
-	}
-
 	public String getUserId() {
 		return userId;
 	}
@@ -63,28 +39,12 @@ public class MultiredditDTO implements Serializable {
 		this.userId = userId;
 	}
 
-	public long getStartId() {
-		return startId;
-	}
-
-	public void setStartId(long startId) {
-		this.startId = startId;
-	}
-
 	public String getLastModified() {
 		return lastModified;
 	}
 
 	public void setLastModified(String lastModified) {
 		this.lastModified = lastModified;
-	}
-
-	public List<AggregateDTO> getAggregate() {
-		return aggregate;
-	}
-
-	public void setAggregate(List<AggregateDTO> aggregate) {
-		this.aggregate = aggregate;
 	}
 
 }
