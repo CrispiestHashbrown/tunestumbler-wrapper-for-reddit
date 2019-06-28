@@ -1,6 +1,6 @@
 package ca.tunestumbler.api.ui.model.response.multireddit;
 
-public class MultiredditListDataSubredditModel {
+public class MultiredditDataSubredditModel {
 	private String name;
 
 	public String getName() {
