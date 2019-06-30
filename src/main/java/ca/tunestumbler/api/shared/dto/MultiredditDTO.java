@@ -1,7 +1,6 @@
 package ca.tunestumbler.api.shared.dto;
 
 import java.io.Serializable;
-import java.util.List;
 
 public class MultiredditDTO implements Serializable {
 	private static final long serialVersionUID = -5037000521917475599L;
@@ -13,7 +12,6 @@ public class MultiredditDTO implements Serializable {
 	private String userId;
 	private long startId;
 	private String lastModified;
-	private List<AggregateDTO> aggregate;
 
 	public long getId() {
 		return id;
@@ -77,14 +75,6 @@ public class MultiredditDTO implements Serializable {
 
 	public void setLastModified(String lastModified) {
 		this.lastModified = lastModified;
-	}
-
-	public List<AggregateDTO> getAggregate() {
-		return aggregate;
-	}
-
-	public void setAggregate(List<AggregateDTO> aggregate) {
-		this.aggregate = aggregate;
 	}
 
 }

@@ -3,15 +3,22 @@ package ca.tunestumbler.api.shared.dto;
 import java.io.Serializable;
 import java.util.List;
 
+import ca.tunestumbler.api.io.entity.FiltersEntity;
+
 public class AggregateDTO implements Serializable {
 	private static final long serialVersionUID = -41686199429484255L;
 	private long id;
 	private String aggregateId;
 	private UserDTO userDTO;
-	private SubredditDTO subredditDTO;
-	private MultiredditDTO multiredditDTO;
+	private String userId;
+	private String subredditId;
+	private String subreddit;
+	private Boolean isSubredditAdded = false;
+	private String multiredditId;
+	private String multireddit;
+	private long startId;
 	private String lastModified;
-	private List<ResultsDTO> results;
+	private List<FiltersEntity> filters;
 
 	public long getId() {
 		return id;
@@ -37,20 +44,60 @@ public class AggregateDTO implements Serializable {
 		this.userDTO = userDTO;
 	}
 
-	public SubredditDTO getSubredditDTO() {
-		return subredditDTO;
+	public String getUserId() {
+		return userId;
 	}
 
-	public void setSubredditDTO(SubredditDTO subredditDTO) {
-		this.subredditDTO = subredditDTO;
+	public void setUserId(String userId) {
+		this.userId = userId;
 	}
 
-	public MultiredditDTO getMultiredditDTO() {
-		return multiredditDTO;
+	public String getSubredditId() {
+		return subredditId;
 	}
 
-	public void setMultiredditDTO(MultiredditDTO multiredditDTO) {
-		this.multiredditDTO = multiredditDTO;
+	public void setSubredditId(String subredditId) {
+		this.subredditId = subredditId;
+	}
+
+	public String getSubreddit() {
+		return subreddit;
+	}
+
+	public void setSubreddit(String subreddit) {
+		this.subreddit = subreddit;
+	}
+
+	public Boolean getIsSubredditAdded() {
+		return isSubredditAdded;
+	}
+
+	public void setIsSubredditAdded(Boolean isSubredditAdded) {
+		this.isSubredditAdded = isSubredditAdded;
+	}
+
+	public String getMultiredditId() {
+		return multiredditId;
+	}
+
+	public void setMultiredditId(String multiredditId) {
+		this.multiredditId = multiredditId;
+	}
+
+	public String getMultireddit() {
+		return multireddit;
+	}
+
+	public void setMultireddit(String multireddit) {
+		this.multireddit = multireddit;
+	}
+
+	public long getStartId() {
+		return startId;
+	}
+
+	public void setStartId(long startId) {
+		this.startId = startId;
 	}
 
 	public String getLastModified() {
@@ -61,12 +108,12 @@ public class AggregateDTO implements Serializable {
 		this.lastModified = lastModified;
 	}
 
-	public List<ResultsDTO> getResults() {
-		return results;
+	public List<FiltersEntity> getFilters() {
+		return filters;
 	}
 
-	public void setResults(List<ResultsDTO> results) {
-		this.results = results;
+	public void setFilters(List<FiltersEntity> filters) {
+		this.filters = filters;
 	}
 
 }

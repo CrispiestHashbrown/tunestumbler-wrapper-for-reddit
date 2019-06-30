@@ -69,15 +69,8 @@ public class MultiredditServiceImpl implements MultiredditService {
 
 		Long userMaxId = multiredditRepository.getMaxIdByUserId(user.getUserId());
 		Long maxId = multiredditRepository.getMaxId();
-		Long startId = 1L;
-		if (userMaxId != null) {
-			startId = userMaxId + 1;
-		} else {
-			if (maxId != null) {
-				startId = maxId + 1;
-			}
-		}
-
+		Long startId = sharedUtils.setStartId(userMaxId, maxId);
+		
 		List<MultiredditDTO> multireddits = new ArrayList<>();
 		List<MultiredditFetchResponseModel> multiredditModel = Arrays.asList(response);
 		if (multiredditModel.isEmpty()) {
@@ -90,7 +83,7 @@ public class MultiredditServiceImpl implements MultiredditService {
 		for (MultiredditFetchResponseModel multireddit : multiredditModel) {
 			for (MultiredditDataSubredditModel subreddit : multireddit.getData().getSubreddits()) {
 				MultiredditEntity multiredditEntity = new MultiredditEntity();
-				String multiredditId = sharedUtils.generateStateId(50);
+				String multiredditId = sharedUtils.generateMultiredditId(50);
 
 				multiredditEntity.setMultiredditId(multiredditId);
 				multiredditEntity.setMultireddit(multireddit.getData().getName());
