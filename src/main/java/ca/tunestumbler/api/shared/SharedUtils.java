@@ -18,6 +18,19 @@ public class SharedUtils {
 		return simpleDateFormat.format(date);
 	}
 
+	public Long setStartId(Long userMaxId, Long maxId) {
+		Long startId = 1L;
+		if (userMaxId != null) {
+			startId = userMaxId + 1;
+		} else {
+			if (maxId != null) {
+				startId = maxId + 1;
+			}
+		}
+
+		return startId;
+	}
+
 	public String generateStateId(int length) {
 		return generateRandomString(length);
 	}
@@ -34,7 +47,7 @@ public class SharedUtils {
 		return generateRandomString(length);
 	}
 
-	public String generateSubredditAggregateId(int length) {
+	public String generateAggregateId(int length) {
 		return generateRandomString(length);
 	}
 

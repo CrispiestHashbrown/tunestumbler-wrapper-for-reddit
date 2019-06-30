@@ -7,6 +7,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -16,11 +17,11 @@ import javax.persistence.OneToMany;
 public class AggregateEntity implements Serializable {
 	private static final long serialVersionUID = 275525728395895620L;
 
-	@GeneratedValue
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(nullable = false, unique = true)
 	private long id;
 
-	@Id
 	@Column(nullable = false, unique = true)
 	private String aggregateId;
 
@@ -28,19 +29,32 @@ public class AggregateEntity implements Serializable {
 	@JoinColumn(name = "users_userId")
 	private UserEntity userEntity;
 
-	@ManyToOne
-	@JoinColumn(name = "subreddit_subredditId")
-	private SubredditEntity subredditEntity;
+	@Column()
+	private String userId;
 
-	@ManyToOne
-	@JoinColumn(name = "multireddit_multiredditId")
-	private MultiredditEntity multiredditEntity;
+	@Column()
+	private String subredditId;
+
+	@Column()
+	private String subreddit;
+
+	@Column(nullable = false)
+	private Boolean isSubredditAdded = false;
+
+	@Column()
+	private String multiredditId;
+
+	@Column()
+	private String multireddit;
+
+	@Column()
+	private long startId;
 
 	@Column(nullable = false)
 	private String lastModified;
 
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "aggregateEntity")
-	private List<ResultsEntity> results;
+	private List<FiltersEntity> filters;
 
 	public long getId() {
 		return id;
@@ -66,20 +80,60 @@ public class AggregateEntity implements Serializable {
 		this.userEntity = userEntity;
 	}
 
-	public SubredditEntity getSubredditEntity() {
-		return subredditEntity;
+	public String getUserId() {
+		return userId;
 	}
 
-	public void setSubredditEntity(SubredditEntity subredditEntity) {
-		this.subredditEntity = subredditEntity;
+	public void setUserId(String userId) {
+		this.userId = userId;
 	}
 
-	public MultiredditEntity getMultiredditEntity() {
-		return multiredditEntity;
+	public String getSubredditId() {
+		return subredditId;
 	}
 
-	public void setMultiredditEntity(MultiredditEntity multiredditEntity) {
-		this.multiredditEntity = multiredditEntity;
+	public void setSubredditId(String subredditId) {
+		this.subredditId = subredditId;
+	}
+
+	public String getSubreddit() {
+		return subreddit;
+	}
+
+	public void setSubreddit(String subreddit) {
+		this.subreddit = subreddit;
+	}
+
+	public Boolean getIsSubredditAdded() {
+		return isSubredditAdded;
+	}
+
+	public void setIsSubredditAdded(Boolean isSubredditAdded) {
+		this.isSubredditAdded = isSubredditAdded;
+	}
+
+	public String getMultiredditId() {
+		return multiredditId;
+	}
+
+	public void setMultiredditId(String multiredditId) {
+		this.multiredditId = multiredditId;
+	}
+
+	public String getMultireddit() {
+		return multireddit;
+	}
+
+	public void setMultireddit(String multireddit) {
+		this.multireddit = multireddit;
+	}
+
+	public long getStartId() {
+		return startId;
+	}
+
+	public void setStartId(long startId) {
+		this.startId = startId;
 	}
 
 	public String getLastModified() {
@@ -90,12 +144,12 @@ public class AggregateEntity implements Serializable {
 		this.lastModified = lastModified;
 	}
 
-	public List<ResultsEntity> getResults() {
-		return results;
+	public List<FiltersEntity> getFilters() {
+		return filters;
 	}
 
-	public void setResults(List<ResultsEntity> results) {
-		this.results = results;
+	public void setFilters(List<FiltersEntity> filters) {
+		this.filters = filters;
 	}
 
 }

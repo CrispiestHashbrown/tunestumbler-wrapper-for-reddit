@@ -69,14 +69,7 @@ public class SubredditServiceImpl implements SubredditService {
 
 		Long userMaxId = subredditRepository.getMaxIdByUserId(user.getUserId());
 		Long maxId = subredditRepository.getMaxId();
-		Long startId = 1L;
-		if (userMaxId != null) {
-			startId = userMaxId + 1;
-		} else {
-			if (maxId != null) {
-				startId = maxId + 1;
-			}
-		}
+		Long startId = sharedUtils.setStartId(userMaxId, maxId);
 		
 		List<SubredditDTO> subreddits = new ArrayList<>();
 		List<SubredditDataChildrenModel> subredditModel = response.getData().getChildren();
@@ -91,7 +84,7 @@ public class SubredditServiceImpl implements SubredditService {
 
 		for (SubredditDataChildrenModel data : subredditModel) {
 			SubredditEntity subredditEntity = new SubredditEntity();
-			String subredditId = sharedUtils.generateStateId(50);
+			String subredditId = sharedUtils.generateSubredditId(50);
 
 			subredditEntity.setSubredditId(subredditId);
 			subredditEntity.setSubreddit(data.getData().getDisplay_name_prefixed());
