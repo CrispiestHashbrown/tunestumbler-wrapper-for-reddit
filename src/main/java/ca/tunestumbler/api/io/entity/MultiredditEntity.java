@@ -35,6 +35,9 @@ public class MultiredditEntity implements Serializable {
 	@Column()
 	private String userId;
 
+	@Column(nullable = false)
+	private Boolean isCurated = false;
+
 	@Column()
 	private long startId;
 
@@ -87,6 +90,14 @@ public class MultiredditEntity implements Serializable {
 
 	public void setUserId(String userId) {
 		this.userId = userId;
+	}
+
+	public Boolean getIsCurated() {
+		return isCurated;
+	}
+
+	public void setIsCurated(Boolean isCurated) {
+		this.isCurated = isCurated;
 	}
 
 	public long getStartId() {
