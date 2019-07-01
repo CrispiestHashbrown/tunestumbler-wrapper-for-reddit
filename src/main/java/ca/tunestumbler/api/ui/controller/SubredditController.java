@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,16 +30,31 @@ public class SubredditController {
 	@Autowired
 	UserService userService;
 
-	@GetMapping(path = "/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public SubredditResponseModel fetchAndUpdateSubreddits(@PathVariable String userId) {
+	@GetMapping(path = "/fetch/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public SubredditResponseModel fetchSubreddits(@PathVariable String userId) {
 		SubredditResponseModel subredditResponse = new SubredditResponseModel();
 
 		UserDTO userDTO = userService.getUserByUserId(userId);
-		List<SubredditDTO> fetchedSubreddits = subredditService.fetchAndUpdateSubreddits(userDTO);
+		List<SubredditDTO> fetchedSubreddits = subredditService.fetchSubreddits(userDTO);
 		List<SubredditObjectResponseModel> responseObject = new ArrayList<>();
 		Type listType = new TypeToken<List<SubredditObjectResponseModel>>() {
 		}.getType();
 		responseObject = new ModelMapper().map(fetchedSubreddits, listType);
+		subredditResponse.setSubreddits(responseObject);
+
+		return subredditResponse;
+	}
+
+	@GetMapping(path = "/update/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public SubredditResponseModel updateSubreddits(@PathVariable String userId) {
+		SubredditResponseModel subredditResponse = new SubredditResponseModel();
+
+		UserDTO userDTO = userService.getUserByUserId(userId);
+		List<SubredditDTO> updatedSubreddits = subredditService.updateSubreddits(userDTO);
+		List<SubredditObjectResponseModel> responseObject = new ArrayList<>();
+		Type listType = new TypeToken<List<SubredditObjectResponseModel>>() {
+		}.getType();
+		responseObject = new ModelMapper().map(updatedSubreddits, listType);
 		subredditResponse.setSubreddits(responseObject);
 
 		return subredditResponse;
