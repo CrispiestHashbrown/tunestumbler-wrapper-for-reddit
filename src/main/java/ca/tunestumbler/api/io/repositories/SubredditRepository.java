@@ -22,13 +22,13 @@ public interface SubredditRepository extends JpaRepository<SubredditEntity, Stri
 			@Param("subreddit") String subreddit, @Param("startId") long startId);
 
 	@Query(value = "SELECT MAX(id) FROM subreddit", nativeQuery = true)
-	Long getMaxId();
+	Long findMaxId();
 
 	@Query(value = "SELECT MAX(id) FROM subreddit WHERE user_id = :userId", nativeQuery = true)
-	Long getMaxIdByUserId(@Param("userId") String userId);
+	Long findMaxIdByUserId(@Param("userId") String userId);
 
 	@Query(value = "SELECT MAX(start_id) FROM subreddit WHERE user_id = :userId", nativeQuery = true)
-	Long getMaxStartIdByUserId(@Param("userId") String userId);
+	Long findMaxStartIdByUserId(@Param("userId") String userId);
 
 	@Query(value = "SELECT * FROM subreddit WHERE user_id = :userId AND id > :maxId", nativeQuery = true)
 	List<SubredditEntity> findSubredditsByUserIdAndMaxId(@Param("userId") String userId, @Param("maxId") long maxId);
