@@ -10,6 +10,7 @@ public class MultiredditDTO implements Serializable {
 	private String subreddit;
 	private UserDTO userDTO;
 	private String userId;
+	private Boolean isCurated = false;
 	private long startId;
 	private String lastModified;
 
@@ -59,6 +60,14 @@ public class MultiredditDTO implements Serializable {
 
 	public void setUserId(String userId) {
 		this.userId = userId;
+	}
+
+	public Boolean getIsCurated() {
+		return isCurated;
+	}
+
+	public void setIsCurated(Boolean isCurated) {
+		this.isCurated = isCurated;
 	}
 
 	public long getStartId() {
