@@ -38,6 +38,9 @@ public class SubredditEntity implements Serializable {
 	@Column()
 	private String beforeId;
 
+	@Column(nullable = false)
+	private Boolean isSubscribed = false;
+
 	@Column()
 	private long startId;
 
@@ -98,6 +101,14 @@ public class SubredditEntity implements Serializable {
 
 	public void setBeforeId(String beforeId) {
 		this.beforeId = beforeId;
+	}
+
+	public Boolean getIsSubscribed() {
+		return isSubscribed;
+	}
+
+	public void setIsSubscribed(Boolean isSubscribed) {
+		this.isSubscribed = isSubscribed;
 	}
 
 	public long getStartId() {

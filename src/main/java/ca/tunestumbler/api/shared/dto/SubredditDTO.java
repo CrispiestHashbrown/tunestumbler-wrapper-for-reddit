@@ -11,6 +11,7 @@ public class SubredditDTO implements Serializable {
 	private String userId;
 	private String afterId;
 	private String beforeId;
+	private Boolean isSubscribed = false;
 	private long startId;
 	private String lastModified;
 
@@ -68,6 +69,14 @@ public class SubredditDTO implements Serializable {
 
 	public void setBeforeId(String beforeId) {
 		this.beforeId = beforeId;
+	}
+
+	public Boolean getIsSubscribed() {
+		return isSubscribed;
+	}
+
+	public void setIsSubscribed(Boolean isSubscribed) {
+		this.isSubscribed = isSubscribed;
 	}
 
 	public long getStartId() {
