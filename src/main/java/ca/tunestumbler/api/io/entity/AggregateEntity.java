@@ -1,9 +1,7 @@
 package ca.tunestumbler.api.io.entity;
 
 import java.io.Serializable;
-import java.util.List;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -11,7 +9,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 
 @Entity(name = "aggregate")
 public class AggregateEntity implements Serializable {
@@ -31,6 +28,13 @@ public class AggregateEntity implements Serializable {
 
 	@Column()
 	private String userId;
+
+	@ManyToOne
+	@JoinColumn(name = "filters_filtersId")
+	private FiltersEntity filtersEntity;
+
+	@Column()
+	private String filtersId;
 
 	@Column()
 	private String subredditId;
@@ -52,9 +56,6 @@ public class AggregateEntity implements Serializable {
 
 	@Column(nullable = false)
 	private String lastModified;
-
-	@OneToMany(cascade = CascadeType.ALL, mappedBy = "aggregateEntity")
-	private List<FiltersEntity> filters;
 
 	public long getId() {
 		return id;
@@ -86,6 +87,22 @@ public class AggregateEntity implements Serializable {
 
 	public void setUserId(String userId) {
 		this.userId = userId;
+	}
+
+	public FiltersEntity getFiltersEntity() {
+		return filtersEntity;
+	}
+
+	public void setFiltersEntity(FiltersEntity filtersEntity) {
+		this.filtersEntity = filtersEntity;
+	}
+
+	public String getFiltersId() {
+		return filtersId;
+	}
+
+	public void setFiltersId(String filtersId) {
+		this.filtersId = filtersId;
 	}
 
 	public String getSubredditId() {
@@ -142,14 +159,6 @@ public class AggregateEntity implements Serializable {
 
 	public void setLastModified(String lastModified) {
 		this.lastModified = lastModified;
-	}
-
-	public List<FiltersEntity> getFilters() {
-		return filters;
-	}
-
-	public void setFilters(List<FiltersEntity> filters) {
-		this.filters = filters;
 	}
 
 }

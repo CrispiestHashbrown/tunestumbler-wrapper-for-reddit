@@ -1,32 +1,13 @@
-package ca.tunestumbler.api.shared.dto;
+package ca.tunestumbler.api.ui.model.response.aggregate;
 
-import java.io.Serializable;
-import java.util.List;
-
-import ca.tunestumbler.api.io.entity.ResultsEntity;
-
-public class AggregateDTO implements Serializable {
-	private static final long serialVersionUID = -41686199429484255L;
-	private long id;
+public class AggregateObjectResponseModel {
 	private String aggregateId;
-	private UserDTO userDTO;
 	private String userId;
 	private String subredditId;
 	private String subreddit;
-	private Boolean isSubredditAdded = false;
 	private String multiredditId;
 	private String multireddit;
-	private long startId;
 	private String lastModified;
-	private List<ResultsEntity> results;
-
-	public long getId() {
-		return id;
-	}
-
-	public void setId(long id) {
-		this.id = id;
-	}
 
 	public String getAggregateId() {
 		return aggregateId;
@@ -34,14 +15,6 @@ public class AggregateDTO implements Serializable {
 
 	public void setAggregateId(String aggregateId) {
 		this.aggregateId = aggregateId;
-	}
-
-	public UserDTO getUserDTO() {
-		return userDTO;
-	}
-
-	public void setUserDTO(UserDTO userDTO) {
-		this.userDTO = userDTO;
 	}
 
 	public String getUserId() {
@@ -68,14 +41,6 @@ public class AggregateDTO implements Serializable {
 		this.subreddit = subreddit;
 	}
 
-	public Boolean getIsSubredditAdded() {
-		return isSubredditAdded;
-	}
-
-	public void setIsSubredditAdded(Boolean isSubredditAdded) {
-		this.isSubredditAdded = isSubredditAdded;
-	}
-
 	public String getMultiredditId() {
 		return multiredditId;
 	}
@@ -92,28 +57,12 @@ public class AggregateDTO implements Serializable {
 		this.multireddit = multireddit;
 	}
 
-	public long getStartId() {
-		return startId;
-	}
-
-	public void setStartId(long startId) {
-		this.startId = startId;
-	}
-
 	public String getLastModified() {
 		return lastModified;
 	}
 
 	public void setLastModified(String lastModified) {
 		this.lastModified = lastModified;
-	}
-
-	public List<ResultsEntity> getResults() {
-		return results;
-	}
-
-	public void setResults(List<ResultsEntity> results) {
-		this.results = results;
 	}
 
 }
