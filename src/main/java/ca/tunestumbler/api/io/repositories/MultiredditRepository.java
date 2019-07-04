@@ -38,10 +38,11 @@ public interface MultiredditRepository extends JpaRepository<MultiredditEntity, 
 	@Query(value = "SELECT MAX(start_id) FROM multireddit WHERE user_id = :userId", nativeQuery = true)
 	Long findMaxStartIdByUserId(@Param("userId") String userId);
 
-	@Query(value = "SELECT * FROM multireddit WHERE user_id = :userId AND id > :maxId", nativeQuery = true)
-	List<MultiredditEntity> findSubredditsByUserIdAndMaxId(@Param("userId") String userId, @Param("maxId") long maxId);
+	@Query(value = "SELECT * FROM multireddit WHERE user_id = :userId AND id > :maxId AND is_curated = true", nativeQuery = true)
+	List<MultiredditEntity> findSubredditsByUserIdAndMaxIdAndCurated(@Param("userId") String userId,
+			@Param("maxId") long maxId);
 
-	@Query(value = "SELECT * FROM multireddit WHERE user_id = :userId AND start_id = :startId", nativeQuery = true)
-	List<MultiredditEntity> findSubredditsByUserIdAndMaxStartId(@Param("userId") String userId,
+	@Query(value = "SELECT * FROM multireddit WHERE user_id = :userId AND start_id = :startId AND is_curated = true", nativeQuery = true)
+	List<MultiredditEntity> findSubredditsByUserIdAndMaxStartIdAndCurated(@Param("userId") String userId,
 			@Param("startId") long startId);
 }
