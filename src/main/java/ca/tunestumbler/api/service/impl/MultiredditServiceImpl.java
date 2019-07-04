@@ -100,7 +100,7 @@ public class MultiredditServiceImpl implements MultiredditService {
 
 		String userId = user.getUserId();
 		Long startId = multiredditRepository.findMaxStartIdByUserId(userId);
-		List<MultiredditEntity> multiredditEntities = multiredditRepository.findSubredditsByUserIdAndMaxStartId(userId, startId);
+		List<MultiredditEntity> multiredditEntities = multiredditRepository.findSubredditsByUserIdAndMaxStartIdAndCurated(userId, startId);
 		for (MultiredditEntity multiredditEntity : multiredditEntities) {
 			multiredditEntity.setIsCurated(false);
 		}
@@ -192,8 +192,8 @@ public class MultiredditServiceImpl implements MultiredditService {
 		List<MultiredditDTO> existingMultireddits = new ArrayList<>();
 
 		Long startId = multiredditRepository.findMaxStartIdByUserId(userId);
-		List<MultiredditEntity> multiredditList = multiredditRepository.findSubredditsByUserIdAndMaxId(userId, startId);
-
+		List<MultiredditEntity> multiredditList = multiredditRepository
+				.findSubredditsByUserIdAndMaxStartIdAndCurated(userId, startId);
 		for (MultiredditEntity multireddit : multiredditList) {
 			MultiredditDTO multiredditDTO = new MultiredditDTO();
 			BeanUtils.copyProperties(multireddit, multiredditDTO);
