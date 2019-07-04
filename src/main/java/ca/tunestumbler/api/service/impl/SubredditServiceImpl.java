@@ -100,7 +100,7 @@ public class SubredditServiceImpl implements SubredditService {
 
 		String userId = user.getUserId();
 		Long startId = subredditRepository.findMaxStartIdByUserId(userId);
-		List<SubredditEntity> subredditEntities = subredditRepository.findSubredditsByUserIdAndMaxStartId(userId, startId);
+		List<SubredditEntity> subredditEntities = subredditRepository.findSubredditsByUserIdAndMaxStartIdAndSubscribed(userId, startId);
 		for (SubredditEntity subredditEntity : subredditEntities) {
 			subredditEntity.setIsSubscribed(false);
 		}
@@ -184,7 +184,7 @@ public class SubredditServiceImpl implements SubredditService {
 		List<SubredditDTO> existingSubreddits = new ArrayList<>();
 		
 		Long startId = subredditRepository.findMaxStartIdByUserId(userId);
-		List<SubredditEntity> subredditList = subredditRepository.findSubredditsByUserIdAndMaxId(userId, startId);
+		List<SubredditEntity> subredditList = subredditRepository.findSubredditsByUserIdAndMaxIdAndSubscribed(userId, startId);
 
 		for (SubredditEntity subreddit : subredditList) {
 			SubredditDTO subredditDTO = new SubredditDTO();
