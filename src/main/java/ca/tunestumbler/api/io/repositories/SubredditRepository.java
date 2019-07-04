@@ -22,18 +22,18 @@ public interface SubredditRepository extends JpaRepository<SubredditEntity, Stri
 			@Param("subreddit") String subreddit, @Param("startId") long startId);
 
 	@Query(value = "SELECT MAX(id) FROM subreddit", nativeQuery = true)
-	Long getMaxId();
+	Long findMaxId();
 
 	@Query(value = "SELECT MAX(id) FROM subreddit WHERE user_id = :userId", nativeQuery = true)
-	Long getMaxIdByUserId(@Param("userId") String userId);
+	Long findMaxIdByUserId(@Param("userId") String userId);
 
 	@Query(value = "SELECT MAX(start_id) FROM subreddit WHERE user_id = :userId", nativeQuery = true)
-	Long getMaxStartIdByUserId(@Param("userId") String userId);
+	Long findMaxStartIdByUserId(@Param("userId") String userId);
 
-	@Query(value = "SELECT * FROM subreddit WHERE user_id = :userId AND id > :maxId", nativeQuery = true)
-	List<SubredditEntity> findSubredditsByUserIdAndMaxId(@Param("userId") String userId, @Param("maxId") long maxId);
+	@Query(value = "SELECT * FROM subreddit WHERE user_id = :userId AND id > :maxId AND is_subscribed = true", nativeQuery = true)
+	List<SubredditEntity> findSubredditsByUserIdAndMaxIdAndSubscribed(@Param("userId") String userId, @Param("maxId") long maxId);
 
-	@Query(value = "SELECT * FROM subreddit WHERE user_id = :userId AND start_id = :startId", nativeQuery = true)
-	List<SubredditEntity> findSubredditsByUserIdAndMaxStartId(@Param("userId") String userId,
+	@Query(value = "SELECT * FROM subreddit WHERE user_id = :userId AND start_id = :startId AND is_subscribed = true", nativeQuery = true)
+	List<SubredditEntity> findSubredditsByUserIdAndMaxStartIdAndSubscribed(@Param("userId") String userId,
 			@Param("startId") long startId);
 }
