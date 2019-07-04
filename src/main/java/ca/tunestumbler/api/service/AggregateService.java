@@ -9,4 +9,6 @@ public interface AggregateService {
 	List<AggregateDTO> createAggregateByUserId(UserDTO user);
 
 	List<AggregateDTO> getAggregateByUserId(String userId);
+
+	List<AggregateDTO> updateAggregateByUserId(UserDTO user);
 }

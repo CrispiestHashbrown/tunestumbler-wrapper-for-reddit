@@ -30,12 +30,12 @@ public class MultiredditController {
 	@Autowired
 	UserService userService;
 
-	@GetMapping(path = "/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public MultiredditResponseModel fetchAndUpdateMultireddits(@PathVariable String userId) {
+	@GetMapping(path = "/fetch/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public MultiredditResponseModel fetchMultireddits(@PathVariable String userId) {
 		MultiredditResponseModel multiredditResponse = new MultiredditResponseModel();
 
 		UserDTO userDTO = userService.getUserByUserId(userId);
-		List<MultiredditDTO> fetchedMultireddits = multiredditService.fetchAndUpdateMultireddits(userDTO);
+		List<MultiredditDTO> fetchedMultireddits = multiredditService.fetchMultireddits(userDTO);
 		List<MultiredditObjectResponseModel> responseObject = new ArrayList<>();
 		Type listType = new TypeToken<List<MultiredditObjectResponseModel>>() {
 		}.getType();
@@ -44,4 +44,20 @@ public class MultiredditController {
 
 		return multiredditResponse;
 	}
+
+	@GetMapping(path = "/update/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public MultiredditResponseModel updateMultireddits(@PathVariable String userId) {
+		MultiredditResponseModel multiredditResponse = new MultiredditResponseModel();
+
+		UserDTO userDTO = userService.getUserByUserId(userId);
+		List<MultiredditDTO> updatedMultireddits = multiredditService.updateMultireddits(userDTO);
+		List<MultiredditObjectResponseModel> responseObject = new ArrayList<>();
+		Type listType = new TypeToken<List<MultiredditObjectResponseModel>>() {
+		}.getType();
+		responseObject = new ModelMapper().map(updatedMultireddits, listType);
+		multiredditResponse.setMultireddits(responseObject);
+
+		return multiredditResponse;
+	}
+
 }
