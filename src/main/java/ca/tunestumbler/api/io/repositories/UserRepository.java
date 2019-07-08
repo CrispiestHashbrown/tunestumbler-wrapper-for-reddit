@@ -14,6 +14,4 @@ public interface UserRepository extends PagingAndSortingRepository<UserEntity, S
 	UserEntity findByToken(String token);
 	
 	UserEntity findByRefreshToken(String refreshToken);
-	
-	UserEntity findByLastModified(String lastModified);
 }

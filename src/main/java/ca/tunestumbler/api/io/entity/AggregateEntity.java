@@ -29,13 +29,6 @@ public class AggregateEntity implements Serializable {
 	@Column()
 	private String userId;
 
-	@ManyToOne
-	@JoinColumn(name = "filters_filtersId")
-	private FiltersEntity filtersEntity;
-
-	@Column()
-	private String filtersId;
-
 	@Column()
 	private String subredditId;
 
@@ -87,22 +80,6 @@ public class AggregateEntity implements Serializable {
 
 	public void setUserId(String userId) {
 		this.userId = userId;
-	}
-
-	public FiltersEntity getFiltersEntity() {
-		return filtersEntity;
-	}
-
-	public void setFiltersEntity(FiltersEntity filtersEntity) {
-		this.filtersEntity = filtersEntity;
-	}
-
-	public String getFiltersId() {
-		return filtersId;
-	}
-
-	public void setFiltersId(String filtersId) {
-		this.filtersId = filtersId;
 	}
 
 	public String getSubredditId() {
