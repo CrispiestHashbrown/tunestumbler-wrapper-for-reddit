@@ -3,31 +3,27 @@ package ca.tunestumbler.api.shared.dto;
 import java.io.Serializable;
 import java.util.List;
 
-// Aggregate Results before filters are applied
 public class ResultsDTO implements Serializable {
 	private static final long serialVersionUID = 1103952203234348723L;
+
 	private long id;
 	private String resultsId;
-	private AggregateDTO aggregateDTO;
 	private UserDTO userDTO;
-	private String resultsUrl;
+	private String userId;
 	private String subreddit;
 	private String title;
-	private String score;
-	private String created;
-	private String createdUtc;
+	private int score;
+	private long created;
+	private long createdUtc;
 	private String domain;
-	private String nsfw;
-	private String spoiler;
+	private Boolean isNsfw;
+	private Boolean isSpoiler;
 	private String permalink;
-	private String stickied;
-	private String mediaUrl;
-	private String mediaEmbedId;
-	private String secureMediaId;
-	private String secureMediaEmbedId;
-	private String mediaId;
-	private String beforeResultsId;
-	private String afterResultsId;
+	private Boolean isStickied;
+	private String url;
+	private String nextUri;
+	private String afterId;
+	private long startId;
 	private String lastModified;
 	private List<FilteredResultsDTO> filtered;
 
@@ -47,14 +43,6 @@ public class ResultsDTO implements Serializable {
 		this.resultsId = resultsId;
 	}
 
-	public AggregateDTO getAggregateDTO() {
-		return aggregateDTO;
-	}
-
-	public void setAggregateDTO(AggregateDTO aggregateDTO) {
-		this.aggregateDTO = aggregateDTO;
-	}
-
 	public UserDTO getUserDTO() {
 		return userDTO;
 	}
@@ -63,12 +51,12 @@ public class ResultsDTO implements Serializable {
 		this.userDTO = userDTO;
 	}
 
-	public String getResultsUrl() {
-		return resultsUrl;
+	public String getUserId() {
+		return userId;
 	}
 
-	public void setResultsUrl(String resultsUrl) {
-		this.resultsUrl = resultsUrl;
+	public void setUserId(String userId) {
+		this.userId = userId;
 	}
 
 	public String getSubreddit() {
@@ -87,27 +75,27 @@ public class ResultsDTO implements Serializable {
 		this.title = title;
 	}
 
-	public String getScore() {
+	public int getScore() {
 		return score;
 	}
 
-	public void setScore(String score) {
+	public void setScore(int score) {
 		this.score = score;
 	}
 
-	public String getCreated() {
+	public long getCreated() {
 		return created;
 	}
 
-	public void setCreated(String created) {
+	public void setCreated(long created) {
 		this.created = created;
 	}
 
-	public String getCreatedUtc() {
+	public long getCreatedUtc() {
 		return createdUtc;
 	}
 
-	public void setCreatedUtc(String createdUtc) {
+	public void setCreatedUtc(long createdUtc) {
 		this.createdUtc = createdUtc;
 	}
 
@@ -119,20 +107,20 @@ public class ResultsDTO implements Serializable {
 		this.domain = domain;
 	}
 
-	public String getNsfw() {
-		return nsfw;
+	public Boolean getIsNsfw() {
+		return isNsfw;
 	}
 
-	public void setNsfw(String nsfw) {
-		this.nsfw = nsfw;
+	public void setIsNsfw(Boolean isNsfw) {
+		this.isNsfw = isNsfw;
 	}
 
-	public String getSpoiler() {
-		return spoiler;
+	public Boolean getIsSpoiler() {
+		return isSpoiler;
 	}
 
-	public void setSpoiler(String spoiler) {
-		this.spoiler = spoiler;
+	public void setIsSpoiler(Boolean isSpoiler) {
+		this.isSpoiler = isSpoiler;
 	}
 
 	public String getPermalink() {
@@ -143,68 +131,44 @@ public class ResultsDTO implements Serializable {
 		this.permalink = permalink;
 	}
 
-	public String getStickied() {
-		return stickied;
+	public Boolean getIsStickied() {
+		return isStickied;
 	}
 
-	public void setStickied(String stickied) {
-		this.stickied = stickied;
+	public void setIsStickied(Boolean isStickied) {
+		this.isStickied = isStickied;
 	}
 
-	public String getMediaUrl() {
-		return mediaUrl;
+	public String getUrl() {
+		return url;
 	}
 
-	public void setMediaUrl(String mediaUrl) {
-		this.mediaUrl = mediaUrl;
+	public void setUrl(String url) {
+		this.url = url;
 	}
 
-	public String getMediaEmbedId() {
-		return mediaEmbedId;
+	public String getNextUri() {
+		return nextUri;
 	}
 
-	public void setMediaEmbedId(String mediaEmbedId) {
-		this.mediaEmbedId = mediaEmbedId;
+	public void setNextUri(String nextUri) {
+		this.nextUri = nextUri;
 	}
 
-	public String getSecureMediaId() {
-		return secureMediaId;
+	public String getAfterId() {
+		return afterId;
 	}
 
-	public void setSecureMediaId(String secureMediaId) {
-		this.secureMediaId = secureMediaId;
+	public void setAfterId(String afterId) {
+		this.afterId = afterId;
 	}
 
-	public String getSecureMediaEmbedId() {
-		return secureMediaEmbedId;
+	public long getStartId() {
+		return startId;
 	}
 
-	public void setSecureMediaEmbedId(String secureMediaEmbedId) {
-		this.secureMediaEmbedId = secureMediaEmbedId;
-	}
-
-	public String getMediaId() {
-		return mediaId;
-	}
-
-	public void setMediaId(String mediaId) {
-		this.mediaId = mediaId;
-	}
-
-	public String getBeforeResultsId() {
-		return beforeResultsId;
-	}
-
-	public void setBeforeResultsId(String beforeResultsId) {
-		this.beforeResultsId = beforeResultsId;
-	}
-
-	public String getAfterResultsId() {
-		return afterResultsId;
-	}
-
-	public void setAfterResultsId(String afterResultsId) {
-		this.afterResultsId = afterResultsId;
+	public void setStartId(long startId) {
+		this.startId = startId;
 	}
 
 	public String getLastModified() {

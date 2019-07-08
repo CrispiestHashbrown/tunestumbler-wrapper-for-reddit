@@ -1,92 +1,21 @@
-package ca.tunestumbler.api.io.entity;
+package ca.tunestumbler.api.ui.model.response.results;
 
-import java.io.Serializable;
-import java.util.List;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-
-@Entity(name = "results")
-public class ResultsEntity implements Serializable {
-	private static final long serialVersionUID = -8505575230126284466L;
-
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(nullable = false, unique = true)
-	private long id;
-
-	@Column(nullable = false, unique = true)
+public class ResultsObjectResponseModel {
 	private String resultsId;
-
-	@ManyToOne
-	@JoinColumn(name = "users_userId")
-	private UserEntity userEntity;
-
-	@Column()
 	private String userId;
-
-	@Column(nullable = false, length = 21)
 	private String subreddit;
-
-	@Column(nullable = false, length = 300)
 	private String title;
-
-	@Column(nullable = false)
 	private int score;
-
-	@Column(nullable = false)
 	private long created;
-
-	@Column(nullable = false)
 	private long createdUtc;
-
-	@Column(nullable = false)
 	private String domain;
-
-	@Column(nullable = false)
 	private Boolean isNsfw;
-
-	@Column(nullable = false)
 	private Boolean isSpoiler;
-
-	@Column(nullable = false)
 	private String permalink;
-
-	@Column(nullable = false)
 	private Boolean isStickied;
-
-	@Column(nullable = false)
 	private String url;
-
-	@Column
 	private String nextUri;
-
-	@Column
 	private String afterId;
-
-	@Column()
-	private long startId;
-
-	@Column(nullable = false)
-	private String lastModified;
-
-	@OneToMany(cascade = CascadeType.ALL, mappedBy = "resultsEntity")
-	private List<FilteredResultsEntity> filtered;
-
-	public long getId() {
-		return id;
-	}
-
-	public void setId(long id) {
-		this.id = id;
-	}
 
 	public String getResultsId() {
 		return resultsId;
@@ -94,14 +23,6 @@ public class ResultsEntity implements Serializable {
 
 	public void setResultsId(String resultsId) {
 		this.resultsId = resultsId;
-	}
-
-	public UserEntity getUserEntity() {
-		return userEntity;
-	}
-
-	public void setUserEntity(UserEntity userEntity) {
-		this.userEntity = userEntity;
 	}
 
 	public String getUserId() {
@@ -214,30 +135,6 @@ public class ResultsEntity implements Serializable {
 
 	public void setAfterId(String afterId) {
 		this.afterId = afterId;
-	}
-
-	public long getStartId() {
-		return startId;
-	}
-
-	public void setStartId(long startId) {
-		this.startId = startId;
-	}
-
-	public String getLastModified() {
-		return lastModified;
-	}
-
-	public void setLastModified(String lastModified) {
-		this.lastModified = lastModified;
-	}
-
-	public List<FilteredResultsEntity> getFiltered() {
-		return filtered;
-	}
-
-	public void setFiltered(List<FilteredResultsEntity> filtered) {
-		this.filtered = filtered;
 	}
 
 }
