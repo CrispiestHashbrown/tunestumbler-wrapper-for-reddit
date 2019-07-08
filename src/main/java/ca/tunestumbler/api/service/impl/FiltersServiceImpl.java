@@ -17,7 +17,6 @@ import ca.tunestumbler.api.io.entity.UserEntity;
 import ca.tunestumbler.api.io.repositories.FiltersRepository;
 import ca.tunestumbler.api.io.repositories.UserRepository;
 import ca.tunestumbler.api.service.FiltersService;
-import ca.tunestumbler.api.service.UserService;
 import ca.tunestumbler.api.shared.SharedUtils;
 import ca.tunestumbler.api.shared.dto.FiltersDTO;
 import ca.tunestumbler.api.shared.dto.UserDTO;
@@ -33,9 +32,6 @@ public class FiltersServiceImpl implements FiltersService {
 
 	@Autowired
 	FiltersRepository filtersRepository;
-
-	@Autowired
-	UserService userService;
 
 	@Autowired
 	SharedUtils sharedUtils;

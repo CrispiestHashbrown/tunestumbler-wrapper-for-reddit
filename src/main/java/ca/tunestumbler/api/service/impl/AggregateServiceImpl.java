@@ -10,6 +10,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import ca.tunestumbler.api.exceptions.AggregateServiceException;
 import ca.tunestumbler.api.io.entity.AggregateEntity;
 import ca.tunestumbler.api.io.entity.UserEntity;
 import ca.tunestumbler.api.io.repositories.AggregateRepository;
@@ -22,6 +23,7 @@ import ca.tunestumbler.api.shared.dto.AggregateDTO;
 import ca.tunestumbler.api.shared.dto.MultiredditDTO;
 import ca.tunestumbler.api.shared.dto.SubredditDTO;
 import ca.tunestumbler.api.shared.dto.UserDTO;
+import ca.tunestumbler.api.ui.model.response.ErrorMessages;
 
 @Service
 public class AggregateServiceImpl implements AggregateService {
@@ -43,6 +45,10 @@ public class AggregateServiceImpl implements AggregateService {
 
 	@Override
 	public List<AggregateDTO> createAggregateByUserId(UserDTO user) {
+		if (user == null) {
+			throw new AggregateServiceException(ErrorMessages.BAD_REQUEST.getErrorMessage());
+		}
+
 		String userId = user.getUserId();
 		Long userMaxId = aggregateRepository.findMaxIdByUserId(userId);
 		Long maxId = aggregateRepository.findMaxId();
@@ -79,13 +85,17 @@ public class AggregateServiceImpl implements AggregateService {
 	}
 
 	@Override
-	public List<AggregateDTO> getAggregateByUserId(String userId) {
-		List<AggregateDTO> existingAggregate = new ArrayList<>();
+	public List<AggregateDTO> getAggregateByUserId(UserDTO user) {
+		if (user == null) {
+			throw new AggregateServiceException(ErrorMessages.BAD_REQUEST.getErrorMessage());
+		}
 
+		String userId = user.getUserId();
 		Long startId = aggregateRepository.findMaxStartIdByUserId(userId);
 		List<AggregateEntity> aggregateList = aggregateRepository
 				.findAggregateByUserIdAndMaxStartIdAndIsSubredditAdded(userId, startId);
 
+		List<AggregateDTO> existingAggregate = new ArrayList<>();
 		for (AggregateEntity aggregate : aggregateList) {
 			AggregateDTO aggregateDTO = new AggregateDTO();
 			BeanUtils.copyProperties(aggregate, aggregateDTO);
@@ -97,7 +107,9 @@ public class AggregateServiceImpl implements AggregateService {
 
 	@Override
 	public List<AggregateDTO> updateAggregateByUserId(UserDTO user) {
-		List<AggregateDTO> updatedAggregate = new ArrayList<>();
+		if (user == null) {
+			throw new AggregateServiceException(ErrorMessages.BAD_REQUEST.getErrorMessage());
+		}
 
 		String userId = user.getUserId();
 		Long startId = aggregateRepository.findMaxStartIdByUserId(userId);
@@ -109,6 +121,7 @@ public class AggregateServiceImpl implements AggregateService {
 
 		List<SubredditDTO> subredditList = subredditService.updateSubreddits(user);
 		List<MultiredditDTO> multiredditList = multiredditService.updateMultireddits(user);
+		List<AggregateDTO> updatedAggregate = new ArrayList<>();
 		if (subredditList == null && multiredditList == null) {
 			aggregateRepository.saveAll(aggregateEntities);
 			return updatedAggregate;
@@ -121,6 +134,7 @@ public class AggregateServiceImpl implements AggregateService {
 		List<AggregateEntity> updatedAggregateEntities = new ArrayList<>();
 		for (SubredditDTO subredditDTO : subredditList) {
 			String subreddit = subredditDTO.getSubreddit();
+//			TODO: turn this into aggregateEntities for loop
 			List<AggregateEntity> aggregateEntity = aggregateRepository.findByUserIdAndSubredditAndMaxStartId(userId,
 					subreddit, startId);
 
@@ -139,6 +153,7 @@ public class AggregateServiceImpl implements AggregateService {
 		for (MultiredditDTO multiredditDTO : multiredditList) {
 			String multireddit = multiredditDTO.getMultireddit();
 			String subreddit = multiredditDTO.getSubreddit();
+//			TODO: turn this into aggregateEntities for loop
 			List<AggregateEntity> aggregateEntity = aggregateRepository
 					.findByUserIdAndMultiredditAndSubredditAndMaxStartId(userId, multireddit, subreddit, startId);
 

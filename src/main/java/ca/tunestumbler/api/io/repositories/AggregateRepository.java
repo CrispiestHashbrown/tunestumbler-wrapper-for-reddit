@@ -13,12 +13,12 @@ public interface AggregateRepository extends JpaRepository<AggregateEntity, Stri
 
 	AggregateEntity findByUserId(String userId);
 
-	@Query(value = "SELECT * FROM aggregate WHERE user_id = :userId AND multireddit = :multireddit AND subreddit = :subreddit AND start_id = :startId", nativeQuery = true)
+	@Query(value = "SELECT * FROM aggregate WHERE user_id = :userId AND multireddit = :multireddit AND subreddit = :subreddit AND start_id >= :startId", nativeQuery = true)
 	List<AggregateEntity> findByUserIdAndMultiredditAndSubredditAndMaxStartId(@Param("userId") String userId,
 			@Param("multireddit") String multireddit, @Param("subreddit") String subreddit,
 			@Param("startId") long startId);
 
-	@Query(value = "SELECT * FROM aggregate WHERE user_id = :userId AND subreddit = :subreddit AND start_id = :startId", nativeQuery = true)
+	@Query(value = "SELECT * FROM aggregate WHERE user_id = :userId AND subreddit = :subreddit AND start_id >= :startId", nativeQuery = true)
 	List<AggregateEntity> findByUserIdAndSubredditAndMaxStartId(@Param("userId") String userId,
 			@Param("subreddit") String subreddit, @Param("startId") long startId);
 
@@ -31,7 +31,7 @@ public interface AggregateRepository extends JpaRepository<AggregateEntity, Stri
 	@Query(value = "SELECT MAX(start_id) FROM aggregate WHERE user_id = :userId", nativeQuery = true)
 	Long findMaxStartIdByUserId(@Param("userId") String userId);
 
-	@Query(value = "SELECT * FROM aggregate WHERE user_id = :userId AND start_id = :startId AND is_subreddit_added = true", nativeQuery = true)
+	@Query(value = "SELECT * FROM aggregate WHERE user_id = :userId AND start_id >= :startId AND is_subreddit_added = true", nativeQuery = true)
 	List<AggregateEntity> findAggregateByUserIdAndMaxStartIdAndIsSubredditAdded(@Param("userId") String userId,
 			@Param("startId") long startId);
 }
