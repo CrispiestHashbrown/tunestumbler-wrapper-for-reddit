@@ -1,9 +1,7 @@
 package ca.tunestumbler.api.io.entity;
 
 import java.io.Serializable;
-import java.util.List;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -11,7 +9,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 
 @Entity(name = "filters")
 public class FiltersEntity implements Serializable {
@@ -67,9 +64,6 @@ public class FiltersEntity implements Serializable {
 
 	@Column(nullable = false)
 	private String lastModified;
-
-	@OneToMany(cascade = CascadeType.ALL, mappedBy = "filtersEntity")
-	private List<ResultsEntity> results;
 
 	public long getId() {
 		return id;
@@ -197,14 +191,6 @@ public class FiltersEntity implements Serializable {
 
 	public void setLastModified(String lastModified) {
 		this.lastModified = lastModified;
-	}
-
-	public List<ResultsEntity> getResults() {
-		return results;
-	}
-
-	public void setResults(List<ResultsEntity> results) {
-		this.results = results;
 	}
 
 }

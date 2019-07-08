@@ -21,7 +21,6 @@ import ca.tunestumbler.api.io.entity.UserEntity;
 import ca.tunestumbler.api.io.repositories.SubredditRepository;
 import ca.tunestumbler.api.security.SecurityConstants;
 import ca.tunestumbler.api.service.SubredditService;
-import ca.tunestumbler.api.service.UserService;
 import ca.tunestumbler.api.shared.SharedUtils;
 import ca.tunestumbler.api.shared.dto.SubredditDTO;
 import ca.tunestumbler.api.shared.dto.UserDTO;
@@ -34,9 +33,6 @@ public class SubredditServiceImpl implements SubredditService {
 
 	@Autowired
 	SubredditRepository subredditRepository;
-
-	@Autowired
-	UserService userService;
 
 	@Autowired
 	SharedUtils sharedUtils;
@@ -55,8 +51,8 @@ public class SubredditServiceImpl implements SubredditService {
 		SubredditFetchResponseModel response = sendGetSubredditRequest(user);
 		List<SubredditDTO> subreddits = new ArrayList<>();
 		List<SubredditDataChildrenModel> subredditModel = response.getData().getChildren();
-		if (subredditModel == null || subredditModel.isEmpty() || 
-				subredditModel.size() < 2 && subredditModel.get(0).getData().getDisplay_name_prefixed().equals("announcements")) {
+		if (subredditModel == null || subredditModel.isEmpty() || subredditModel.size() < 2
+				&& subredditModel.get(0).getData().getDisplay_name().equals("announcements")) {
 			return subreddits;
 		}
 
@@ -70,7 +66,7 @@ public class SubredditServiceImpl implements SubredditService {
 			String subredditId = sharedUtils.generateSubredditId(50);
 
 			subredditEntity.setSubredditId(subredditId);
-			subredditEntity.setSubreddit(data.getData().getDisplay_name_prefixed());
+			subredditEntity.setSubreddit(data.getData().getDisplay_name());
 			subredditEntity.setUserEntity(userEntity);
 			subredditEntity.setUserId(userEntity.getUserId());
 			subredditEntity.setAfterId(response.getData().getAfter());
@@ -93,22 +89,23 @@ public class SubredditServiceImpl implements SubredditService {
 	@Override
 	public List<SubredditDTO> updateSubreddits(UserDTO user) {
 		List<SubredditDTO> subreddits = new ArrayList<>();
-		
+
 		if (user == null) {
 			throw new UserServiceException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
 		}
 
 		String userId = user.getUserId();
 		Long startId = subredditRepository.findMaxStartIdByUserId(userId);
-		List<SubredditEntity> subredditEntities = subredditRepository.findSubredditsByUserIdAndMaxStartIdAndSubscribed(userId, startId);
+		List<SubredditEntity> subredditEntities = subredditRepository
+				.findSubredditsByUserIdAndMaxStartIdAndSubscribed(userId, startId);
 		for (SubredditEntity subredditEntity : subredditEntities) {
 			subredditEntity.setIsSubscribed(false);
 		}
 
 		SubredditFetchResponseModel response = sendGetSubredditRequest(user);
 		List<SubredditDataChildrenModel> subredditModel = response.getData().getChildren();
-		if (subredditModel == null || subredditModel.isEmpty() || 
-				subredditModel.size() < 2 && subredditModel.get(0).getData().getDisplay_name_prefixed().equals("announcements")) {
+		if (subredditModel == null || subredditModel.isEmpty() || subredditModel.size() < 2
+				&& subredditModel.get(0).getData().getDisplay_name().equals("announcements")) {
 			subredditRepository.saveAll(subredditEntities);
 			return subreddits;
 		}
@@ -118,8 +115,10 @@ public class SubredditServiceImpl implements SubredditService {
 
 		List<SubredditEntity> updatedSubredditEntities = new ArrayList<>();
 		for (SubredditDataChildrenModel data : subredditModel) {
-			String subreddit = data.getData().getDisplay_name_prefixed();
-			SubredditEntity subredditEntity = subredditRepository.findByUserIdAndSubredditAndMaxStartId(userId, subreddit, startId);
+			String subreddit = data.getData().getDisplay_name();
+//			TODO: turn this into subredditEntities for loop
+			SubredditEntity subredditEntity = subredditRepository.findByUserIdAndSubredditAndMaxStartId(userId,
+					subreddit, startId);
 			if (subredditEntity != null) {
 				subredditEntity.setIsSubscribed(true);
 				subredditEntity.setLastModified(sharedUtils.getCurrentTime());
@@ -129,7 +128,7 @@ public class SubredditServiceImpl implements SubredditService {
 				String subredditId = sharedUtils.generateSubredditId(50);
 
 				newSubredditEntity.setSubredditId(subredditId);
-				newSubredditEntity.setSubreddit(data.getData().getDisplay_name_prefixed());
+				newSubredditEntity.setSubreddit(data.getData().getDisplay_name());
 				newSubredditEntity.setUserEntity(userEntity);
 				newSubredditEntity.setUserId(userEntity.getUserId());
 				newSubredditEntity.setAfterId(response.getData().getAfter());
@@ -173,18 +172,19 @@ public class SubredditServiceImpl implements SubredditService {
 		WebClient.RequestBodySpec requestUri = request.uri(uri);
 
 		return requestUri
-				.exchange()
-				.block()
-				.bodyToMono(SubredditFetchResponseModel.class)
-				.block();
+						.exchange()
+						.block()
+						.bodyToMono(SubredditFetchResponseModel.class)
+						.block();
 	}
 
 	@Override
 	public List<SubredditDTO> getSubredditsByUserId(String userId) {
 		List<SubredditDTO> existingSubreddits = new ArrayList<>();
-		
+
 		Long startId = subredditRepository.findMaxStartIdByUserId(userId);
-		List<SubredditEntity> subredditList = subredditRepository.findSubredditsByUserIdAndMaxIdAndSubscribed(userId, startId);
+		List<SubredditEntity> subredditList = subredditRepository.findSubredditsByUserIdAndMaxIdAndSubscribed(userId,
+				startId);
 
 		for (SubredditEntity subreddit : subredditList) {
 			SubredditDTO subredditDTO = new SubredditDTO();
