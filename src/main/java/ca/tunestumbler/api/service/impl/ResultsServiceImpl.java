@@ -2,12 +2,15 @@ package ca.tunestumbler.api.service.impl;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -24,12 +27,14 @@ import ca.tunestumbler.api.io.repositories.UserRepository;
 import ca.tunestumbler.api.security.SecurityConstants;
 import ca.tunestumbler.api.service.ResultsService;
 import ca.tunestumbler.api.shared.SharedUtils;
+import ca.tunestumbler.api.shared.SortResultsById;
 import ca.tunestumbler.api.shared.dto.ResultsDTO;
 import ca.tunestumbler.api.shared.dto.UserDTO;
 import ca.tunestumbler.api.ui.model.response.ErrorMessages;
 import ca.tunestumbler.api.ui.model.response.results.ResultsDataChildrenDataModel;
 import ca.tunestumbler.api.ui.model.response.results.ResultsDataChildrenModel;
 import ca.tunestumbler.api.ui.model.response.results.ResultsFetchResponseModel;
+import ca.tunestumbler.api.io.repositories.specification.ResultsSpecification;
 
 @Service
 public class ResultsServiceImpl implements ResultsService {
@@ -56,9 +61,10 @@ public class ResultsServiceImpl implements ResultsService {
 		}
 
 		String userId = user.getUserId();
-		Long startId = filtersRepository.findMaxStartIdByUserId(userId);
+		Long filtersStartId = filtersRepository.findMaxStartIdByUserId(userId);
 
-		List<FiltersEntity> filters = filtersRepository.findFiltersByUserIdAndStartIdAndIsActive(userId, startId);
+		List<FiltersEntity> filters = filtersRepository.findFiltersByUserIdAndStartIdAndIsActive(userId,
+				filtersStartId);
 		List<ResultsDTO> results = new ArrayList<>();
 		if (filters == null || filters.isEmpty()) {
 			return results;
@@ -69,7 +75,7 @@ public class ResultsServiceImpl implements ResultsService {
 		if (uri.isEmpty()) {
 			return results;
 		}
-		
+
 		ResultsFetchResponseModel response = sendGetResultsRequest(user, baseUrl, uri);
 		List<ResultsDataChildrenModel> resultsModel = response.getData().getChildren();
 		if (resultsModel == null || resultsModel.isEmpty()
@@ -80,17 +86,27 @@ public class ResultsServiceImpl implements ResultsService {
 		UserEntity userEntity = new UserEntity();
 		BeanUtils.copyProperties(user, userEntity);
 
+		Long maxId = setResultsStartId(userId);
 		String afterId = response.getData().getAfter();
 		List<ResultsEntity> resultsEntities = new ArrayList<>();
 		for (ResultsDataChildrenModel data : resultsModel) {
-			ResultsEntity resultsEntity = addResultsEntity(userEntity, uri, afterId, data.getData(), startId);
+			ResultsEntity resultsEntity = addResultsEntity(userEntity, uri, afterId, data.getData(), maxId);
 			resultsEntities.add(resultsEntity);
 		}
 
-		List<ResultsEntity> storedResultsEntities = resultsRepository.saveAll(resultsEntities);
+		resultsRepository.saveAll(resultsEntities);
+		List<ResultsEntity> filteredResults = new ArrayList<>();
+
+		for (FiltersEntity filtersEntity : filters) {
+			filteredResults.addAll(getFilteredResults(filtersEntity, userId, maxId));
+		}
+
+		List<ResultsEntity> filteredResultsWithoutDuplicates = new ArrayList<>(new HashSet<>(filteredResults));
+		Collections.sort(filteredResultsWithoutDuplicates, new SortResultsById());
+
 		Type listType = new TypeToken<List<ResultsDTO>>() {
 		}.getType();
-		results = new ModelMapper().map(storedResultsEntities, listType);
+		results = new ModelMapper().map(filteredResultsWithoutDuplicates, listType);
 
 		return results;
 	}
@@ -120,9 +136,7 @@ public class ResultsServiceImpl implements ResultsService {
 		BeanUtils.copyProperties(user, userEntity);
 
 		String userId = user.getUserId();
-		Long userMaxId = resultsRepository.findMaxIdByUserId(userId);
-		Long maxId = resultsRepository.findMaxId();
-		Long newStartId = sharedUtils.setStartId(userMaxId, maxId);
+		Long newStartId = setResultsStartId(userId);
 
 		String nextAfterId = response.getData().getAfter();
 		List<ResultsEntity> resultsEntities = new ArrayList<>();
@@ -132,12 +146,37 @@ public class ResultsServiceImpl implements ResultsService {
 			resultsEntities.add(resultsEntity);
 		}
 
-		List<ResultsEntity> storedResultsEntities = resultsRepository.saveAll(resultsEntities);
+		resultsRepository.saveAll(resultsEntities);
+		List<ResultsEntity> filteredResults = new ArrayList<>();
+
+		Long filtersStartId = filtersRepository.findMaxStartIdByUserId(userId);
+		List<FiltersEntity> filters = filtersRepository.findFiltersByUserIdAndStartIdAndIsActive(userId,
+				filtersStartId);
+		for (FiltersEntity filtersEntity : filters) {
+			filteredResults.addAll(getFilteredResults(filtersEntity, userId, newStartId));
+		}
+
+		List<ResultsEntity> filteredResultsWithoutDuplicates = new ArrayList<>(new HashSet<>(filteredResults));
+		Collections.sort(filteredResultsWithoutDuplicates, new SortResultsById());
+
 		Type listType = new TypeToken<List<ResultsDTO>>() {
 		}.getType();
-		results = new ModelMapper().map(storedResultsEntities, listType);
+		results = new ModelMapper().map(filteredResultsWithoutDuplicates, listType);
 
 		return results;
+	}
+
+	private List<ResultsEntity> getFilteredResults(FiltersEntity filtersEntity, String userId, Long startId) {
+		return resultsRepository.findAll(
+						Specification.where(ResultsSpecification.withUserId(userId))
+						.and(ResultsSpecification.withStartId(startId))
+						.and(ResultsSpecification.withSubreddit(filtersEntity.getSubreddit())
+						.and(ResultsSpecification.withMinScore(filtersEntity.getMinScore()))
+						.and(ResultsSpecification.withNSFW(filtersEntity.getAllowNSFWFlag()))
+						.and(ResultsSpecification.withDomainOnly(filtersEntity.getShowByDomain()))
+						.and(ResultsSpecification.withoutDomain(filtersEntity.getHideByDomain()))
+						.and(ResultsSpecification.withTitleKeyword(filtersEntity.getShowByKeyword()))
+						.and(ResultsSpecification.withoutTitleKeyword(filtersEntity.getHideByKeyword()))));
 	}
 
 	private ResultsFetchResponseModel sendGetResultsRequest(UserDTO user, String baseUrl, String uri) {
@@ -171,7 +210,7 @@ public class ResultsServiceImpl implements ResultsService {
 			}
 		}
 
-		String limit = "limit=100";
+		String limit = "limit=60";
 		StringBuilder uri = new StringBuilder("/");
 		if (subreddits.length() != 0) {
 			uri.append("r/").append(subreddits)
@@ -183,8 +222,8 @@ public class ResultsServiceImpl implements ResultsService {
 		return uri.toString();
 	}
 
-	private ResultsEntity addResultsEntity(UserEntity userEntity, String nextUri, String afterId, ResultsDataChildrenDataModel data,
-			long startId) {
+	private ResultsEntity addResultsEntity(UserEntity userEntity, String nextUri, String afterId,
+			ResultsDataChildrenDataModel data, long startId) {
 		ResultsEntity resultsEntity = new ResultsEntity();
 		String resultsId = sharedUtils.generateResultsId(idLength);
 		String userId = userEntity.getUserId();
@@ -209,6 +248,12 @@ public class ResultsServiceImpl implements ResultsService {
 		resultsEntity.setLastModified(sharedUtils.getCurrentTime());
 
 		return resultsEntity;
+	}
+
+	private Long setResultsStartId(String userId) {
+		Long userMaxId = resultsRepository.findMaxIdByUserId(userId);
+		Long maxId = resultsRepository.findMaxId();
+		return sharedUtils.setStartId(userMaxId, maxId);
 	}
 
 }

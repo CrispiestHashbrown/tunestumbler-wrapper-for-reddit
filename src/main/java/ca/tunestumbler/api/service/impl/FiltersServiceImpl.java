@@ -118,6 +118,7 @@ public class FiltersServiceImpl implements FiltersService {
 				if (filtersId.equals(filtersEntity.getFiltersId())) {
 					isExistingFilter = true;
 					filtersEntity.setPriority(filtersDTO.getPriority());
+					filtersEntity.setMinScore(filtersDTO.getMinScore());
 					filtersEntity.setAllowNSFWFlag(filtersDTO.getAllowNSFWFlag());
 					filtersEntity.setHideByKeyword(filtersDTO.getHideByKeyword());
 					filtersEntity.setShowByKeyword(filtersDTO.getShowByKeyword());
@@ -139,6 +140,7 @@ public class FiltersServiceImpl implements FiltersService {
 				newFilter.setMultireddit(filtersDTO.getMultireddit());
 				newFilter.setSubreddit(filtersDTO.getSubreddit());
 				newFilter.setPriority(filtersDTO.getPriority());
+				newFilter.setMinScore(filtersDTO.getMinScore());
 				newFilter.setAllowNSFWFlag(filtersDTO.getAllowNSFWFlag());
 				newFilter.setHideByKeyword(filtersDTO.getHideByKeyword());
 				newFilter.setShowByKeyword(filtersDTO.getShowByKeyword());

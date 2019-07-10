@@ -6,6 +6,7 @@ public class FiltersObjectRequestModel {
 	private String multireddit;
 	private String subreddit;
 	private Integer priority = 0;
+	private Integer minScore = 1;
 	private Boolean allowNSFWFlag = false;
 	private String hideByKeyword;
 	private String showByKeyword;
@@ -50,6 +51,14 @@ public class FiltersObjectRequestModel {
 
 	public void setPriority(Integer priority) {
 		this.priority = priority;
+	}
+
+	public Integer getMinScore() {
+		return minScore;
+	}
+
+	public void setMinScore(Integer minScore) {
+		this.minScore = minScore;
 	}
 
 	public Boolean getAllowNSFWFlag() {

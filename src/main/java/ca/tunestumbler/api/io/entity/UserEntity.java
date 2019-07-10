@@ -58,9 +58,6 @@ public class UserEntity implements Serializable {
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "userEntity")
 	private List<ResultsEntity> results;
 
-	@OneToMany(cascade = CascadeType.ALL, mappedBy = "userEntity")
-	private List<FilteredResultsEntity> filtered;
-
 	public String getUserId() {
 		return userId;
 	}
@@ -179,14 +176,6 @@ public class UserEntity implements Serializable {
 
 	public void setResults(List<ResultsEntity> results) {
 		this.results = results;
-	}
-
-	public List<FilteredResultsEntity> getFiltered() {
-		return filtered;
-	}
-
-	public void setFiltered(List<FilteredResultsEntity> filtered) {
-		this.filtered = filtered;
 	}
 
 }

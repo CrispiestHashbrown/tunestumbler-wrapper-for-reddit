@@ -1,7 +1,6 @@
 package ca.tunestumbler.api.shared.dto;
 
 import java.io.Serializable;
-import java.util.List;
 
 public class ResultsDTO implements Serializable {
 	private static final long serialVersionUID = 1103952203234348723L;
@@ -25,7 +24,6 @@ public class ResultsDTO implements Serializable {
 	private String afterId;
 	private long startId;
 	private String lastModified;
-	private List<FilteredResultsDTO> filtered;
 
 	public long getId() {
 		return id;
@@ -177,14 +175,6 @@ public class ResultsDTO implements Serializable {
 
 	public void setLastModified(String lastModified) {
 		this.lastModified = lastModified;
-	}
-
-	public List<FilteredResultsDTO> getFiltered() {
-		return filtered;
-	}
-
-	public void setFiltered(List<FilteredResultsDTO> filtered) {
-		this.filtered = filtered;
 	}
 
 }
