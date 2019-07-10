@@ -1,39 +1,33 @@
 package ca.tunestumbler.api.io.entity;
 
 import java.io.Serializable;
-import java.util.List;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 
 @Entity(name = "results")
 public class ResultsEntity implements Serializable {
 	private static final long serialVersionUID = -8505575230126284466L;
 
-	@GeneratedValue
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(nullable = false, unique = true)
 	private long id;
 
-	@Id
 	@Column(nullable = false, unique = true)
 	private String resultsId;
-
-	@ManyToOne
-	@JoinColumn(name = "aggregate_aggregateId")
-	private AggregateEntity aggregateEntity;
 
 	@ManyToOne
 	@JoinColumn(name = "users_userId")
 	private UserEntity userEntity;
 
-	@Column(nullable = false)
-	private String resultsUrl;
+	@Column()
+	private String userId;
 
 	@Column(nullable = false, length = 21)
 	private String subreddit;
@@ -45,52 +39,40 @@ public class ResultsEntity implements Serializable {
 	private int score;
 
 	@Column(nullable = false)
-	private String created;
+	private long created;
 
 	@Column(nullable = false)
-	private String createdUtc;
+	private long createdUtc;
 
-	@Column(length = 15)
+	@Column(nullable = false)
 	private String domain;
 
 	@Column(nullable = false)
-	private Boolean nsfw;
+	private Boolean isNsfw;
 
 	@Column(nullable = false)
-	private String spoiler;
+	private Boolean isSpoiler;
 
 	@Column(nullable = false)
 	private String permalink;
 
 	@Column(nullable = false)
-	private String stickied;
+	private Boolean isStickied;
+
+	@Column(nullable = false)
+	private String url;
 
 	@Column
-	private String mediaUrl;
+	private String nextUri;
 
 	@Column
-	private String mediaEmbedId;
+	private String afterId;
 
-	@Column
-	private String secureMediaId;
-
-	@Column
-	private String secureMediaEmbedId;
-
-	@Column
-	private String mediaId;
-
-	@Column
-	private String beforeResultsId;
-
-	@Column
-	private String afterResultsId;
+	@Column()
+	private long startId;
 
 	@Column(nullable = false)
 	private String lastModified;
-
-	@OneToMany(cascade = CascadeType.ALL, mappedBy = "resultsEntity")
-	private List<FilteredResultsEntity> filtered;
 
 	public long getId() {
 		return id;
@@ -108,14 +90,6 @@ public class ResultsEntity implements Serializable {
 		this.resultsId = resultsId;
 	}
 
-	public AggregateEntity getAggregateEntity() {
-		return aggregateEntity;
-	}
-
-	public void setAggregateEntity(AggregateEntity aggregateEntity) {
-		this.aggregateEntity = aggregateEntity;
-	}
-
 	public UserEntity getUserEntity() {
 		return userEntity;
 	}
@@ -124,12 +98,12 @@ public class ResultsEntity implements Serializable {
 		this.userEntity = userEntity;
 	}
 
-	public String getResultsUrl() {
-		return resultsUrl;
+	public String getUserId() {
+		return userId;
 	}
 
-	public void setResultsUrl(String resultsUrl) {
-		this.resultsUrl = resultsUrl;
+	public void setUserId(String userId) {
+		this.userId = userId;
 	}
 
 	public String getSubreddit() {
@@ -156,19 +130,19 @@ public class ResultsEntity implements Serializable {
 		this.score = score;
 	}
 
-	public String getCreated() {
+	public long getCreated() {
 		return created;
 	}
 
-	public void setCreated(String created) {
+	public void setCreated(long created) {
 		this.created = created;
 	}
 
-	public String getCreatedUtc() {
+	public long getCreatedUtc() {
 		return createdUtc;
 	}
 
-	public void setCreatedUtc(String createdUtc) {
+	public void setCreatedUtc(long createdUtc) {
 		this.createdUtc = createdUtc;
 	}
 
@@ -180,20 +154,20 @@ public class ResultsEntity implements Serializable {
 		this.domain = domain;
 	}
 
-	public Boolean getNsfw() {
-		return nsfw;
+	public Boolean getIsNsfw() {
+		return isNsfw;
 	}
 
-	public void setNsfw(Boolean nsfw) {
-		this.nsfw = nsfw;
+	public void setIsNsfw(Boolean isNsfw) {
+		this.isNsfw = isNsfw;
 	}
 
-	public String getSpoiler() {
-		return spoiler;
+	public Boolean getIsSpoiler() {
+		return isSpoiler;
 	}
 
-	public void setSpoiler(String spoiler) {
-		this.spoiler = spoiler;
+	public void setIsSpoiler(Boolean isSpoiler) {
+		this.isSpoiler = isSpoiler;
 	}
 
 	public String getPermalink() {
@@ -204,68 +178,44 @@ public class ResultsEntity implements Serializable {
 		this.permalink = permalink;
 	}
 
-	public String getStickied() {
-		return stickied;
+	public Boolean getIsStickied() {
+		return isStickied;
 	}
 
-	public void setStickied(String stickied) {
-		this.stickied = stickied;
+	public void setIsStickied(Boolean isStickied) {
+		this.isStickied = isStickied;
 	}
 
-	public String getMediaUrl() {
-		return mediaUrl;
+	public String getUrl() {
+		return url;
 	}
 
-	public void setMediaUrl(String mediaUrl) {
-		this.mediaUrl = mediaUrl;
+	public void setUrl(String url) {
+		this.url = url;
 	}
 
-	public String getMediaEmbedId() {
-		return mediaEmbedId;
+	public String getNextUri() {
+		return nextUri;
 	}
 
-	public void setMediaEmbedId(String mediaEmbedId) {
-		this.mediaEmbedId = mediaEmbedId;
+	public void setNextUri(String nextUri) {
+		this.nextUri = nextUri;
 	}
 
-	public String getSecureMediaId() {
-		return secureMediaId;
+	public String getAfterId() {
+		return afterId;
 	}
 
-	public void setSecureMediaId(String secureMediaId) {
-		this.secureMediaId = secureMediaId;
+	public void setAfterId(String afterId) {
+		this.afterId = afterId;
 	}
 
-	public String getSecureMediaEmbedId() {
-		return secureMediaEmbedId;
+	public long getStartId() {
+		return startId;
 	}
 
-	public void setSecureMediaEmbedId(String secureMediaEmbedId) {
-		this.secureMediaEmbedId = secureMediaEmbedId;
-	}
-
-	public String getMediaId() {
-		return mediaId;
-	}
-
-	public void setMediaId(String mediaId) {
-		this.mediaId = mediaId;
-	}
-
-	public String getBeforeResultsId() {
-		return beforeResultsId;
-	}
-
-	public void setBeforeResultsId(String beforeResultsId) {
-		this.beforeResultsId = beforeResultsId;
-	}
-
-	public String getAfterResultsId() {
-		return afterResultsId;
-	}
-
-	public void setAfterResultsId(String afterResultsId) {
-		this.afterResultsId = afterResultsId;
+	public void setStartId(long startId) {
+		this.startId = startId;
 	}
 
 	public String getLastModified() {
@@ -274,14 +224,6 @@ public class ResultsEntity implements Serializable {
 
 	public void setLastModified(String lastModified) {
 		this.lastModified = lastModified;
-	}
-
-	public List<FilteredResultsEntity> getFiltered() {
-		return filtered;
-	}
-
-	public void setFiltered(List<FilteredResultsEntity> filtered) {
-		this.filtered = filtered;
 	}
 
 }

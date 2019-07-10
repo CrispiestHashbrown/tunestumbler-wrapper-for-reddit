@@ -22,7 +22,6 @@ import ca.tunestumbler.api.io.entity.UserEntity;
 import ca.tunestumbler.api.io.repositories.MultiredditRepository;
 import ca.tunestumbler.api.security.SecurityConstants;
 import ca.tunestumbler.api.service.MultiredditService;
-import ca.tunestumbler.api.service.UserService;
 import ca.tunestumbler.api.shared.SharedUtils;
 import ca.tunestumbler.api.shared.dto.MultiredditDTO;
 import ca.tunestumbler.api.shared.dto.UserDTO;
@@ -35,9 +34,6 @@ public class MultiredditServiceImpl implements MultiredditService {
 
 	@Autowired
 	MultiredditRepository multiredditRepository;
-	
-	@Autowired
-	UserService userService;
 
 	@Autowired
 	SharedUtils sharedUtils;
@@ -51,7 +47,7 @@ public class MultiredditServiceImpl implements MultiredditService {
 		Long userMaxId = multiredditRepository.findMaxIdByUserId(user.getUserId());
 		Long maxId = multiredditRepository.findMaxId();
 		Long startId = sharedUtils.setStartId(userMaxId, maxId);
-		
+
 		MultiredditFetchResponseModel[] response = sendGetMultiredditRequest(user);
 		List<MultiredditDTO> multireddits = new ArrayList<>();
 		List<MultiredditFetchResponseModel> multiredditModel = Arrays.asList(response);
@@ -93,14 +89,15 @@ public class MultiredditServiceImpl implements MultiredditService {
 	@Override
 	public List<MultiredditDTO> updateMultireddits(UserDTO user) {
 		List<MultiredditDTO> multireddits = new ArrayList<>();
-		
+
 		if (user == null) {
 			throw new UserServiceException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
 		}
 
 		String userId = user.getUserId();
 		Long startId = multiredditRepository.findMaxStartIdByUserId(userId);
-		List<MultiredditEntity> multiredditEntities = multiredditRepository.findSubredditsByUserIdAndMaxStartIdAndCurated(userId, startId);
+		List<MultiredditEntity> multiredditEntities = multiredditRepository
+				.findSubredditsByUserIdAndMaxStartIdAndCurated(userId, startId);
 		for (MultiredditEntity multiredditEntity : multiredditEntities) {
 			multiredditEntity.setIsCurated(false);
 		}
@@ -119,10 +116,12 @@ public class MultiredditServiceImpl implements MultiredditService {
 		List<MultiredditEntity> updatedMultiredditEntities = new ArrayList<>();
 		for (MultiredditFetchResponseModel multiredditData : multiredditModel) {
 			String multireddit = multiredditData.getData().getName();
+//			TODO: turn this into multiredditEntities for loop
 			List<MultiredditEntity> multiredditDataEntity = multiredditRepository
 					.findByUserIdAndMultiredditAndMaxStartId(userId, multireddit, startId);
 			for (MultiredditDataSubredditModel subredditData : multiredditData.getData().getSubreddits()) {
 				String subreddit = subredditData.getName();
+//				TODO: turn this into multiredditEntities for loop
 				MultiredditEntity subredditDataEntity = multiredditRepository
 						.findByUserIdAndSubredditAndMaxStartId(userId, subreddit, startId);
 				if (multiredditDataEntity != null && subredditDataEntity != null) {
@@ -170,21 +169,21 @@ public class MultiredditServiceImpl implements MultiredditService {
 		String authHeader = SecurityConstants.TOKEN_PREFIX + token;
 
 		WebClient client = WebClient
-				.builder()
-					.baseUrl(baseUrl)
-					.defaultHeader(HttpHeaders.USER_AGENT, userAgentHeader)
-					.defaultHeader(HttpHeaders.AUTHORIZATION, authHeader)
-					.defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-					.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-				.build();
+						.builder()
+							.baseUrl(baseUrl)
+							.defaultHeader(HttpHeaders.USER_AGENT, userAgentHeader)
+							.defaultHeader(HttpHeaders.AUTHORIZATION, authHeader)
+							.defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+							.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+						.build();
 		WebClient.UriSpec<WebClient.RequestBodySpec> request = client.method(HttpMethod.GET);
 		WebClient.RequestBodySpec requestUri = request.uri(uri);
 
 		return requestUri
-				.exchange()
-				.block()
-				.bodyToMono(MultiredditFetchResponseModel[].class)
-				.block();
+						.exchange()
+						.block()
+						.bodyToMono(MultiredditFetchResponseModel[].class)
+						.block();
 	}
 
 	@Override

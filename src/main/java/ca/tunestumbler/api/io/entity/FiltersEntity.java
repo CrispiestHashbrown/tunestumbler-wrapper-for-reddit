@@ -1,26 +1,24 @@
 package ca.tunestumbler.api.io.entity;
 
 import java.io.Serializable;
-import java.util.List;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 
 @Entity(name = "filters")
 public class FiltersEntity implements Serializable {
 	private static final long serialVersionUID = 661201748897792032L;
 
-	@GeneratedValue
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(nullable = false, unique = true)
 	private long id;
 
-	@Id
 	@Column(nullable = false, unique = true)
 	private String filtersId;
 
@@ -28,11 +26,20 @@ public class FiltersEntity implements Serializable {
 	@JoinColumn(name = "users_usersId")
 	private UserEntity userEntity;
 
+	@Column()
+	private String userId;
+
 	@Column(length = 50)
 	private String multireddit;
 
 	@Column(length = 21)
 	private String subreddit;
+
+	@Column(nullable = false)
+	private Integer priority = 0;
+
+	@Column(nullable = false)
+	private Integer minScore = 1;
 
 	@Column(nullable = false)
 	private Boolean allowNSFWFlag = false;
@@ -49,11 +56,14 @@ public class FiltersEntity implements Serializable {
 	@Column(length = 15)
 	private String showByDomain;
 
+	@Column()
+	private long startId;
+
+	@Column()
+	private Boolean isActive = false;
+
 	@Column(nullable = false)
 	private String lastModified;
-
-	@OneToMany(cascade = CascadeType.ALL, mappedBy = "filtersEntity")
-	private List<FilteredResultsEntity> filtered;
 
 	public long getId() {
 		return id;
@@ -79,6 +89,14 @@ public class FiltersEntity implements Serializable {
 		this.userEntity = userEntity;
 	}
 
+	public String getUserId() {
+		return userId;
+	}
+
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+
 	public String getMultireddit() {
 		return multireddit;
 	}
@@ -93,6 +111,22 @@ public class FiltersEntity implements Serializable {
 
 	public void setSubreddit(String subreddit) {
 		this.subreddit = subreddit;
+	}
+
+	public Integer getPriority() {
+		return priority;
+	}
+
+	public void setPriority(Integer priority) {
+		this.priority = priority;
+	}
+
+	public Integer getMinScore() {
+		return minScore;
+	}
+
+	public void setMinScore(Integer minScore) {
+		this.minScore = minScore;
 	}
 
 	public Boolean getAllowNSFWFlag() {
@@ -135,20 +169,28 @@ public class FiltersEntity implements Serializable {
 		this.showByDomain = showByDomain;
 	}
 
+	public long getStartId() {
+		return startId;
+	}
+
+	public void setStartId(long startId) {
+		this.startId = startId;
+	}
+
+	public Boolean getIsActive() {
+		return isActive;
+	}
+
+	public void setIsActive(Boolean isActive) {
+		this.isActive = isActive;
+	}
+
 	public String getLastModified() {
 		return lastModified;
 	}
 
 	public void setLastModified(String lastModified) {
 		this.lastModified = lastModified;
-	}
-
-	public List<FilteredResultsEntity> getFiltered() {
-		return filtered;
-	}
-
-	public void setFiltered(List<FilteredResultsEntity> filtered) {
-		this.filtered = filtered;
 	}
 
 }

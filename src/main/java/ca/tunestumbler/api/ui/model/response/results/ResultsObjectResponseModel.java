@@ -1,13 +1,7 @@
-package ca.tunestumbler.api.shared.dto;
+package ca.tunestumbler.api.ui.model.response.results;
 
-import java.io.Serializable;
-
-public class ResultsDTO implements Serializable {
-	private static final long serialVersionUID = 1103952203234348723L;
-
-	private long id;
+public class ResultsObjectResponseModel {
 	private String resultsId;
-	private UserDTO userDTO;
 	private String userId;
 	private String subreddit;
 	private String title;
@@ -22,16 +16,6 @@ public class ResultsDTO implements Serializable {
 	private String url;
 	private String nextUri;
 	private String afterId;
-	private long startId;
-	private String lastModified;
-
-	public long getId() {
-		return id;
-	}
-
-	public void setId(long id) {
-		this.id = id;
-	}
 
 	public String getResultsId() {
 		return resultsId;
@@ -39,14 +23,6 @@ public class ResultsDTO implements Serializable {
 
 	public void setResultsId(String resultsId) {
 		this.resultsId = resultsId;
-	}
-
-	public UserDTO getUserDTO() {
-		return userDTO;
-	}
-
-	public void setUserDTO(UserDTO userDTO) {
-		this.userDTO = userDTO;
 	}
 
 	public String getUserId() {
@@ -159,22 +135,6 @@ public class ResultsDTO implements Serializable {
 
 	public void setAfterId(String afterId) {
 		this.afterId = afterId;
-	}
-
-	public long getStartId() {
-		return startId;
-	}
-
-	public void setStartId(long startId) {
-		this.startId = startId;
-	}
-
-	public String getLastModified() {
-		return lastModified;
-	}
-
-	public void setLastModified(String lastModified) {
-		this.lastModified = lastModified;
 	}
 
 }

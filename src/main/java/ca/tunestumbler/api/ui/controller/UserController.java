@@ -33,7 +33,7 @@ public class UserController {
 	@Autowired
 	UserService userService;
 
-	@GetMapping(path = "/{userId}", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
+	@GetMapping(path = "/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public UserDetailsResponseModel getUser(@PathVariable String userId) {
 		UserDetailsResponseModel existingUserResponse = new UserDetailsResponseModel();
 
@@ -43,8 +43,7 @@ public class UserController {
 		return existingUserResponse;
 	}
 
-	@PostMapping(consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }, 
-			produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
+	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public UserDetailsResponseModel createUser(@RequestBody UserDetailsRequestModel userDetails) throws Exception {
 		UserDetailsResponseModel newUserResponse = new UserDetailsResponseModel();
 
@@ -57,10 +56,9 @@ public class UserController {
 		return newUserResponse;
 	}
 
-	@PutMapping(path = "/{userId}",
-			consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }, 
-			produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
-	public UserDetailsResponseModel updateUser(@PathVariable String userId, @RequestBody UserDetailsRequestModel userDetails) {
+	@PutMapping(path = "/{userId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public UserDetailsResponseModel updateUser(@PathVariable String userId,
+			@RequestBody UserDetailsRequestModel userDetails) {
 		UserDetailsResponseModel updatedUserResponse = new UserDetailsResponseModel();
 
 		UserDTO userDTO = new UserDTO();
@@ -68,34 +66,34 @@ public class UserController {
 
 		UserDTO updatedUser = userService.updateUser(userId, userDTO);
 		BeanUtils.copyProperties(updatedUser, updatedUserResponse);
-		
+
 		return updatedUserResponse;
 	}
 
-	@DeleteMapping(path = "/{userId}", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
+	@DeleteMapping(path = "/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public OperationStatusModel deleteUser(@PathVariable String userId) {
 		OperationStatusModel deletedUserResponse = new OperationStatusModel();
 		deletedUserResponse.setOperationName(RequestOperationName.DELETE.name());
-		
+
 		userService.deleteUser(userId);
 		deletedUserResponse.setOperationResult(RequestOperationStatus.SUCCESS.name());
-		
+
 		return deletedUserResponse;
 	}
 
-	@GetMapping(produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
-	public List<UserDetailsResponseModel> getUsers(@RequestParam(value="page", defaultValue="0") int page,
-			@RequestParam(value="limit", defaultValue="30") int limit) {
+	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+	public List<UserDetailsResponseModel> getUsers(@RequestParam(value = "page", defaultValue = "0") int page,
+			@RequestParam(value = "limit", defaultValue = "30") int limit) {
 		List<UserDetailsResponseModel> existingUsers = new ArrayList<>();
-		
+
 		List<UserDTO> usersDTO = userService.getUsers(page, limit);
-		
+
 		for (UserDTO userDTO : usersDTO) {
 			UserDetailsResponseModel existingUser = new UserDetailsResponseModel();
 			BeanUtils.copyProperties(userDTO, existingUser);
 			existingUsers.add(existingUser);
 		}
-		
+
 		return existingUsers;
 	}
 

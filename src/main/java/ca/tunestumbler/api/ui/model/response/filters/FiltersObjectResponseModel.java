@@ -1,33 +1,17 @@
-package ca.tunestumbler.api.shared.dto;
+package ca.tunestumbler.api.ui.model.response.filters;
 
-import java.io.Serializable;
-
-public class FiltersDTO implements Serializable {
-	private static final long serialVersionUID = -5370336446817047806L;
-	private long id;
+public class FiltersObjectResponseModel {
 	private String filtersId;
-	private UserDTO userDTO;
 	private String userId;
 	private String multireddit;
 	private String subreddit;
-	private Integer priority = 0;
-	private Integer minScore = 1;
+	private Integer priority;
+	private Integer minScore;
 	private Boolean allowNSFWFlag = false;
 	private String hideByKeyword;
 	private String showByKeyword;
 	private String hideByDomain;
 	private String showByDomain;
-	private long startId;
-	private Boolean isActive = false;
-	private String lastModified;
-
-	public long getId() {
-		return id;
-	}
-
-	public void setId(long id) {
-		this.id = id;
-	}
 
 	public String getFiltersId() {
 		return filtersId;
@@ -35,14 +19,6 @@ public class FiltersDTO implements Serializable {
 
 	public void setFiltersId(String filtersId) {
 		this.filtersId = filtersId;
-	}
-
-	public UserDTO getUserDTO() {
-		return userDTO;
-	}
-
-	public void setUserDTO(UserDTO userDTO) {
-		this.userDTO = userDTO;
 	}
 
 	public String getUserId() {
@@ -123,30 +99,6 @@ public class FiltersDTO implements Serializable {
 
 	public void setShowByDomain(String showByDomain) {
 		this.showByDomain = showByDomain;
-	}
-
-	public long getStartId() {
-		return startId;
-	}
-
-	public void setStartId(long startId) {
-		this.startId = startId;
-	}
-
-	public Boolean getIsActive() {
-		return isActive;
-	}
-
-	public void setIsActive(Boolean isActive) {
-		this.isActive = isActive;
-	}
-
-	public String getLastModified() {
-		return lastModified;
-	}
-
-	public void setLastModified(String lastModified) {
-		this.lastModified = lastModified;
 	}
 
 }

@@ -61,7 +61,8 @@ public class AggregateController {
 	public AggregateResponseModel getAggregate(@PathVariable String userId) {
 		AggregateResponseModel aggregateResponse = new AggregateResponseModel();
 
-		List<AggregateDTO> existingAggregate = aggregateService.getAggregateByUserId(userId);
+		UserDTO userDTO = userService.getUserByUserId(userId);
+		List<AggregateDTO> existingAggregate = aggregateService.getAggregateByUserId(userDTO);
 		Type listType = new TypeToken<List<AggregateObjectResponseModel>>() {
 		}.getType();
 		List<AggregateObjectResponseModel> responseObject = new ModelMapper().map(existingAggregate, listType);
