@@ -21,7 +21,6 @@ public class UserDTO implements Serializable {
 	private List<FiltersDTO> filters;
 	private List<AggregateDTO> aggregate;
 	private List<ResultsDTO> results;
-	private List<FilteredResultsDTO> filtered;
 
 	public String getUserId() {
 		return userId;
@@ -149,14 +148,6 @@ public class UserDTO implements Serializable {
 
 	public void setResults(List<ResultsDTO> results) {
 		this.results = results;
-	}
-
-	public List<FilteredResultsDTO> getFiltered() {
-		return filtered;
-	}
-
-	public void setFiltered(List<FilteredResultsDTO> filtered) {
-		this.filtered = filtered;
 	}
 
 }
