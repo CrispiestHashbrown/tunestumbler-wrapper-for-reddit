@@ -8,7 +8,9 @@ import javax.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -62,7 +64,7 @@ public class FiltersController {
 	}
 
 	@PostMapping(path = "/{userId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public FiltersResponseModel createFilters(@PathVariable String userId,
+	public ResponseEntity<?> createFilters(@PathVariable String userId,
 			@Valid @RequestBody FiltersRequestModel newFilters, BindingResult bindingResult) {
 		if (Strings.isNullOrEmpty(userId)) {
 			throw new MissingPathParametersException(ErrorPrefixes.FILTERS_CONTROLLER.getErrorPrefix()
@@ -87,7 +89,7 @@ public class FiltersController {
 		List<FiltersObjectResponseModel> responseObject = new ModelMapper().map(createdFilters, responseListType);
 		newFiltersResponse.setFilters(responseObject);
 
-		return newFiltersResponse;
+		return new ResponseEntity<>(newFiltersResponse, HttpStatus.CREATED);
 	}
 
 	@PutMapping(path = "/{userId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
