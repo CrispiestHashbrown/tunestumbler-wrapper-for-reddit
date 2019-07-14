@@ -12,7 +12,7 @@ public class SubredditDTO implements Serializable {
 	private String afterId;
 	private String beforeId;
 	private Boolean isSubscribed = false;
-	private long startId;
+	private Long startId;
 	private String lastModified;
 
 	public long getId() {
@@ -79,11 +79,11 @@ public class SubredditDTO implements Serializable {
 		this.isSubscribed = isSubscribed;
 	}
 
-	public long getStartId() {
+	public Long getStartId() {
 		return startId;
 	}
 
-	public void setStartId(long startId) {
+	public void setStartId(Long startId) {
 		this.startId = startId;
 	}
 

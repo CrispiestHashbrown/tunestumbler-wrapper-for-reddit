@@ -14,8 +14,8 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import ca.tunestumbler.api.exceptions.SubredditServiceException;
-import ca.tunestumbler.api.exceptions.UserServiceException;
+import ca.tunestumbler.api.exceptions.RedditAccountNotAuthenticatedException;
+import ca.tunestumbler.api.exceptions.WebRequestFailedException;
 import ca.tunestumbler.api.io.entity.SubredditEntity;
 import ca.tunestumbler.api.io.entity.UserEntity;
 import ca.tunestumbler.api.io.repositories.SubredditRepository;
@@ -25,6 +25,7 @@ import ca.tunestumbler.api.shared.SharedUtils;
 import ca.tunestumbler.api.shared.dto.SubredditDTO;
 import ca.tunestumbler.api.shared.dto.UserDTO;
 import ca.tunestumbler.api.ui.model.response.ErrorMessages;
+import ca.tunestumbler.api.ui.model.response.ErrorPrefixes;
 import ca.tunestumbler.api.ui.model.response.subreddit.SubredditDataChildrenModel;
 import ca.tunestumbler.api.ui.model.response.subreddit.SubredditFetchResponseModel;
 
@@ -40,10 +41,6 @@ public class SubredditServiceImpl implements SubredditService {
 //	TODO: Get subreddits from paginated results
 	@Override
 	public List<SubredditDTO> fetchSubreddits(UserDTO user) {
-		if (user == null) {
-			throw new UserServiceException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
-		}
-
 		Long userMaxId = subredditRepository.findMaxIdByUserId(user.getUserId());
 		Long maxId = subredditRepository.findMaxId();
 		Long startId = sharedUtils.setStartId(userMaxId, maxId);
@@ -88,25 +85,24 @@ public class SubredditServiceImpl implements SubredditService {
 
 	@Override
 	public List<SubredditDTO> updateSubreddits(UserDTO user) {
-		List<SubredditDTO> subreddits = new ArrayList<>();
-
-		if (user == null) {
-			throw new UserServiceException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
-		}
-
 		String userId = user.getUserId();
 		Long startId = subredditRepository.findMaxStartIdByUserId(userId);
 		List<SubredditEntity> subredditEntities = subredditRepository
 				.findSubredditsByUserIdAndMaxStartIdAndSubscribed(userId, startId);
+
 		for (SubredditEntity subredditEntity : subredditEntities) {
 			subredditEntity.setIsSubscribed(false);
 		}
 
 		SubredditFetchResponseModel response = sendGetSubredditRequest(user);
 		List<SubredditDataChildrenModel> subredditModel = response.getData().getChildren();
+		List<SubredditDTO> subreddits = new ArrayList<>();
 		if (subredditModel == null || subredditModel.isEmpty() || subredditModel.size() < 2
 				&& subredditModel.get(0).getData().getDisplay_name().equals("announcements")) {
-			subredditRepository.saveAll(subredditEntities);
+			if (subredditEntities != null) {
+				subredditRepository.saveAll(subredditEntities);
+			}
+
 			return subreddits;
 		}
 
@@ -152,7 +148,8 @@ public class SubredditServiceImpl implements SubredditService {
 	private SubredditFetchResponseModel sendGetSubredditRequest(UserDTO user) {
 		String token = user.getToken();
 		if (token == null) {
-			throw new SubredditServiceException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
+			throw new RedditAccountNotAuthenticatedException(ErrorPrefixes.SUBREDDIT_SERVICE.getErrorPrefix()
+					+ ErrorMessages.REDDIT_ACCOUNT_NOT_AUTHENTICATED.getErrorMessage());
 		}
 
 		String baseUrl = "https://oauth.reddit.com";
@@ -173,18 +170,30 @@ public class SubredditServiceImpl implements SubredditService {
 
 		return requestUri
 						.exchange()
+						.map(clientResponse -> {
+							if (clientResponse.statusCode().isError()) {
+								throw new WebRequestFailedException(ErrorPrefixes.SUBREDDIT_SERVICE.getErrorPrefix()
+										+ ErrorMessages.FAILED_EXTERNAL_WEB_REQUEST.getErrorMessage());
+							}
+
+							return clientResponse;
+					    })
 						.block()
 						.bodyToMono(SubredditFetchResponseModel.class)
 						.block();
 	}
 
 	@Override
-	public List<SubredditDTO> getSubredditsByUserId(String userId) {
-		List<SubredditDTO> existingSubreddits = new ArrayList<>();
-
+	public List<SubredditDTO> getSubredditsByUserId(UserDTO user) {
+		String userId = user.getUserId();
 		Long startId = subredditRepository.findMaxStartIdByUserId(userId);
 		List<SubredditEntity> subredditList = subredditRepository.findSubredditsByUserIdAndMaxIdAndSubscribed(userId,
 				startId);
+
+		List<SubredditDTO> existingSubreddits = new ArrayList<>();
+		if (subredditList == null) {
+			return existingSubreddits;
+		}
 
 		for (SubredditEntity subreddit : subredditList) {
 			SubredditDTO subredditDTO = new SubredditDTO();

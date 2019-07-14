@@ -13,10 +13,15 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.common.base.Strings;
+
+import ca.tunestumbler.api.exceptions.MissingPathParametersException;
 import ca.tunestumbler.api.service.SubredditService;
 import ca.tunestumbler.api.service.UserService;
 import ca.tunestumbler.api.shared.dto.SubredditDTO;
 import ca.tunestumbler.api.shared.dto.UserDTO;
+import ca.tunestumbler.api.ui.model.response.ErrorMessages;
+import ca.tunestumbler.api.ui.model.response.ErrorPrefixes;
 import ca.tunestumbler.api.ui.model.response.SubredditResponseModel;
 import ca.tunestumbler.api.ui.model.response.subreddit.SubredditObjectResponseModel;
 
@@ -32,6 +37,11 @@ public class SubredditController {
 
 	@GetMapping(path = "/fetch/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public SubredditResponseModel fetchSubreddits(@PathVariable String userId) {
+		if (Strings.isNullOrEmpty(userId)) {
+			throw new MissingPathParametersException(ErrorPrefixes.SUBREDDIT_CONTROLLER.getErrorPrefix()
+					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
+		}
+
 		SubredditResponseModel subredditResponse = new SubredditResponseModel();
 
 		UserDTO userDTO = userService.getUserByUserId(userId);
@@ -47,6 +57,11 @@ public class SubredditController {
 
 	@GetMapping(path = "/update/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public SubredditResponseModel updateSubreddits(@PathVariable String userId) {
+		if (Strings.isNullOrEmpty(userId)) {
+			throw new MissingPathParametersException(ErrorPrefixes.SUBREDDIT_CONTROLLER.getErrorPrefix()
+					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
+		}
+
 		SubredditResponseModel subredditResponse = new SubredditResponseModel();
 
 		UserDTO userDTO = userService.getUserByUserId(userId);
