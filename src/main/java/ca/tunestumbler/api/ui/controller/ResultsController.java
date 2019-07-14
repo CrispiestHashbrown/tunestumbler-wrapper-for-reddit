@@ -10,7 +10,9 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -65,7 +67,7 @@ public class ResultsController {
 	}
 
 	@PostMapping(path = "/fetch/next/{userId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResultsResponseModel fetchNextResults(@PathVariable String userId,
+	public ResponseEntity<?> fetchNextResults(@PathVariable String userId,
 			@Valid @RequestBody ResultsRequestModel results, BindingResult bindingResult) {
 		if (Strings.isNullOrEmpty(userId)) {
 			throw new MissingPathParametersException(ErrorPrefixes.RESULTS_CONTROLLER.getErrorPrefix()
@@ -92,6 +94,7 @@ public class ResultsController {
 		responseObject = new ModelMapper().map(updatedResults, listType);
 		resultsResponse.setResults(responseObject);
 
-		return resultsResponse;
+		return new ResponseEntity<>(resultsResponse, HttpStatus.CREATED);
 	}
+
 }
