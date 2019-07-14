@@ -17,7 +17,9 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import ca.tunestumbler.api.exceptions.ResultsServiceException;
+import ca.tunestumbler.api.exceptions.FiltersNotFoundException;
+import ca.tunestumbler.api.exceptions.RedditAccountNotAuthenticatedException;
+import ca.tunestumbler.api.exceptions.WebRequestFailedException;
 import ca.tunestumbler.api.io.entity.FiltersEntity;
 import ca.tunestumbler.api.io.entity.ResultsEntity;
 import ca.tunestumbler.api.io.entity.UserEntity;
@@ -31,6 +33,7 @@ import ca.tunestumbler.api.shared.SortResultsById;
 import ca.tunestumbler.api.shared.dto.ResultsDTO;
 import ca.tunestumbler.api.shared.dto.UserDTO;
 import ca.tunestumbler.api.ui.model.response.ErrorMessages;
+import ca.tunestumbler.api.ui.model.response.ErrorPrefixes;
 import ca.tunestumbler.api.ui.model.response.results.ResultsDataChildrenDataModel;
 import ca.tunestumbler.api.ui.model.response.results.ResultsDataChildrenModel;
 import ca.tunestumbler.api.ui.model.response.results.ResultsFetchResponseModel;
@@ -56,28 +59,21 @@ public class ResultsServiceImpl implements ResultsService {
 
 	@Override
 	public List<ResultsDTO> fetchResults(UserDTO user, String orderBy) {
-		if (user == null) {
-			throw new ResultsServiceException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
-		}
-
 		String userId = user.getUserId();
 		Long filtersStartId = filtersRepository.findMaxStartIdByUserId(userId);
 
 		List<FiltersEntity> filters = filtersRepository.findFiltersByUserIdAndStartIdAndIsActive(userId,
 				filtersStartId);
-		List<ResultsDTO> results = new ArrayList<>();
 		if (filters == null || filters.isEmpty()) {
-			return results;
+			throw new FiltersNotFoundException(ErrorPrefixes.RESULTS_SERVICE.getErrorPrefix()
+					+ ErrorMessages.FILTER_RESOURCES_NOT_FOUND.getErrorMessage());
 		}
 
 		String baseUrl = "https://oauth.reddit.com";
 		String uri = filtersURIBuilder(filters, orderBy);
-		if (uri.isEmpty()) {
-			return results;
-		}
-
 		ResultsFetchResponseModel response = sendGetResultsRequest(user, baseUrl, uri);
 		List<ResultsDataChildrenModel> resultsModel = response.getData().getChildren();
+		List<ResultsDTO> results = new ArrayList<>();
 		if (resultsModel == null || resultsModel.isEmpty()
 				|| resultsModel.size() < 2 && resultsModel.get(0).getData().getStickied()) {
 			return results;
@@ -113,20 +109,12 @@ public class ResultsServiceImpl implements ResultsService {
 
 	@Override
 	public List<ResultsDTO> fetchNextResults(UserDTO user, String nextUri, String afterId) {
-		if (user == null) {
-			throw new ResultsServiceException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
-		}
-
-		List<ResultsDTO> results = new ArrayList<>();
-		if (afterId.isEmpty()) {
-			return results;
-		}
-
 		String baseUrl = "https://oauth.reddit.com";
 		String fullUri = nextUri + afterIdPathVariableName + afterId;
 
 		ResultsFetchResponseModel response = sendGetResultsRequest(user, baseUrl, fullUri);
 		List<ResultsDataChildrenModel> resultsModel = response.getData().getChildren();
+		List<ResultsDTO> results = new ArrayList<>();
 		if (resultsModel == null || resultsModel.isEmpty()
 				|| resultsModel.size() < 2 && resultsModel.get(0).getData().getStickied()) {
 			return results;
@@ -152,6 +140,12 @@ public class ResultsServiceImpl implements ResultsService {
 		Long filtersStartId = filtersRepository.findMaxStartIdByUserId(userId);
 		List<FiltersEntity> filters = filtersRepository.findFiltersByUserIdAndStartIdAndIsActive(userId,
 				filtersStartId);
+
+		if (filters == null) {
+			throw new FiltersNotFoundException(ErrorPrefixes.RESULTS_SERVICE.getErrorPrefix()
+					+ ErrorMessages.FILTER_RESOURCES_NOT_FOUND.getErrorMessage());
+		}
+
 		for (FiltersEntity filtersEntity : filters) {
 			filteredResults.addAll(getFilteredResults(filtersEntity, userId, newStartId));
 		}
@@ -182,7 +176,8 @@ public class ResultsServiceImpl implements ResultsService {
 	private ResultsFetchResponseModel sendGetResultsRequest(UserDTO user, String baseUrl, String uri) {
 		String token = user.getToken();
 		if (token == null) {
-			throw new ResultsServiceException(ErrorMessages.BAD_REQUEST.getErrorMessage());
+			throw new RedditAccountNotAuthenticatedException(ErrorPrefixes.RESULTS_SERVICE.getErrorPrefix()
+					+ ErrorMessages.REDDIT_ACCOUNT_NOT_AUTHENTICATED.getErrorMessage());
 		}
 
 		String userAgentHeader = "web:ca.tunestumbler.api:v0.0.1 (by /u/CrispiestHashbrown)";
@@ -195,7 +190,19 @@ public class ResultsServiceImpl implements ResultsService {
 		WebClient.UriSpec<WebClient.RequestBodySpec> request = client.method(HttpMethod.GET);
 		WebClient.RequestBodySpec requestUri = request.uri(uri);
 
-		return requestUri.exchange().block().bodyToMono(ResultsFetchResponseModel.class).block();
+		return requestUri
+						.exchange()
+						.map(clientResponse -> {
+							if (clientResponse.statusCode().isError()) {
+								throw new WebRequestFailedException(ErrorPrefixes.RESULTS_SERVICE.getErrorPrefix()
+										+ ErrorMessages.FAILED_EXTERNAL_WEB_REQUEST.getErrorMessage());
+							}
+
+							return clientResponse;
+					    })
+						.block()
+						.bodyToMono(ResultsFetchResponseModel.class)
+						.block();
 	}
 
 	private String filtersURIBuilder(List<FiltersEntity> filters, String orderBy) {

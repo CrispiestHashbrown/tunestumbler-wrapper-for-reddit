@@ -10,8 +10,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import ca.tunestumbler.api.exceptions.FiltersServiceException;
-import ca.tunestumbler.api.exceptions.UserServiceException;
+import ca.tunestumbler.api.exceptions.FiltersNotFoundException;
 import ca.tunestumbler.api.io.entity.FiltersEntity;
 import ca.tunestumbler.api.io.entity.UserEntity;
 import ca.tunestumbler.api.io.repositories.FiltersRepository;
@@ -21,6 +20,7 @@ import ca.tunestumbler.api.shared.SharedUtils;
 import ca.tunestumbler.api.shared.dto.FiltersDTO;
 import ca.tunestumbler.api.shared.dto.UserDTO;
 import ca.tunestumbler.api.ui.model.response.ErrorMessages;
+import ca.tunestumbler.api.ui.model.response.ErrorPrefixes;
 
 @Service
 public class FiltersServiceImpl implements FiltersService {
@@ -38,14 +38,6 @@ public class FiltersServiceImpl implements FiltersService {
 
 	@Override
 	public List<FiltersDTO> createFilters(UserDTO user, List<FiltersDTO> filters) {
-		if (userRepository.findByUserId(user.getUserId()) == null) {
-			throw new UserServiceException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
-		}
-
-		if (filters == null || filters.isEmpty()) {
-			throw new FiltersServiceException(ErrorMessages.MISSING_REQUIRED_FIELD.getErrorMessage());
-		}
-
 		UserEntity userEntity = new UserEntity();
 		BeanUtils.copyProperties(user, userEntity);
 
@@ -75,13 +67,14 @@ public class FiltersServiceImpl implements FiltersService {
 
 	@Override
 	public List<FiltersDTO> getFiltersByUserId(UserDTO user) {
-		if (userRepository.findByUserId(user.getUserId()) == null) {
-			throw new UserServiceException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
-		}
-
 		String userId = user.getUserId();
 		Long startId = filtersRepository.findMaxStartIdByUserId(userId);
 		List<FiltersEntity> filtersList = filtersRepository.findFiltersByUserIdAndStartIdAndIsActive(userId, startId);
+
+		if (filtersList == null) {
+			throw new FiltersNotFoundException(ErrorPrefixes.FILTERS_SERVICE.getErrorPrefix()
+					+ ErrorMessages.FILTER_RESOURCES_NOT_FOUND.getErrorMessage());
+		}
 
 		Type listType = new TypeToken<List<FiltersDTO>>() {
 		}.getType();
@@ -91,18 +84,11 @@ public class FiltersServiceImpl implements FiltersService {
 
 	@Override
 	public List<FiltersDTO> updateFilters(UserDTO user, List<FiltersDTO> filters) {
-		if (userRepository.findByUserId(user.getUserId()) == null) {
-			throw new UserServiceException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
-		}
-
-		if (filters == null) {
-			throw new FiltersServiceException(ErrorMessages.MISSING_REQUIRED_FIELD.getErrorMessage());
-		}
-
 		String userId = user.getUserId();
 		Long startId = filtersRepository.findMaxStartIdByUserId(userId);
 		List<FiltersEntity> existingFilters = filtersRepository.findFiltersByUserIdAndStartIdAndIsActive(userId,
 				startId);
+
 		for (FiltersEntity filtersEntity : existingFilters) {
 			filtersEntity.setIsActive(false);
 		}
@@ -115,6 +101,8 @@ public class FiltersServiceImpl implements FiltersService {
 			String filtersId = filtersDTO.getFiltersId();
 			Boolean isExistingFilter = false;
 			for (FiltersEntity filtersEntity : existingFilters) {
+
+				// If the filter exists, update all filter fields.
 				if (filtersId.equals(filtersEntity.getFiltersId())) {
 					isExistingFilter = true;
 					filtersEntity.setPriority(filtersDTO.getPriority());
@@ -131,6 +119,7 @@ public class FiltersServiceImpl implements FiltersService {
 				}
 			}
 
+			// If the filter does not exist, add the filter
 			if (!isExistingFilter) {
 				FiltersEntity newFilter = new FiltersEntity();
 				String newFiltersId = sharedUtils.generateFiltersId(idLength);

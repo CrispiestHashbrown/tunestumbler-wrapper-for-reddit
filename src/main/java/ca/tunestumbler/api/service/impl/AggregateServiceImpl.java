@@ -10,7 +10,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import ca.tunestumbler.api.exceptions.AggregateServiceException;
+import ca.tunestumbler.api.exceptions.SubredditsNotFoundException;
 import ca.tunestumbler.api.io.entity.AggregateEntity;
 import ca.tunestumbler.api.io.entity.UserEntity;
 import ca.tunestumbler.api.io.repositories.AggregateRepository;
@@ -24,6 +24,7 @@ import ca.tunestumbler.api.shared.dto.MultiredditDTO;
 import ca.tunestumbler.api.shared.dto.SubredditDTO;
 import ca.tunestumbler.api.shared.dto.UserDTO;
 import ca.tunestumbler.api.ui.model.response.ErrorMessages;
+import ca.tunestumbler.api.ui.model.response.ErrorPrefixes;
 
 @Service
 public class AggregateServiceImpl implements AggregateService {
@@ -45,10 +46,6 @@ public class AggregateServiceImpl implements AggregateService {
 
 	@Override
 	public List<AggregateDTO> createAggregateByUserId(UserDTO user) {
-		if (user == null) {
-			throw new AggregateServiceException(ErrorMessages.BAD_REQUEST.getErrorMessage());
-		}
-
 		String userId = user.getUserId();
 		Long userMaxId = aggregateRepository.findMaxIdByUserId(userId);
 		Long maxId = aggregateRepository.findMaxId();
@@ -56,10 +53,9 @@ public class AggregateServiceImpl implements AggregateService {
 
 		List<SubredditDTO> subredditList = subredditService.fetchSubreddits(user);
 		List<MultiredditDTO> multiredditList = multiredditService.fetchMultireddits(user);
-		List<AggregateDTO> aggregate = new ArrayList<>();
-
 		if (subredditList == null && multiredditList == null) {
-			return aggregate;
+			throw new SubredditsNotFoundException(ErrorPrefixes.AGGREGATE_SERVICE.getErrorPrefix()
+					+ ErrorMessages.SUBREDDIT_RESOURCES_NOT_FOUND.getErrorMessage());
 		}
 
 		UserEntity userEntity = new UserEntity();
@@ -79,21 +75,20 @@ public class AggregateServiceImpl implements AggregateService {
 		List<AggregateEntity> storedAggregateEntities = aggregateRepository.saveAll(newAggregateEntities);
 		Type listType = new TypeToken<List<AggregateDTO>>() {
 		}.getType();
-		aggregate = new ModelMapper().map(storedAggregateEntities, listType);
 
-		return aggregate;
+		return new ModelMapper().map(storedAggregateEntities, listType);
 	}
 
 	@Override
 	public List<AggregateDTO> getAggregateByUserId(UserDTO user) {
-		if (user == null) {
-			throw new AggregateServiceException(ErrorMessages.BAD_REQUEST.getErrorMessage());
-		}
-
 		String userId = user.getUserId();
 		Long startId = aggregateRepository.findMaxStartIdByUserId(userId);
-		List<AggregateEntity> aggregateList = aggregateRepository
-				.findAggregateByUserIdAndMaxStartIdAndIsSubredditAdded(userId, startId);
+		List<AggregateEntity> aggregateList = aggregateRepository.findAggregateByUserIdAndMaxStartId(userId, startId);
+
+		if (aggregateList == null) {
+			throw new SubredditsNotFoundException(ErrorPrefixes.AGGREGATE_SERVICE.getErrorPrefix()
+					+ ErrorMessages.SUBREDDIT_RESOURCES_NOT_FOUND.getErrorMessage());
+		}
 
 		List<AggregateDTO> existingAggregate = new ArrayList<>();
 		for (AggregateEntity aggregate : aggregateList) {
@@ -107,14 +102,11 @@ public class AggregateServiceImpl implements AggregateService {
 
 	@Override
 	public List<AggregateDTO> updateAggregateByUserId(UserDTO user) {
-		if (user == null) {
-			throw new AggregateServiceException(ErrorMessages.BAD_REQUEST.getErrorMessage());
-		}
-
 		String userId = user.getUserId();
 		Long startId = aggregateRepository.findMaxStartIdByUserId(userId);
 		List<AggregateEntity> aggregateEntities = aggregateRepository
 				.findAggregateByUserIdAndMaxStartIdAndIsSubredditAdded(userId, startId);
+
 		for (AggregateEntity aggregateEntity : aggregateEntities) {
 			aggregateEntity.setIsSubredditAdded(false);
 		}
@@ -123,18 +115,34 @@ public class AggregateServiceImpl implements AggregateService {
 		List<MultiredditDTO> multiredditList = multiredditService.updateMultireddits(user);
 		List<AggregateDTO> updatedAggregate = new ArrayList<>();
 		if (subredditList == null && multiredditList == null) {
-			aggregateRepository.saveAll(aggregateEntities);
+			if (aggregateEntities != null) {
+				aggregateRepository.saveAll(aggregateEntities);
+			}
+
 			return updatedAggregate;
 		}
 
 		UserEntity userEntity = new UserEntity();
 		BeanUtils.copyProperties(user, userEntity);
 
+		List<AggregateEntity> updatedAggregateEntities = createUpdatedAggregateEntity(subredditList, multiredditList,
+				userEntity, startId);
+
+		List<AggregateEntity> storedAggregateEntities = aggregateRepository.saveAll(updatedAggregateEntities);
+		Type listType = new TypeToken<List<AggregateDTO>>() {
+		}.getType();
+		updatedAggregate = new ModelMapper().map(storedAggregateEntities, listType);
+
+		return updatedAggregate;
+	}
+
+	private List<AggregateEntity> createUpdatedAggregateEntity(List<SubredditDTO> subredditList,
+			List<MultiredditDTO> multiredditList, UserEntity userEntity, Long startId) {
 		Boolean isSubredditAdded = true;
+		String userId = userEntity.getUserId();
 		List<AggregateEntity> updatedAggregateEntities = new ArrayList<>();
 		for (SubredditDTO subredditDTO : subredditList) {
 			String subreddit = subredditDTO.getSubreddit();
-//			TODO: turn this into aggregateEntities for loop
 			List<AggregateEntity> aggregateEntity = aggregateRepository.findByUserIdAndSubredditAndMaxStartId(userId,
 					subreddit, startId);
 
@@ -153,7 +161,6 @@ public class AggregateServiceImpl implements AggregateService {
 		for (MultiredditDTO multiredditDTO : multiredditList) {
 			String multireddit = multiredditDTO.getMultireddit();
 			String subreddit = multiredditDTO.getSubreddit();
-//			TODO: turn this into aggregateEntities for loop
 			List<AggregateEntity> aggregateEntity = aggregateRepository
 					.findByUserIdAndMultiredditAndSubredditAndMaxStartId(userId, multireddit, subreddit, startId);
 
@@ -169,19 +176,20 @@ public class AggregateServiceImpl implements AggregateService {
 			}
 		}
 
-		List<AggregateEntity> storedAggregateEntities = aggregateRepository.saveAll(updatedAggregateEntities);
-		Type listType = new TypeToken<List<AggregateDTO>>() {
-		}.getType();
-		updatedAggregate = new ModelMapper().map(storedAggregateEntities, listType);
-
-		return updatedAggregate;
+		return updatedAggregateEntities;
 	}
-
+	
 	private AggregateEntity addSubredditEntity(UserEntity userEntity, SubredditDTO subredditDTO, Long startId) {
 		AggregateEntity newAggregateEntity = new AggregateEntity();
 		int idLength = 50;
 		String aggregateId = sharedUtils.generateAggregateId(idLength);
 		Boolean isSubredditAdded = true;
+
+		if (startId == null) {
+			Long userMaxId = aggregateRepository.findMaxIdByUserId(userEntity.getUserId());
+			Long maxId = aggregateRepository.findMaxId();
+			startId = sharedUtils.setStartId(userMaxId, maxId);
+		}
 
 		newAggregateEntity.setAggregateId(aggregateId);
 		newAggregateEntity.setUserEntity(userEntity);
@@ -200,6 +208,12 @@ public class AggregateServiceImpl implements AggregateService {
 		int idLength = 50;
 		String aggregateId = sharedUtils.generateAggregateId(idLength);
 		Boolean isSubredditAdded = true;
+
+		if (startId == null) {
+			Long userMaxId = aggregateRepository.findMaxIdByUserId(userEntity.getUserId());
+			Long maxId = aggregateRepository.findMaxId();
+			startId = sharedUtils.setStartId(userMaxId, maxId);
+		}
 
 		newAggregateEntity.setAggregateId(aggregateId);
 		newAggregateEntity.setUserEntity(userEntity);

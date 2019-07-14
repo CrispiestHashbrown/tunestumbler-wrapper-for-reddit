@@ -25,5 +25,5 @@ public interface FiltersRepository extends JpaRepository<FiltersEntity, String> 
 
 	@Query(value = "SELECT * FROM filters WHERE user_id = :userId AND start_id >= :startId AND is_active = true", nativeQuery = true)
 	List<FiltersEntity> findFiltersByUserIdAndStartIdAndIsActive(@Param("userId") String userId,
-			@Param("startId") long startId);
+			@Param("startId") Long startId);
 }

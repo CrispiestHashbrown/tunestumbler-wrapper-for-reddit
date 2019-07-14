@@ -1,10 +1,16 @@
 package ca.tunestumbler.api.ui.model.response;
 
 public enum ErrorMessages {
-	MISSING_REQUIRED_FIELD("Missing required field. Please check documentation for required fields"),
+	MISSING_REQUIRED_PATH_FIELD("Missing required path field."),
+	INVALID_BODY("Invalid body"),
+	REDDIT_ACCOUNT_NOT_AUTHENTICATED("Reddit account not authenticated. Please refresh authentication token"),
+	FAILED_EXTERNAL_WEB_REQUEST("External request has failed. Please try again later"),
 	RECORD_ALREADY_EXISTS("Record already exists"),
 	INTERNAL_SERVER_ERROR("Internal server error"),
 	NO_RECORD_FOUND("Record with provided id is not found"),
+	SUBREDDIT_RESOURCES_NOT_FOUND("Subreddit resources not found"),
+	FILTER_RESOURCES_NOT_FOUND("Filter resources not found"),
+	NO_RESULTS_RETURNED("No results were returned"),
 	AUTHENTICATION_FAILED("Authentication failed"),
 	COULD_NOT_UPDATE_RECORD("Could not update record"),
 	COULD_NOT_DELETE_RECORD("Could not delete record"),

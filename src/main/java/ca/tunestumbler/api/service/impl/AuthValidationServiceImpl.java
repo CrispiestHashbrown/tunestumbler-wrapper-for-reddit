@@ -4,7 +4,10 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.google.common.base.Strings;
+
 import ca.tunestumbler.api.exceptions.AuthValidationServiceException;
+import ca.tunestumbler.api.exceptions.RecordAlreadyExistsException;
 import ca.tunestumbler.api.io.entity.AuthValidationEntity;
 import ca.tunestumbler.api.io.entity.UserEntity;
 import ca.tunestumbler.api.io.repositories.AuthValidationRepository;
@@ -29,10 +32,13 @@ public class AuthValidationServiceImpl implements AuthValidationService {
 
 	@Override
 	public AuthValidationDTO createAuthState(UserDTO user) {
-		String stateId = sharedUtils.generateStateId(50);
+		UserEntity userEntity = userRepository.findByUserId(user.getUserId());
 
-		UserEntity userEntity = new UserEntity();
-		BeanUtils.copyProperties(user, userEntity);
+		if (userEntity == null) {
+			throw new RecordAlreadyExistsException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
+		}
+
+		String stateId = sharedUtils.generateStateId(50);
 		AuthValidationEntity authValidationEntity = new AuthValidationEntity();
 
 		authValidationEntity.setUserEntity(userEntity);
@@ -53,7 +59,7 @@ public class AuthValidationServiceImpl implements AuthValidationService {
 		AuthValidationEntity authValidationEntity = authValidationRepository.findByStateIdAndValidated(stateId, false);
 
 		if (authValidationEntity == null) {
-			throw new AuthValidationServiceException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
+			throw new AuthValidationServiceException(ErrorMessages.BAD_REQUEST.getErrorMessage());
 		}
 
 		AuthValidationDTO existingAuthValidation = new AuthValidationDTO();
@@ -63,6 +69,10 @@ public class AuthValidationServiceImpl implements AuthValidationService {
 
 	@Override
 	public AuthValidationDTO updateState(String stateId, String code) {
+		if (Strings.isNullOrEmpty(stateId) || Strings.isNullOrEmpty(code)) {
+			throw new AuthValidationServiceException(ErrorMessages.BAD_REQUEST.getErrorMessage());
+		}
+
 		AuthValidationDTO authValiationToUpdate = new AuthValidationDTO();
 
 		AuthValidationEntity authValidationEntity = authValidationRepository.findByStateIdAndValidated(stateId, false);
@@ -83,10 +93,14 @@ public class AuthValidationServiceImpl implements AuthValidationService {
 
 	@Override
 	public void deleteState(String stateId) {
+		if (Strings.isNullOrEmpty(stateId)) {
+			throw new AuthValidationServiceException(ErrorMessages.BAD_REQUEST.getErrorMessage());
+		}
+
 		AuthValidationEntity authValiationToDelete = authValidationRepository.findByStateId(stateId);
 
 		if (authValiationToDelete == null) {
-			throw new AuthValidationServiceException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
+			throw new AuthValidationServiceException(ErrorMessages.BAD_REQUEST.getErrorMessage());
 		}
 
 		authValidationRepository.delete(authValiationToDelete);

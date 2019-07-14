@@ -12,11 +12,16 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.common.base.Strings;
+
+import ca.tunestumbler.api.exceptions.MissingPathParametersException;
 import ca.tunestumbler.api.service.AggregateService;
 import ca.tunestumbler.api.service.UserService;
 import ca.tunestumbler.api.shared.dto.AggregateDTO;
 import ca.tunestumbler.api.shared.dto.UserDTO;
 import ca.tunestumbler.api.ui.model.response.AggregateResponseModel;
+import ca.tunestumbler.api.ui.model.response.ErrorMessages;
+import ca.tunestumbler.api.ui.model.response.ErrorPrefixes;
 import ca.tunestumbler.api.ui.model.response.aggregate.AggregateObjectResponseModel;
 
 @RestController
@@ -31,6 +36,11 @@ public class AggregateController {
 
 	@GetMapping(path = "/create/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public AggregateResponseModel createAggregate(@PathVariable String userId) {
+		if (Strings.isNullOrEmpty(userId)) {
+			throw new MissingPathParametersException(ErrorPrefixes.AGGREGATE_CONTROLLER.getErrorPrefix()
+					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
+		}
+
 		AggregateResponseModel aggregateResponse = new AggregateResponseModel();
 
 		UserDTO userDTO = userService.getUserByUserId(userId);
@@ -45,6 +55,11 @@ public class AggregateController {
 
 	@GetMapping(path = "/update/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public AggregateResponseModel updateAggregate(@PathVariable String userId) {
+		if (Strings.isNullOrEmpty(userId)) {
+			throw new MissingPathParametersException(ErrorPrefixes.AGGREGATE_CONTROLLER.getErrorPrefix()
+					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
+		}
+
 		AggregateResponseModel updatedAggregateResponse = new AggregateResponseModel();
 
 		UserDTO userDTO = userService.getUserByUserId(userId);
@@ -59,6 +74,11 @@ public class AggregateController {
 
 	@GetMapping(path = "/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public AggregateResponseModel getAggregate(@PathVariable String userId) {
+		if (Strings.isNullOrEmpty(userId)) {
+			throw new MissingPathParametersException(ErrorPrefixes.AGGREGATE_CONTROLLER.getErrorPrefix()
+					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
+		}
+
 		AggregateResponseModel aggregateResponse = new AggregateResponseModel();
 
 		UserDTO userDTO = userService.getUserByUserId(userId);

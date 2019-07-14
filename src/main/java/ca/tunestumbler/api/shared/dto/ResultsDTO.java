@@ -22,7 +22,7 @@ public class ResultsDTO implements Serializable {
 	private String url;
 	private String nextUri;
 	private String afterId;
-	private long startId;
+	private Long startId;
 	private String lastModified;
 
 	public long getId() {
@@ -161,11 +161,11 @@ public class ResultsDTO implements Serializable {
 		this.afterId = afterId;
 	}
 
-	public long getStartId() {
+	public Long getStartId() {
 		return startId;
 	}
 
-	public void setStartId(long startId) {
+	public void setStartId(Long startId) {
 		this.startId = startId;
 	}
 
