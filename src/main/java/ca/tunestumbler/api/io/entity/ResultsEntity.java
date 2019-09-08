@@ -69,7 +69,7 @@ public class ResultsEntity implements Serializable {
 	private String afterId;
 
 	@Column()
-	private long startId;
+	private Long startId;
 
 	@Column(nullable = false)
 	private String lastModified;
@@ -210,11 +210,11 @@ public class ResultsEntity implements Serializable {
 		this.afterId = afterId;
 	}
 
-	public long getStartId() {
+	public Long getStartId() {
 		return startId;
 	}
 
-	public void setStartId(long startId) {
+	public void setStartId(Long startId) {
 		this.startId = startId;
 	}
 

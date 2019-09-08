@@ -14,24 +14,81 @@ import ca.tunestumbler.api.ui.model.response.ErrorMessage;
 @ControllerAdvice
 public class ApplicationExceptionsHandler {
 
+	@ExceptionHandler(value = { MissingPathParametersException.class })
+	public ResponseEntity<Object> handleMissingPathParameterException(MissingPathParametersException exception,
+			WebRequest request) {
+		ErrorMessage errorMessage = new ErrorMessage(new Date(), "MISSING PARAMETER: " + exception.getMessage());
+
+		return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.BAD_REQUEST);
+	}
+
+	@ExceptionHandler(value = { InvalidBodyException.class })
+	public ResponseEntity<Object> handleInvalidBodyException(InvalidBodyException exception, WebRequest request) {
+		ErrorMessage errorMessage = new ErrorMessage(new Date(), "INVALID REQUEST BODY: " + exception.getMessage());
+
+		return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.BAD_REQUEST);
+	}
+
+	@ExceptionHandler(value = { RecordAlreadyExistsException.class })
+	public ResponseEntity<Object> handleRecordAlreadyExistsException(RecordAlreadyExistsException exception,
+			WebRequest request) {
+		ErrorMessage errorMessage = new ErrorMessage(new Date(), "RECORD ALREADY EXISTS: " + exception.getMessage());
+
+		return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.BAD_REQUEST);
+	}
+
 	@ExceptionHandler(value = { AuthValidationServiceException.class })
 	public ResponseEntity<Object> handleAuthValidationServiceException(AuthValidationServiceException exception,
 			WebRequest request) {
 		ErrorMessage errorMessage = new ErrorMessage(new Date(), exception.getMessage());
 
-		return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
+		return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.UNAUTHORIZED);
 	}
 
-	@ExceptionHandler(value = { UserServiceException.class })
-	public ResponseEntity<Object> handleUserServiceException(UserServiceException exception, WebRequest request) {
+	@ExceptionHandler(value = { RedditAccountNotAuthenticatedException.class })
+	public ResponseEntity<Object> handleAuthValidationServiceException(RedditAccountNotAuthenticatedException exception,
+			WebRequest request) {
 		ErrorMessage errorMessage = new ErrorMessage(new Date(), exception.getMessage());
+
+		return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.UNAUTHORIZED);
+	}
+
+	@ExceptionHandler(value = { ResourceNotFoundException.class })
+	public ResponseEntity<Object> handleResourceNotFoundException(ResourceNotFoundException exception,
+			WebRequest request) {
+		ErrorMessage errorMessage = new ErrorMessage(new Date(), "RESOURCE NOT FOUND: " + exception.getMessage());
+
+		return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.NOT_FOUND);
+	}
+
+	@ExceptionHandler(value = { SubredditsNotFoundException.class })
+	public ResponseEntity<Object> handleSubredditsNotFoundException(SubredditsNotFoundException exception,
+			WebRequest request) {
+		ErrorMessage errorMessage = new ErrorMessage(new Date(),
+				"NO SUBREDDITS SUBSCRIBED OR CURATED: " + exception.getMessage());
+
+		return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.NOT_FOUND);
+	}
+
+	@ExceptionHandler(value = { FiltersNotFoundException.class })
+	public ResponseEntity<Object> handleFiltersNotFoundException(FiltersNotFoundException exception,
+			WebRequest request) {
+		ErrorMessage errorMessage = new ErrorMessage(new Date(), "NO FILTERS FOUND: " + exception.getMessage());
+
+		return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.NOT_FOUND);
+	}
+
+	@ExceptionHandler(value = { WebRequestFailedException.class })
+	public ResponseEntity<Object> handleWebRequestFailedException(WebRequestFailedException exception,
+			WebRequest request) {
+		ErrorMessage errorMessage = new ErrorMessage(new Date(), "WEB REQUEST FAILED: " + exception.getMessage());
 
 		return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	@ExceptionHandler(value = { Exception.class })
 	public ResponseEntity<Object> handleOtherExceptions(Exception exception, WebRequest request) {
-		ErrorMessage errorMessage = new ErrorMessage(new Date(), exception.getMessage());
+		ErrorMessage errorMessage = new ErrorMessage(new Date(), "CATCHALL EXCEPTION: " + exception.getMessage());
 
 		return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
 	}

@@ -14,13 +14,15 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import ca.tunestumbler.api.exceptions.UserServiceException;
+import ca.tunestumbler.api.exceptions.RecordAlreadyExistsException;
+import ca.tunestumbler.api.exceptions.ResourceNotFoundException;
 import ca.tunestumbler.api.io.entity.UserEntity;
 import ca.tunestumbler.api.io.repositories.UserRepository;
 import ca.tunestumbler.api.service.UserService;
 import ca.tunestumbler.api.shared.SharedUtils;
 import ca.tunestumbler.api.shared.dto.UserDTO;
 import ca.tunestumbler.api.ui.model.response.ErrorMessages;
+import ca.tunestumbler.api.ui.model.response.ErrorPrefixes;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -37,7 +39,8 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public UserDTO createUser(UserDTO user) {
 		if (userRepository.findByEmail(user.getEmail()) != null) {
-			throw new RuntimeException("Record already exists");
+			throw new RecordAlreadyExistsException(ErrorPrefixes.USER_SERVICE.getErrorPrefix()
+					+ ErrorMessages.RECORD_ALREADY_EXISTS.getErrorMessage());
 		}
 
 		UserEntity userEntity = new UserEntity();
@@ -61,7 +64,8 @@ public class UserServiceImpl implements UserService {
 		UserEntity userEntity = userRepository.findByEmail(email);
 
 		if (userEntity == null) {
-			throw new UsernameNotFoundException(email);
+			throw new ResourceNotFoundException(
+					ErrorPrefixes.USER_SERVICE.getErrorPrefix() + ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
 		}
 
 		UserDTO existingUser = new UserDTO();
@@ -74,7 +78,8 @@ public class UserServiceImpl implements UserService {
 		UserEntity userEntity = userRepository.findByUserId(userId);
 
 		if (userEntity == null) {
-			throw new UsernameNotFoundException(userId);
+			throw new ResourceNotFoundException(
+					ErrorPrefixes.USER_SERVICE.getErrorPrefix() + ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
 		}
 
 		UserDTO existingUser = new UserDTO();
@@ -87,7 +92,8 @@ public class UserServiceImpl implements UserService {
 		UserEntity userEntity = userRepository.findByEmail(email);
 
 		if (userEntity == null) {
-			throw new UsernameNotFoundException(email);
+			throw new ResourceNotFoundException(
+					ErrorPrefixes.USER_SERVICE.getErrorPrefix() + ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
 		}
 
 		return new User(userEntity.getEmail(), userEntity.getEncryptedPassword(), new ArrayList<>());
@@ -100,7 +106,8 @@ public class UserServiceImpl implements UserService {
 		UserEntity userEntity = userRepository.findByUserId(userId);
 
 		if (userEntity == null) {
-			throw new UserServiceException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
+			throw new ResourceNotFoundException(
+					ErrorPrefixes.USER_SERVICE.getErrorPrefix() + ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
 		}
 
 		BeanUtils.copyProperties(user, userEntity);
@@ -115,7 +122,8 @@ public class UserServiceImpl implements UserService {
 		UserEntity userToDelete = userRepository.findByUserId(userId);
 
 		if (userToDelete == null) {
-			throw new UserServiceException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
+			throw new ResourceNotFoundException(
+					ErrorPrefixes.USER_SERVICE.getErrorPrefix() + ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
 		}
 
 		userRepository.delete(userToDelete);

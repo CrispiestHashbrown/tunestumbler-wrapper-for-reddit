@@ -13,10 +13,15 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.common.base.Strings;
+
+import ca.tunestumbler.api.exceptions.MissingPathParametersException;
 import ca.tunestumbler.api.service.MultiredditService;
 import ca.tunestumbler.api.service.UserService;
 import ca.tunestumbler.api.shared.dto.MultiredditDTO;
 import ca.tunestumbler.api.shared.dto.UserDTO;
+import ca.tunestumbler.api.ui.model.response.ErrorMessages;
+import ca.tunestumbler.api.ui.model.response.ErrorPrefixes;
 import ca.tunestumbler.api.ui.model.response.MultiredditResponseModel;
 import ca.tunestumbler.api.ui.model.response.multireddit.MultiredditObjectResponseModel;
 
@@ -32,6 +37,11 @@ public class MultiredditController {
 
 	@GetMapping(path = "/fetch/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public MultiredditResponseModel fetchMultireddits(@PathVariable String userId) {
+		if (Strings.isNullOrEmpty(userId)) {
+			throw new MissingPathParametersException(ErrorPrefixes.MULTIREDDIT_CONTROLLER.getErrorPrefix()
+					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
+		}
+
 		MultiredditResponseModel multiredditResponse = new MultiredditResponseModel();
 
 		UserDTO userDTO = userService.getUserByUserId(userId);
@@ -47,6 +57,11 @@ public class MultiredditController {
 
 	@GetMapping(path = "/update/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public MultiredditResponseModel updateMultireddits(@PathVariable String userId) {
+		if (Strings.isNullOrEmpty(userId)) {
+			throw new MissingPathParametersException(ErrorPrefixes.SUBREDDIT_CONTROLLER.getErrorPrefix()
+					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
+		}
+
 		MultiredditResponseModel multiredditResponse = new MultiredditResponseModel();
 
 		UserDTO userDTO = userService.getUserByUserId(userId);

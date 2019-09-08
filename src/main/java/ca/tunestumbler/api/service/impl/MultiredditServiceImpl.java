@@ -15,8 +15,8 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import ca.tunestumbler.api.exceptions.MultiredditServiceException;
-import ca.tunestumbler.api.exceptions.UserServiceException;
+import ca.tunestumbler.api.exceptions.RedditAccountNotAuthenticatedException;
+import ca.tunestumbler.api.exceptions.WebRequestFailedException;
 import ca.tunestumbler.api.io.entity.MultiredditEntity;
 import ca.tunestumbler.api.io.entity.UserEntity;
 import ca.tunestumbler.api.io.repositories.MultiredditRepository;
@@ -26,6 +26,7 @@ import ca.tunestumbler.api.shared.SharedUtils;
 import ca.tunestumbler.api.shared.dto.MultiredditDTO;
 import ca.tunestumbler.api.shared.dto.UserDTO;
 import ca.tunestumbler.api.ui.model.response.ErrorMessages;
+import ca.tunestumbler.api.ui.model.response.ErrorPrefixes;
 import ca.tunestumbler.api.ui.model.response.multireddit.MultiredditFetchResponseModel;
 import ca.tunestumbler.api.ui.model.response.multireddit.MultiredditDataSubredditModel;
 
@@ -40,10 +41,6 @@ public class MultiredditServiceImpl implements MultiredditService {
 
 	@Override
 	public List<MultiredditDTO> fetchMultireddits(UserDTO user) {
-		if (user == null) {
-			throw new UserServiceException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
-		}
-
 		Long userMaxId = multiredditRepository.findMaxIdByUserId(user.getUserId());
 		Long maxId = multiredditRepository.findMaxId();
 		Long startId = sharedUtils.setStartId(userMaxId, maxId);
@@ -88,24 +85,23 @@ public class MultiredditServiceImpl implements MultiredditService {
 
 	@Override
 	public List<MultiredditDTO> updateMultireddits(UserDTO user) {
-		List<MultiredditDTO> multireddits = new ArrayList<>();
-
-		if (user == null) {
-			throw new UserServiceException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
-		}
-
 		String userId = user.getUserId();
 		Long startId = multiredditRepository.findMaxStartIdByUserId(userId);
 		List<MultiredditEntity> multiredditEntities = multiredditRepository
 				.findSubredditsByUserIdAndMaxStartIdAndCurated(userId, startId);
+
 		for (MultiredditEntity multiredditEntity : multiredditEntities) {
 			multiredditEntity.setIsCurated(false);
 		}
 
 		MultiredditFetchResponseModel[] response = sendGetMultiredditRequest(user);
 		List<MultiredditFetchResponseModel> multiredditModel = Arrays.asList(response);
+		List<MultiredditDTO> multireddits = new ArrayList<>();
 		if (multiredditModel.isEmpty()) {
-			multiredditRepository.saveAll(multiredditEntities);
+			if (multiredditEntities != null) {
+				multiredditRepository.saveAll(multiredditEntities);
+			}
+
 			return multireddits;
 		}
 
@@ -131,7 +127,7 @@ public class MultiredditServiceImpl implements MultiredditService {
 					updatedMultiredditEntities.add(subredditDataEntity);
 				}
 
-				if (multiredditDataEntity == null || subredditDataEntity == null) {
+				if (multiredditDataEntity == null && subredditDataEntity == null) {
 					MultiredditEntity newMultiredditEntity = new MultiredditEntity();
 					String multiredditId = sharedUtils.generateMultiredditId(50);
 
@@ -160,7 +156,8 @@ public class MultiredditServiceImpl implements MultiredditService {
 	private MultiredditFetchResponseModel[] sendGetMultiredditRequest(UserDTO user) {
 		String token = user.getToken();
 		if (token == null) {
-			throw new MultiredditServiceException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
+			throw new RedditAccountNotAuthenticatedException(ErrorPrefixes.MULTIREDDIT_SERVICE.getErrorPrefix()
+					+ ErrorMessages.REDDIT_ACCOUNT_NOT_AUTHENTICATED.getErrorMessage());
 		}
 
 		String baseUrl = "https://oauth.reddit.com";
@@ -181,18 +178,31 @@ public class MultiredditServiceImpl implements MultiredditService {
 
 		return requestUri
 						.exchange()
+						.map(clientResponse -> {
+							if (clientResponse.statusCode().isError()) {
+								throw new WebRequestFailedException(ErrorPrefixes.MULTIREDDIT_SERVICE.getErrorPrefix()
+										+ ErrorMessages.FAILED_EXTERNAL_WEB_REQUEST.getErrorMessage());
+							}
+
+							return clientResponse;
+					    })
 						.block()
 						.bodyToMono(MultiredditFetchResponseModel[].class)
 						.block();
 	}
 
 	@Override
-	public List<MultiredditDTO> getMultiredditsByUserId(String userId) {
-		List<MultiredditDTO> existingMultireddits = new ArrayList<>();
-
+	public List<MultiredditDTO> getMultiredditsByUserId(UserDTO user) {
+		String userId = user.getUserId();
 		Long startId = multiredditRepository.findMaxStartIdByUserId(userId);
 		List<MultiredditEntity> multiredditList = multiredditRepository
 				.findSubredditsByUserIdAndMaxStartIdAndCurated(userId, startId);
+
+		List<MultiredditDTO> existingMultireddits = new ArrayList<>();
+		if (multiredditList == null) {
+			return existingMultireddits;
+		}
+
 		for (MultiredditEntity multireddit : multiredditList) {
 			MultiredditDTO multiredditDTO = new MultiredditDTO();
 			BeanUtils.copyProperties(multireddit, multiredditDTO);

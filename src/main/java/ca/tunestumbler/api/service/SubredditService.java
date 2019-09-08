@@ -10,5 +10,5 @@ public interface SubredditService {
 
 	List<SubredditDTO> updateSubreddits(UserDTO user);
 
-	List<SubredditDTO> getSubredditsByUserId(String userId);
+	List<SubredditDTO> getSubredditsByUserId(UserDTO user);
 }

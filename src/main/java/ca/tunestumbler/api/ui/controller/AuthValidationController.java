@@ -23,6 +23,10 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.servlet.view.RedirectView;
 
+import com.google.common.base.Strings;
+
+import ca.tunestumbler.api.exceptions.MissingPathParametersException;
+import ca.tunestumbler.api.exceptions.WebRequestFailedException;
 import ca.tunestumbler.api.security.SecurityConstants;
 import ca.tunestumbler.api.service.AuthValidationService;
 import ca.tunestumbler.api.service.UserService;
@@ -30,6 +34,8 @@ import ca.tunestumbler.api.shared.SharedUtils;
 import ca.tunestumbler.api.shared.dto.AuthValidationDTO;
 import ca.tunestumbler.api.shared.dto.UserDTO;
 import ca.tunestumbler.api.ui.model.response.AuthResponseModel;
+import ca.tunestumbler.api.ui.model.response.ErrorMessages;
+import ca.tunestumbler.api.ui.model.response.ErrorPrefixes;
 
 @RestController
 @RequestMapping("/auth")
@@ -61,7 +67,12 @@ public class AuthValidationController {
 
 	@GetMapping(path = "/handler", produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public ResponseEntity<?> validateStateAndRedirect(@RequestParam String state, @RequestParam String code) throws Exception {
+	public ResponseEntity<?> validateStateAndRedirect(@RequestParam String state, @RequestParam String code) {
+		if (Strings.isNullOrEmpty(state) || Strings.isNullOrEmpty(code)) {
+			throw new MissingPathParametersException(ErrorPrefixes.AUTH_CONTROLLER.getErrorPrefix()
+					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
+		}
+
 		AuthValidationDTO authValidationDTO = authValidationService.getAuthState(state);
 
 		if (authValidationDTO == null) {
@@ -97,6 +108,14 @@ public class AuthValidationController {
 				.body(inserter)
 					.acceptCharset(Charset.forName("UTF-8"))
 				.exchange()
+				.map(clientResponse -> {
+					if (clientResponse.statusCode().isError()) {
+						throw new WebRequestFailedException(ErrorPrefixes.AUTH_CONTROLLER.getErrorPrefix()
+								+ ErrorMessages.FAILED_EXTERNAL_WEB_REQUEST.getErrorMessage());
+					}
+
+					return clientResponse;
+			    })
 				.block()
 				.bodyToMono(AuthResponseModel.class)
 				.block();
@@ -126,13 +145,13 @@ public class AuthValidationController {
 
 	@GetMapping(path = "/refresh_token/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public ResponseEntity<?> getNewToken(@PathVariable String userId) throws Exception {
-		UserDTO userDTO = userService.getUserByUserId(userId);
-
-		if (userDTO == null) {
-			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+	public ResponseEntity<?> getNewToken(@PathVariable String userId) {
+		if (Strings.isNullOrEmpty(userId)) {
+			throw new MissingPathParametersException(ErrorPrefixes.AUTH_CONTROLLER.getErrorPrefix()
+					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
 		}
 
+		UserDTO userDTO = userService.getUserByUserId(userId);
 		String refreshToken = userDTO.getRefreshToken();
 		String baseUrl = "https://www.reddit.com";
 		String uri = "/api/v1/access_token";
@@ -159,6 +178,14 @@ public class AuthValidationController {
 				.body(inserter)
 					.acceptCharset(Charset.forName("UTF-8"))
 				.exchange()
+				.map(clientResponse -> {
+					if (clientResponse.statusCode().isError()) {
+						throw new WebRequestFailedException(ErrorPrefixes.AUTH_CONTROLLER.getErrorPrefix()
+								+ ErrorMessages.FAILED_EXTERNAL_WEB_REQUEST.getErrorMessage());
+					}
+
+					return clientResponse;
+			    })
 				.block()
 				.bodyToMono(AuthResponseModel.class)
 				.block();

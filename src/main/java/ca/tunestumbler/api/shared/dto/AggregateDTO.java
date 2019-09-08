@@ -16,7 +16,7 @@ public class AggregateDTO implements Serializable {
 	private Boolean isSubredditAdded = false;
 	private String multiredditId;
 	private String multireddit;
-	private long startId;
+	private Long startId;
 	private String lastModified;
 	private List<ResultsEntity> results;
 
@@ -92,11 +92,11 @@ public class AggregateDTO implements Serializable {
 		this.multireddit = multireddit;
 	}
 
-	public long getStartId() {
+	public Long getStartId() {
 		return startId;
 	}
 
-	public void setStartId(long startId) {
+	public void setStartId(Long startId) {
 		this.startId = startId;
 	}
 

@@ -10,5 +10,5 @@ public interface MultiredditService {
 
 	List<MultiredditDTO> updateMultireddits(UserDTO user);
 
-	List<MultiredditDTO> getMultiredditsByUserId(String userId);
+	List<MultiredditDTO> getMultiredditsByUserId(UserDTO user);
 }

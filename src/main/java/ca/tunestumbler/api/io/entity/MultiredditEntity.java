@@ -39,7 +39,7 @@ public class MultiredditEntity implements Serializable {
 	private Boolean isCurated = false;
 
 	@Column()
-	private long startId;
+	private Long startId;
 
 	@Column(nullable = false)
 	private String lastModified;
@@ -100,11 +100,11 @@ public class MultiredditEntity implements Serializable {
 		this.isCurated = isCurated;
 	}
 
-	public long getStartId() {
+	public Long getStartId() {
 		return startId;
 	}
 
-	public void setStartId(long startId) {
+	public void setStartId(Long startId) {
 		this.startId = startId;
 	}
 

@@ -42,7 +42,7 @@ public class SubredditEntity implements Serializable {
 	private Boolean isSubscribed = false;
 
 	@Column()
-	private long startId;
+	private Long startId;
 
 	@Column(nullable = false)
 	private String lastModified;
@@ -111,11 +111,11 @@ public class SubredditEntity implements Serializable {
 		this.isSubscribed = isSubscribed;
 	}
 
-	public long getStartId() {
+	public Long getStartId() {
 		return startId;
 	}
 
-	public void setStartId(long startId) {
+	public void setStartId(Long startId) {
 		this.startId = startId;
 	}
 
