@@ -97,6 +97,18 @@ public class UserController {
 		return updatedUserResponse;
 	}
 
+	@GetMapping(path = "/{userId}/clear_tokens", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> clearTokens(@PathVariable String userId) {
+		if (Strings.isNullOrEmpty(userId)) {
+			throw new MissingPathParametersException(ErrorPrefixes.USER_CONTROLLER.getErrorPrefix()
+					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
+		}
+
+		userService.clearUserTokens(userId);
+
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+	
 	@DeleteMapping(path = "/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> deleteUser(@PathVariable String userId) {
 		if (Strings.isNullOrEmpty(userId)) {
