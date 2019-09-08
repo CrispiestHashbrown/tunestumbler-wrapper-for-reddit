@@ -116,7 +116,34 @@ public class UserServiceImpl implements UserService {
 
 		return userToUpdate;
 	}
+	
+	@Override
+	public void voidUpdateUser(String userId, UserDTO user) {
+		UserEntity userEntity = userRepository.findByUserId(userId);
 
+		if (userEntity == null) {
+			throw new ResourceNotFoundException(
+					ErrorPrefixes.USER_SERVICE.getErrorPrefix() + ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
+		}
+
+		BeanUtils.copyProperties(user, userEntity);
+		userRepository.save(userEntity);
+	}
+
+	@Override
+	public void clearUserTokens(String userId) {
+		UserEntity userEntity = userRepository.findByUserId(userId);
+
+		if (userEntity == null) {
+			throw new ResourceNotFoundException(
+					ErrorPrefixes.USER_SERVICE.getErrorPrefix() + ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
+		}
+
+		userEntity.setToken(null);
+		userEntity.setRefreshToken(null);		
+		userRepository.save(userEntity);
+	}
+	
 	@Override
 	public void deleteUser(String userId) {
 		UserEntity userToDelete = userRepository.findByUserId(userId);
