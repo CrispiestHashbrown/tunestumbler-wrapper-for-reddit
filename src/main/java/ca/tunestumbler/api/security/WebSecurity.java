@@ -7,7 +7,6 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -26,16 +25,13 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 		this.bCryptPasswordEncoder = bCryptPasswordEncoder;
 	}
 
-	// TODO: Implement IF_REQUIRED or ALWAYS sessionCreationPolicy and implement
-	// secure session cookies if necessary
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http.csrf().disable()
+		http.cors().and().csrf().disable()
 				.authorizeRequests().antMatchers(HttpMethod.POST, SecurityConstants.SIGN_UP_URL).permitAll()
 				.anyRequest().authenticated()
 				.and()
 				.authorizeRequests().antMatchers(HttpMethod.GET, SecurityConstants.HANDLER_URL).permitAll()
-				.anyRequest().authenticated()
 				.and()
 				.addFilter(getAuthenticationFilter())
 				.addFilter(new AuthorizationFilter(authenticationManager()));
@@ -55,9 +51,13 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 	public CorsConfigurationSource corsConfigurationSource() {
 		final CorsConfiguration configuration = new CorsConfiguration();
 
-		configuration.setAllowedOrigins(Arrays.asList("*"));
-		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
-		configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
+		configuration.setAllowCredentials(true);
+		configuration.setAllowedOrigins(Arrays.asList("http://tunestumbler.ca", "https://tunestumbler.ca", 
+				"https://www.reddit.com"));
+		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+		configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type", "X-Requested-With", 
+				"Access-Control-Allow-Headers", "Access-Control-Allow-Origin", "Origin", "Accept"));
+		configuration.setExposedHeaders(Arrays.asList("Authorization", "UserID"));
 
 		final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", configuration);
