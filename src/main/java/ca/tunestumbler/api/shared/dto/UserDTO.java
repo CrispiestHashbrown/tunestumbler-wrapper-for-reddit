@@ -14,6 +14,7 @@ public class UserDTO implements Serializable {
 	private String redditAccountName;
 	private String token;
 	private String refreshToken;
+	private String tokenLifetime;
 	private String lastModified;
 	private List<AuthValidationDTO> validation;
 	private List<SubredditDTO> subreddit;
@@ -92,6 +93,14 @@ public class UserDTO implements Serializable {
 
 	public void setRefreshToken(String refreshToken) {
 		this.refreshToken = refreshToken;
+	}
+
+	public String getTokenLifetime() {
+		return tokenLifetime;
+	}
+
+	public void setTokenLifetime(String tokenLifetime) {
+		this.tokenLifetime = tokenLifetime;
 	}
 
 	public String getLastModified() {
