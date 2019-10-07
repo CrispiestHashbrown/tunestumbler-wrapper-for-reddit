@@ -37,6 +37,9 @@ public class UserEntity implements Serializable {
 	@Column(nullable = true, unique = true)
 	private String refreshToken;
 
+	@Column(nullable = true)
+	private String tokenLifetime;
+
 	@Column(nullable = false)
 	private String lastModified;
 
@@ -120,6 +123,14 @@ public class UserEntity implements Serializable {
 
 	public void setRefreshToken(String refreshToken) {
 		this.refreshToken = refreshToken;
+	}
+
+	public String getTokenLifetime() {
+		return tokenLifetime;
+	}
+
+	public void setTokenLifetime(String tokenLifetime) {
+		this.tokenLifetime = tokenLifetime;
 	}
 
 	public String getLastModified() {

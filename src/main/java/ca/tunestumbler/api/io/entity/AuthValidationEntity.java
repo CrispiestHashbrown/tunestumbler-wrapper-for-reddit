@@ -32,6 +32,9 @@ public class AuthValidationEntity implements Serializable {
 	@Column()
 	private String userId;
 
+	@Column(length = 350, unique = true)
+	private String authorizationUrl;
+
 	public String getStateId() {
 		return stateId;
 	}
@@ -78,6 +81,14 @@ public class AuthValidationEntity implements Serializable {
 
 	public void setUserId(String userId) {
 		this.userId = userId;
+	}
+
+	public String getAuthorizationUrl() {
+		return authorizationUrl;
+	}
+
+	public void setAuthorizationUrl(String authorizationUrl) {
+		this.authorizationUrl = authorizationUrl;
 	}
 
 }

@@ -10,7 +10,7 @@ public class UserDetailsRequestModel {
 	private String email;
 
 	@NotNull(message = "Password cannot be null")
-	@Size(min = 1, max = 30, message = "Password must have length of 1-30 characters")
+	@Size(min = 8, max = 30, message = "Password must have length of 8-30 characters")
 	private String password;
 
 	public String getEmail() {

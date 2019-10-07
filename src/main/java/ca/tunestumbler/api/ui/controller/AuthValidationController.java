@@ -1,8 +1,11 @@
 package ca.tunestumbler.api.ui.controller;
 
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -21,7 +24,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.servlet.view.RedirectView;
 
 import com.google.common.base.Strings;
 
@@ -33,9 +35,10 @@ import ca.tunestumbler.api.service.UserService;
 import ca.tunestumbler.api.shared.SharedUtils;
 import ca.tunestumbler.api.shared.dto.AuthValidationDTO;
 import ca.tunestumbler.api.shared.dto.UserDTO;
-import ca.tunestumbler.api.ui.model.response.AuthResponseModel;
 import ca.tunestumbler.api.ui.model.response.ErrorMessages;
 import ca.tunestumbler.api.ui.model.response.ErrorPrefixes;
+import ca.tunestumbler.api.ui.model.response.auth.AuthConnectResponseModel;
+import ca.tunestumbler.api.ui.model.response.auth.AuthResponseModel;
 
 @RestController
 @RequestMapping("/auth")
@@ -50,24 +53,25 @@ public class AuthValidationController {
 	@Autowired
 	UserService userService;
 	
-	@GetMapping(path = "/connect/{userId}")
-	public RedirectView connectRedditAccount(@PathVariable String userId) {
+	@GetMapping(path = "/connect/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> connectRedditAccount(@PathVariable String userId) {
+		if (Strings.isNullOrEmpty(userId)) {
+			throw new MissingPathParametersException(ErrorPrefixes.AUTH_CONTROLLER.getErrorPrefix()
+					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
+		}
+		
 		UserDTO userDTO = userService.getUserByUserId(userId);
 		AuthValidationDTO authValidationDTO = authValidationService.createAuthState(userDTO);
-		String stateId = authValidationDTO.getStateId();
-		String url = "https://www.reddit.com/api/v1/authorize" +
-			"?client_id=VvztT4RO6UUmAA" +
-			"&response_type=code" +
-			"&state=" + stateId +
-			"&redirect_uri=http://localhost:8080/tunestumbler-wrapper-for-reddit/auth/handler/" +
-			"&duration=permanent" +
-			"&scope=read,history,vote,save,account,subscribe,mysubreddits";
-		return new RedirectView(url);
+		
+		AuthConnectResponseModel authConnectResponseModel = new AuthConnectResponseModel();
+		BeanUtils.copyProperties(authValidationDTO, authConnectResponseModel);
+		
+		return new ResponseEntity<>(authConnectResponseModel, HttpStatus.CREATED);
 	}
 
 	@GetMapping(path = "/handler", produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public RedirectView validateStateAndRedirect(@RequestParam String state, @RequestParam String code) {
+	public ResponseEntity<?> validateStateAndRedirect(@RequestParam String state, @RequestParam String code) {
 		if (Strings.isNullOrEmpty(state) || Strings.isNullOrEmpty(code)) {
 			throw new MissingPathParametersException(ErrorPrefixes.AUTH_CONTROLLER.getErrorPrefix()
 					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
@@ -75,9 +79,6 @@ public class AuthValidationController {
 
 		AuthValidationDTO authValidationDTO = authValidationService.getAuthState(state);
 
-//		String url = "https://tunestumbler.ca/connect";
-		String url = "http://localhost:3000/connect";
-		
 		if (authValidationDTO != null) {
 			AuthValidationDTO updatedAuthValidationDTO = authValidationService.updateState(state, code);
 	
@@ -86,7 +87,8 @@ public class AuthValidationController {
 			String userAgentHeader = "web:ca.tunestumbler.api:v0.0.1 (by /u/CrispiestHashbrown)";
 			String creds = Base64.getEncoder().encodeToString(SecurityConstants.getAuth().getBytes());
 			String authHeader = "Basic " + creds;
-			String redirectUri = "http://localhost:8080/tunestumbler-wrapper-for-reddit/auth/handler/";
+//			for testing, this should be "http://localhost:3000/"
+			String redirectUri = "https://tunestumbler.ca/";
 	
 			WebClient client = WebClient
 					.builder()
@@ -122,21 +124,30 @@ public class AuthValidationController {
 	
 			String accessToken = response.getAccess_token();
 			String refreshToken = response.getRefresh_token();
+			String tokenLifetime = Integer.toString(response.getExpires_in());
 			String scopes = response.getScope();
 			String validScopes = "account history mysubreddits read save subscribe vote";
 
 			if (accessToken != null && refreshToken != null	&& scopes.equals(validScopes)) {
-				url = "http://localhost:3000/filters";
 				UserDTO userDTO = userService.getUserByUserId(updatedAuthValidationDTO.getUserId());
 	
 				userDTO.setToken(accessToken);
 				userDTO.setRefreshToken(refreshToken);
+				userDTO.setTokenLifetime(tokenLifetime);
 	
-				userService.voidUpdateUser(userDTO.getUserId(), userDTO);
+				UserDTO updatedUser = userService.updateUser(userDTO.getUserId(), userDTO);
+				
+				HttpHeaders responseHeaders = new HttpHeaders();
+				List<String> exposedHeaders = new ArrayList<>();
+				String redditLifetimeHeader = "Reddit-Lifetime";
+				exposedHeaders.add(redditLifetimeHeader);
+				responseHeaders.setAccessControlExposeHeaders(exposedHeaders);
+				responseHeaders.set(redditLifetimeHeader, updatedUser.getTokenLifetime());
+				return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
 			}
 		}
 
-		return new RedirectView(url);
+		return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 	}
 
 	@GetMapping(path = "/refresh_token/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -148,6 +159,11 @@ public class AuthValidationController {
 		}
 
 		UserDTO userDTO = userService.getUserByUserId(userId);
+
+		if (userDTO.getRefreshToken() == null) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
+			
 		String refreshToken = userDTO.getRefreshToken();
 		String baseUrl = "https://www.reddit.com";
 		String uri = "/api/v1/access_token";
@@ -187,6 +203,7 @@ public class AuthValidationController {
 				.block();
 
 		String accessToken = response.getAccess_token();
+		String tokenLifetime = Integer.toString(response.getExpires_in());
 		String scopes = response.getScope();
 		String validScopes = "account history mysubreddits read save subscribe vote";
 
@@ -194,8 +211,16 @@ public class AuthValidationController {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		} else {
 			userDTO.setToken(accessToken);
+			userDTO.setTokenLifetime(tokenLifetime);
 			userService.voidUpdateUser(userId, userDTO);
-			return new ResponseEntity<>(HttpStatus.OK);
+
+			HttpHeaders responseHeaders = new HttpHeaders();
+			List<String> exposedHeaders = new ArrayList<>();
+			String redditLifetimeHeader = "Reddit-Lifetime";
+			exposedHeaders.add(redditLifetimeHeader);
+			responseHeaders.setAccessControlExposeHeaders(exposedHeaders);
+			responseHeaders.set(redditLifetimeHeader, tokenLifetime);
+			return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
 		}
 	}
 	

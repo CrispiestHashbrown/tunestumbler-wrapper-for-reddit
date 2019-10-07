@@ -1,8 +1,9 @@
-package ca.tunestumbler.api.ui.model.response;
+package ca.tunestumbler.api.ui.model.response.auth;
 
 public class AuthResponseModel {
 	private String access_token;
 	private String refresh_token;
+	private int expires_in;
 	private String scope;
 
 	public String getAccess_token() {
@@ -19,6 +20,14 @@ public class AuthResponseModel {
 
 	public void setRefresh_token(String refresh_token) {
 		this.refresh_token = refresh_token;
+	}
+
+	public int getExpires_in() {
+		return expires_in;
+	}
+
+	public void setExpires_in(int expires_in) {
+		this.expires_in = expires_in;
 	}
 
 	public String getScope() {

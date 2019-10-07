@@ -10,6 +10,7 @@ public class AuthValidationDTO implements Serializable {
 	private String lastModified;
 	private UserDTO userDTO;
 	private String userId;
+	private String authorizationUrl;
 
 	public String getStateId() {
 		return stateId;
@@ -57,6 +58,14 @@ public class AuthValidationDTO implements Serializable {
 
 	public void setUserId(String userId) {
 		this.userId = userId;
+	}
+
+	public String getAuthorizationUrl() {
+		return authorizationUrl;
+	}
+
+	public void setAuthorizationUrl(String authorizationUrl) {
+		this.authorizationUrl = authorizationUrl;
 	}
 
 }
