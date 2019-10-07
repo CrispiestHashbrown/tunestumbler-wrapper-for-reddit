@@ -246,6 +246,7 @@ public class ResultsServiceImpl implements ResultsService {
 		resultsEntity.setDomain(data.getDomain());
 		resultsEntity.setIsNsfw(data.getOver_18());
 		resultsEntity.setIsSpoiler(data.getSpoiler());
+		resultsEntity.setComments(data.getNum_comments());
 		resultsEntity.setPermalink(data.getPermalink());
 		resultsEntity.setIsStickied(data.getStickied());
 		resultsEntity.setUrl(data.getUrl());

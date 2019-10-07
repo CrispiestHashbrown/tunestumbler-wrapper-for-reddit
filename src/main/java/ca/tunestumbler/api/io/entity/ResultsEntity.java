@@ -54,6 +54,9 @@ public class ResultsEntity implements Serializable {
 	private Boolean isSpoiler;
 
 	@Column(nullable = false)
+	private int comments;
+	
+	@Column(nullable = false)
 	private String permalink;
 
 	@Column(nullable = false)
@@ -168,6 +171,14 @@ public class ResultsEntity implements Serializable {
 
 	public void setIsSpoiler(Boolean isSpoiler) {
 		this.isSpoiler = isSpoiler;
+	}
+
+	public int getComments() {
+		return comments;
+	}
+
+	public void setComments(int comments) {
+		this.comments = comments;
 	}
 
 	public String getPermalink() {
