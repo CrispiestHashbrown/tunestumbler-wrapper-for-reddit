@@ -31,8 +31,6 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 				.authorizeRequests().antMatchers(HttpMethod.POST, SecurityConstants.SIGN_UP_URL).permitAll()
 				.anyRequest().authenticated()
 				.and()
-				.authorizeRequests().antMatchers(HttpMethod.GET, SecurityConstants.HANDLER_URL).permitAll()
-				.and()
 				.addFilter(getAuthenticationFilter())
 				.addFilter(new AuthorizationFilter(authenticationManager()));
 	}
@@ -52,12 +50,11 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 		final CorsConfiguration configuration = new CorsConfiguration();
 
 		configuration.setAllowCredentials(true);
-		configuration.setAllowedOrigins(Arrays.asList("http://tunestumbler.ca", "https://tunestumbler.ca", 
-				"https://www.reddit.com"));
+//		for testing, allow "http://localhost:3000"
+		configuration.setAllowedOrigins(Arrays.asList("http://tunestumbler.ca", "https://tunestumbler.ca", "https://www.reddit.com"));
 		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 		configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type", "X-Requested-With", 
-				"Access-Control-Allow-Headers", "Access-Control-Allow-Origin", "Origin", "Accept"));
-		configuration.setExposedHeaders(Arrays.asList("Authorization", "UserID"));
+				"Access-Control-Allow-Headers", "Access-Control-Allow-Origin", "Origin", "Accept", "User-Agent"));
 
 		final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", configuration);
