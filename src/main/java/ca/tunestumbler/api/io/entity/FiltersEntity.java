@@ -9,6 +9,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.validation.constraints.Size;
 
 @Entity(name = "filters")
 public class FiltersEntity implements Serializable {
@@ -32,13 +33,14 @@ public class FiltersEntity implements Serializable {
 	@Column(length = 50)
 	private String multireddit;
 
-	@Column(length = 21)
+	@Column(nullable = false)
+	@Size(min = 1, max = 21)
 	private String subreddit;
 
 	@Column(nullable = false)
 	private Integer priority = 0;
 
-	@Column(nullable = false)
+	@Column()
 	private Integer minScore = 1;
 
 	@Column(nullable = false)
