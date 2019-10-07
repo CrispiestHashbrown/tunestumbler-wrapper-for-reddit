@@ -140,7 +140,8 @@ public class UserServiceImpl implements UserService {
 		}
 
 		userEntity.setToken(null);
-		userEntity.setRefreshToken(null);		
+		userEntity.setRefreshToken(null);
+		userEntity.setTokenLifetime(null);
 		userRepository.save(userEntity);
 	}
 	
