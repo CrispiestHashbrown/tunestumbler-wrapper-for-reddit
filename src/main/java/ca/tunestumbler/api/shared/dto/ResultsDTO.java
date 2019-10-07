@@ -17,6 +17,7 @@ public class ResultsDTO implements Serializable {
 	private String domain;
 	private Boolean isNsfw;
 	private Boolean isSpoiler;
+	private int comments;
 	private String permalink;
 	private Boolean isStickied;
 	private String url;
@@ -119,6 +120,14 @@ public class ResultsDTO implements Serializable {
 
 	public void setIsSpoiler(Boolean isSpoiler) {
 		this.isSpoiler = isSpoiler;
+	}
+
+	public int getComments() {
+		return comments;
+	}
+
+	public void setComments(int comments) {
+		this.comments = comments;
 	}
 
 	public String getPermalink() {
