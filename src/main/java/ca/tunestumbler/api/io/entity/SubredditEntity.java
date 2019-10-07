@@ -9,6 +9,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.validation.constraints.Size;
 
 @Entity(name = "subreddit")
 public class SubredditEntity implements Serializable {
@@ -22,7 +23,8 @@ public class SubredditEntity implements Serializable {
 	@Column(nullable = false, unique = true)
 	private String subredditId;
 
-	@Column(nullable = false, length = 21)
+	@Column(nullable = false)
+	@Size(min = 1, max = 21)
 	private String subreddit;
 
 	@ManyToOne
