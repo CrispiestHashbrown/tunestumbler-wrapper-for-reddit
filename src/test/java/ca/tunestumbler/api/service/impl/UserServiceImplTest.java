@@ -11,9 +11,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import ca.tunestumbler.api.exceptions.ResourceNotFoundException;
 import ca.tunestumbler.api.io.entity.UserEntity;
 import ca.tunestumbler.api.io.repositories.UserRepository;
 import ca.tunestumbler.api.shared.SharedUtils;
@@ -46,16 +46,17 @@ class UserServiceImplTest {
 		userEntity.setUserId(userId);
 		userEntity.setEmail("tester123@tester.com");
 		userEntity.setEncryptedPassword(encryptedPassword);
-		userEntity.setRedditAccountName("tester");
+		userEntity.setToken("123");
 		userEntity.setRefreshToken("123");
-		userEntity.setLastModified("123");
+		userEntity.setTokenLifetime("3600");
+		userEntity.setLastModified("2019-10-18 00:00:00");
 	}
 
 	@Test
 	void testGetUser() {
 		when(userRepository.findByEmail(anyString())).thenReturn(userEntity);
 
-		UserDTO userDTO = userService.getUser("testing@testing.com");
+		UserDTO userDTO = userService.getUser("test@test.com");
 
 		assertNotNull(userDTO);
 		assertEquals(userEntity.getUserId(), userDTO.getUserId());
@@ -65,8 +66,8 @@ class UserServiceImplTest {
 	final void testGetUser_UsernameNotFoundException() {
 		when(userRepository.findByEmail(anyString())).thenReturn(null);
 
-		assertThrows(UsernameNotFoundException.class, () -> {
-			userService.getUser("test@test.com");
+		assertThrows(ResourceNotFoundException.class, () -> {
+			userService.getUser("testing@testing.com");
 		});
 	}
 
