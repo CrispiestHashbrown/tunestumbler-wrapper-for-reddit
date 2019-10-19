@@ -50,8 +50,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 		final CorsConfiguration configuration = new CorsConfiguration();
 
 		configuration.setAllowCredentials(true);
-//		for testing, allow "http://localhost:3000"
-		configuration.setAllowedOrigins(Arrays.asList("http://tunestumbler.ca", "https://tunestumbler.ca", "https://www.reddit.com"));
+		configuration.setAllowedOrigins(Arrays.asList("http://tunestumbler.com", "https://tunestumbler.com", "https://www.reddit.com"));
 		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 		configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type", "X-Requested-With", 
 				"Access-Control-Allow-Headers", "Access-Control-Allow-Origin", "Origin", "Accept", "User-Agent"));
