@@ -8,24 +8,16 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
 
-import ca.tunestumbler.api.exceptions.RedditAccountNotAuthenticatedException;
-import ca.tunestumbler.api.exceptions.WebRequestFailedException;
 import ca.tunestumbler.api.io.entity.SubredditEntity;
 import ca.tunestumbler.api.io.entity.UserEntity;
 import ca.tunestumbler.api.io.repositories.SubredditRepository;
-import ca.tunestumbler.api.security.SecurityConstants;
 import ca.tunestumbler.api.service.SubredditService;
+import ca.tunestumbler.api.service.impl.helpers.SubredditHelpers;
 import ca.tunestumbler.api.shared.SharedUtils;
 import ca.tunestumbler.api.shared.dto.SubredditDTO;
 import ca.tunestumbler.api.shared.dto.UserDTO;
-import ca.tunestumbler.api.ui.model.response.ErrorMessages;
-import ca.tunestumbler.api.ui.model.response.ErrorPrefixes;
 import ca.tunestumbler.api.ui.model.response.subreddit.SubredditDataChildrenModel;
 import ca.tunestumbler.api.ui.model.response.subreddit.SubredditFetchResponseModel;
 
@@ -36,6 +28,9 @@ public class SubredditServiceImpl implements SubredditService {
 	SubredditRepository subredditRepository;
 
 	@Autowired
+	SubredditHelpers subredditHelpers;
+	
+	@Autowired
 	SharedUtils sharedUtils;
 
 //	TODO: Get subreddits from paginated results
@@ -45,7 +40,7 @@ public class SubredditServiceImpl implements SubredditService {
 		Long maxId = subredditRepository.findMaxId();
 		Long startId = sharedUtils.setStartId(userMaxId, maxId);
 
-		SubredditFetchResponseModel response = sendGetSubredditRequest(user);
+		SubredditFetchResponseModel response = subredditHelpers.sendGetSubredditRequest(user);
 		List<SubredditDTO> subreddits = new ArrayList<>();
 		List<SubredditDataChildrenModel> subredditModel = response.getData().getChildren();
 		if (subredditModel == null || subredditModel.isEmpty() || subredditModel.size() < 2
@@ -94,7 +89,7 @@ public class SubredditServiceImpl implements SubredditService {
 			subredditEntity.setIsSubscribed(false);
 		}
 
-		SubredditFetchResponseModel response = sendGetSubredditRequest(user);
+		SubredditFetchResponseModel response = subredditHelpers.sendGetSubredditRequest(user);
 		List<SubredditDataChildrenModel> subredditModel = response.getData().getChildren();
 		List<SubredditDTO> subreddits = new ArrayList<>();
 		if (subredditModel == null || subredditModel.isEmpty() || subredditModel.size() < 2
@@ -145,44 +140,6 @@ public class SubredditServiceImpl implements SubredditService {
 		return subreddits;
 	}
 
-	private SubredditFetchResponseModel sendGetSubredditRequest(UserDTO user) {
-		String token = user.getToken();
-		if (token == null) {
-			throw new RedditAccountNotAuthenticatedException(ErrorPrefixes.SUBREDDIT_SERVICE.getErrorPrefix()
-					+ ErrorMessages.REDDIT_ACCOUNT_NOT_AUTHENTICATED.getErrorMessage());
-		}
-
-		String baseUrl = "https://oauth.reddit.com";
-		String uri = "/subreddits/mine/subscriber";
-		String userAgentHeader = "web:ca.tunestumbler.api:v0.0.1 (by /u/CrispiestHashbrown)";
-		String authHeader = SecurityConstants.TOKEN_PREFIX + token;
-
-		WebClient client = WebClient
-				.builder()
-					.baseUrl(baseUrl)
-					.defaultHeader(HttpHeaders.USER_AGENT, userAgentHeader)
-					.defaultHeader(HttpHeaders.AUTHORIZATION, authHeader)
-					.defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-					.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-				.build();
-		WebClient.UriSpec<WebClient.RequestBodySpec> request = client.method(HttpMethod.GET);
-		WebClient.RequestBodySpec requestUri = request.uri(uri);
-
-		return requestUri
-						.exchange()
-						.map(clientResponse -> {
-							if (clientResponse.statusCode().isError()) {
-								throw new WebRequestFailedException(ErrorPrefixes.SUBREDDIT_SERVICE.getErrorPrefix()
-										+ ErrorMessages.FAILED_EXTERNAL_WEB_REQUEST.getErrorMessage());
-							}
-
-							return clientResponse;
-					    })
-						.block()
-						.bodyToMono(SubredditFetchResponseModel.class)
-						.block();
-	}
-
 	@Override
 	public List<SubredditDTO> getSubredditsByUserId(UserDTO user) {
 		String userId = user.getUserId();
@@ -203,5 +160,4 @@ public class SubredditServiceImpl implements SubredditService {
 
 		return existingSubreddits;
 	}
-
 }

@@ -87,8 +87,7 @@ public class AuthValidationController {
 			String userAgentHeader = "web:ca.tunestumbler.api:v0.0.1 (by /u/CrispiestHashbrown)";
 			String creds = Base64.getEncoder().encodeToString(SecurityConstants.getAuth().getBytes());
 			String authHeader = "Basic " + creds;
-//			for testing, this should be "http://localhost:3000/"
-			String redirectUri = "https://tunestumbler.ca/";
+			String redirectUri = "https://www.tunestumbler.com/";
 	
 			WebClient client = WebClient
 					.builder()

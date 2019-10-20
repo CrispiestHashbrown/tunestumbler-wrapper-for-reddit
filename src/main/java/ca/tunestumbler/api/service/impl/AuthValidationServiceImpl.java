@@ -39,12 +39,11 @@ public class AuthValidationServiceImpl implements AuthValidationService {
 		}
 
 		String stateId = sharedUtils.generateStateId(50);
-//		for testing, redirect_uri=http://localhost:3000/
 		String authorizationUrl = "https://www.reddit.com/api/v1/authorize" +
 				"?client_id=VvztT4RO6UUmAA" +
 				"&response_type=code" +
 				"&state=" + stateId +
-				"&redirect_uri=https://tunestumbler.ca/" +
+				"&redirect_uri=https://www.tunestumbler.com/" +
 				"&duration=permanent" +
 				"&scope=read,history,vote,save,account,subscribe,mysubreddits";
 		
