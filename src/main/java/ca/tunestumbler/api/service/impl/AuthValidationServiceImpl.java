@@ -43,7 +43,7 @@ public class AuthValidationServiceImpl implements AuthValidationService {
 				"?client_id=VvztT4RO6UUmAA" +
 				"&response_type=code" +
 				"&state=" + stateId +
-				"&redirect_uri=https://tunestumbler.com/" +
+				"&redirect_uri=https://www.tunestumbler.com/" +
 				"&duration=permanent" +
 				"&scope=read,history,vote,save,account,subscribe,mysubreddits";
 		
