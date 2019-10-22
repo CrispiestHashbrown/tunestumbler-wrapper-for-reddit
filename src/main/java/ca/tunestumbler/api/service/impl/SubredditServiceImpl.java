@@ -2,6 +2,7 @@ package ca.tunestumbler.api.service.impl;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.modelmapper.ModelMapper;
@@ -82,13 +83,17 @@ public class SubredditServiceImpl implements SubredditService {
 	public List<SubredditDTO> updateSubreddits(UserDTO user) {
 		String userId = user.getUserId();
 		Long startId = subredditRepository.findMaxStartIdByUserId(userId);
+		
+//		Get subreddit entities and store in a hashmap
 		List<SubredditEntity> subredditEntities = subredditRepository
 				.findSubredditsByUserIdAndMaxStartIdAndSubscribed(userId, startId);
-
+		HashMap<String, SubredditEntity> subredditMap = new HashMap<String, SubredditEntity>();
 		for (SubredditEntity subredditEntity : subredditEntities) {
 			subredditEntity.setIsSubscribed(false);
+			subredditMap.put(subredditEntity.getSubreddit(), subredditEntity);
 		}
 
+//		Get user subreddits and handle the response
 		SubredditFetchResponseModel response = subredditHelpers.sendGetSubredditRequest(user);
 		List<SubredditDataChildrenModel> subredditModel = response.getData().getChildren();
 		List<SubredditDTO> subreddits = new ArrayList<>();
@@ -104,12 +109,11 @@ public class SubredditServiceImpl implements SubredditService {
 		UserEntity userEntity = new UserEntity();
 		BeanUtils.copyProperties(user, userEntity);
 
+//		Add new and update existing subreddits
 		List<SubredditEntity> updatedSubredditEntities = new ArrayList<>();
 		for (SubredditDataChildrenModel data : subredditModel) {
 			String subreddit = data.getData().getDisplay_name();
-//			TODO: turn this into subredditEntities for loop
-			SubredditEntity subredditEntity = subredditRepository.findByUserIdAndSubredditAndMaxStartId(userId,
-					subreddit, startId);
+			SubredditEntity subredditEntity = subredditMap.get(subreddit);
 			if (subredditEntity != null) {
 				subredditEntity.setIsSubscribed(true);
 				subredditEntity.setLastModified(sharedUtils.getCurrentTime());
