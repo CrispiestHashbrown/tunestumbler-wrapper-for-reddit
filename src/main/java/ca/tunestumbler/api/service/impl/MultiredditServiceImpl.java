@@ -157,7 +157,7 @@ public class MultiredditServiceImpl implements MultiredditService {
 				.findSubredditsByUserIdAndMaxStartIdAndCurated(userId, startId);
 
 		List<MultiredditDTO> existingMultireddits = new ArrayList<>();
-		if (multiredditList == null) {
+		if (multiredditList == null || multiredditList.isEmpty()) {
 			return existingMultireddits;
 		}
 
