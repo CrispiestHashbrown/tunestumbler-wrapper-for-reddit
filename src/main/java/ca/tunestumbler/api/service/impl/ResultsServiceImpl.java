@@ -30,13 +30,14 @@ import ca.tunestumbler.api.security.SecurityConstants;
 import ca.tunestumbler.api.service.ResultsService;
 import ca.tunestumbler.api.shared.SharedUtils;
 import ca.tunestumbler.api.shared.SortResultsById;
-import ca.tunestumbler.api.shared.dto.ResultsDTO;
 import ca.tunestumbler.api.shared.dto.UserDTO;
 import ca.tunestumbler.api.ui.model.response.ErrorMessages;
 import ca.tunestumbler.api.ui.model.response.ErrorPrefixes;
+import ca.tunestumbler.api.ui.model.response.ResultsResponseModel;
 import ca.tunestumbler.api.ui.model.response.results.ResultsDataChildrenDataModel;
 import ca.tunestumbler.api.ui.model.response.results.ResultsDataChildrenModel;
 import ca.tunestumbler.api.ui.model.response.results.ResultsFetchResponseModel;
+import ca.tunestumbler.api.ui.model.response.results.ResultsObjectResponseModel;
 import ca.tunestumbler.api.io.repositories.specification.ResultsSpecification;
 
 @Service
@@ -58,7 +59,7 @@ public class ResultsServiceImpl implements ResultsService {
 	SharedUtils sharedUtils;
 
 	@Override
-	public List<ResultsDTO> fetchResults(UserDTO user, String orderBy) {
+	public ResultsResponseModel fetchResults(UserDTO user, String orderBy) {
 		String userId = user.getUserId();
 		Long filtersStartId = filtersRepository.findMaxStartIdByUserId(userId);
 
@@ -73,10 +74,9 @@ public class ResultsServiceImpl implements ResultsService {
 		String uri = filtersURIBuilder(filters, orderBy);
 		ResultsFetchResponseModel response = sendGetResultsRequest(user, baseUrl, uri);
 		List<ResultsDataChildrenModel> resultsModel = response.getData().getChildren();
-		List<ResultsDTO> results = new ArrayList<>();
 		if (resultsModel == null || resultsModel.isEmpty()
 				|| resultsModel.size() < 2 && resultsModel.get(0).getData().getStickied()) {
-			return results;
+			return new ResultsResponseModel();
 		}
 
 		UserEntity userEntity = new UserEntity();
@@ -86,38 +86,41 @@ public class ResultsServiceImpl implements ResultsService {
 		String afterId = response.getData().getAfter();
 		List<ResultsEntity> resultsEntities = new ArrayList<>();
 		for (ResultsDataChildrenModel data : resultsModel) {
-			ResultsEntity resultsEntity = addResultsEntity(userEntity, uri, afterId, data.getData(), maxId);
+			ResultsEntity resultsEntity = addResultsEntity(userEntity, data.getData(), maxId);
 			resultsEntities.add(resultsEntity);
 		}
 
 		resultsRepository.saveAll(resultsEntities);
+		
 		List<ResultsEntity> filteredResults = new ArrayList<>();
-
 		for (FiltersEntity filtersEntity : filters) {
 			filteredResults.addAll(getFilteredResults(filtersEntity, userId, maxId));
 		}
 
 		List<ResultsEntity> filteredResultsWithoutDuplicates = new ArrayList<>(new HashSet<>(filteredResults));
 		Collections.sort(filteredResultsWithoutDuplicates, new SortResultsById());
-
-		Type listType = new TypeToken<List<ResultsDTO>>() {
+		
+		ResultsResponseModel results = new ResultsResponseModel();
+		Type listType = new TypeToken<List<ResultsObjectResponseModel>>() {
 		}.getType();
-		results = new ModelMapper().map(filteredResultsWithoutDuplicates, listType);
-
+		List<ResultsObjectResponseModel> responseObject = new ModelMapper().map(filteredResultsWithoutDuplicates, listType);
+		results.setResults(responseObject);
+		results.setAfterId(afterId);
+		results.setNextUri(uri);
+		
 		return results;
 	}
 
 	@Override
-	public List<ResultsDTO> fetchNextResults(UserDTO user, String nextUri, String afterId) {
+	public ResultsResponseModel fetchNextResults(UserDTO user, String nextUri, String afterId) {
 		String baseUrl = "https://oauth.reddit.com";
 		String fullUri = nextUri + afterIdPathVariableName + afterId;
 
 		ResultsFetchResponseModel response = sendGetResultsRequest(user, baseUrl, fullUri);
 		List<ResultsDataChildrenModel> resultsModel = response.getData().getChildren();
-		List<ResultsDTO> results = new ArrayList<>();
 		if (resultsModel == null || resultsModel.isEmpty()
 				|| resultsModel.size() < 2 && resultsModel.get(0).getData().getStickied()) {
-			return results;
+			return new ResultsResponseModel();
 		}
 
 		UserEntity userEntity = new UserEntity();
@@ -129,19 +132,18 @@ public class ResultsServiceImpl implements ResultsService {
 		String nextAfterId = response.getData().getAfter();
 		List<ResultsEntity> resultsEntities = new ArrayList<>();
 		for (ResultsDataChildrenModel data : resultsModel) {
-			ResultsEntity resultsEntity = addResultsEntity(userEntity, nextUri, nextAfterId, data.getData(),
-					newStartId);
+			ResultsEntity resultsEntity = addResultsEntity(userEntity, data.getData(), newStartId);
 			resultsEntities.add(resultsEntity);
 		}
 
 		resultsRepository.saveAll(resultsEntities);
+		
 		List<ResultsEntity> filteredResults = new ArrayList<>();
-
 		Long filtersStartId = filtersRepository.findMaxStartIdByUserId(userId);
 		List<FiltersEntity> filters = filtersRepository.findFiltersByUserIdAndStartIdAndIsActive(userId,
 				filtersStartId);
 
-		if (filters == null) {
+		if (filters == null || filters.isEmpty()) {
 			throw new FiltersNotFoundException(ErrorPrefixes.RESULTS_SERVICE.getErrorPrefix()
 					+ ErrorMessages.FILTER_RESOURCES_NOT_FOUND.getErrorMessage());
 		}
@@ -152,11 +154,15 @@ public class ResultsServiceImpl implements ResultsService {
 
 		List<ResultsEntity> filteredResultsWithoutDuplicates = new ArrayList<>(new HashSet<>(filteredResults));
 		Collections.sort(filteredResultsWithoutDuplicates, new SortResultsById());
-
-		Type listType = new TypeToken<List<ResultsDTO>>() {
+		
+		ResultsResponseModel results = new ResultsResponseModel();
+		Type listType = new TypeToken<List<ResultsObjectResponseModel>>() {
 		}.getType();
-		results = new ModelMapper().map(filteredResultsWithoutDuplicates, listType);
-
+		List<ResultsObjectResponseModel> responseObject = new ModelMapper().map(filteredResultsWithoutDuplicates, listType);
+		results.setResults(responseObject);
+		results.setNextUri(nextUri);
+		results.setAfterId(nextAfterId);
+		
 		return results;
 	}
 
@@ -172,10 +178,10 @@ public class ResultsServiceImpl implements ResultsService {
 						.and(ResultsSpecification.withTitleKeyword(filtersEntity.getShowByKeyword()))
 						.and(ResultsSpecification.withoutTitleKeyword(filtersEntity.getHideByKeyword()))));
 	}
-
+	
 	private ResultsFetchResponseModel sendGetResultsRequest(UserDTO user, String baseUrl, String uri) {
 		String token = user.getToken();
-		if (token == null) {
+		if (token == null || token.isEmpty()) {
 			throw new RedditAccountNotAuthenticatedException(ErrorPrefixes.RESULTS_SERVICE.getErrorPrefix()
 					+ ErrorMessages.REDDIT_ACCOUNT_NOT_AUTHENTICATED.getErrorMessage());
 		}
@@ -229,8 +235,7 @@ public class ResultsServiceImpl implements ResultsService {
 		return uri.toString();
 	}
 
-	private ResultsEntity addResultsEntity(UserEntity userEntity, String nextUri, String afterId,
-			ResultsDataChildrenDataModel data, long startId) {
+	private ResultsEntity addResultsEntity(UserEntity userEntity, ResultsDataChildrenDataModel data, long startId) {
 		ResultsEntity resultsEntity = new ResultsEntity();
 		String resultsId = sharedUtils.generateResultsId(idLength);
 		String userId = userEntity.getUserId();
@@ -250,8 +255,6 @@ public class ResultsServiceImpl implements ResultsService {
 		resultsEntity.setPermalink(data.getPermalink());
 		resultsEntity.setIsStickied(data.getStickied());
 		resultsEntity.setUrl(data.getUrl());
-		resultsEntity.setNextUri(nextUri);
-		resultsEntity.setAfterId(afterId);
 		resultsEntity.setStartId(startId);
 		resultsEntity.setLastModified(sharedUtils.getCurrentTime());
 
