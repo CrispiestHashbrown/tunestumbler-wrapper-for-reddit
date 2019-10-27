@@ -45,6 +45,19 @@ public class AggregateServiceImpl implements AggregateService {
 	SharedUtils sharedUtils;
 
 	@Override
+	public List<AggregateDTO> getAggregateByUserId(UserDTO user) {
+		String userId = user.getUserId();
+		Long startId = aggregateRepository.findMaxStartIdByUserId(userId);
+		List<AggregateEntity> aggregateList = aggregateRepository.findAggregateByUserIdAndMaxStartId(userId, startId);
+
+		if (aggregateList == null || aggregateList.isEmpty()) {
+			return createAggregateByUserId(user);
+		} else {
+			return updateAggregateByUserId(user);
+		}
+	}
+
+	@Override
 	public List<AggregateDTO> createAggregateByUserId(UserDTO user) {
 		String userId = user.getUserId();
 		Long userMaxId = aggregateRepository.findMaxIdByUserId(userId);
@@ -53,7 +66,7 @@ public class AggregateServiceImpl implements AggregateService {
 
 		List<SubredditDTO> subredditList = subredditService.fetchSubreddits(user);
 		List<MultiredditDTO> multiredditList = multiredditService.fetchMultireddits(user);
-		if (subredditList == null && multiredditList == null) {
+		if ((subredditList == null || subredditList.isEmpty()) && (multiredditList == null || multiredditList.isEmpty())) {
 			throw new SubredditsNotFoundException(ErrorPrefixes.AGGREGATE_SERVICE.getErrorPrefix()
 					+ ErrorMessages.SUBREDDIT_RESOURCES_NOT_FOUND.getErrorMessage());
 		}
@@ -80,27 +93,6 @@ public class AggregateServiceImpl implements AggregateService {
 	}
 
 	@Override
-	public List<AggregateDTO> getAggregateByUserId(UserDTO user) {
-		String userId = user.getUserId();
-		Long startId = aggregateRepository.findMaxStartIdByUserId(userId);
-		List<AggregateEntity> aggregateList = aggregateRepository.findAggregateByUserIdAndMaxStartId(userId, startId);
-
-		if (aggregateList == null) {
-			throw new SubredditsNotFoundException(ErrorPrefixes.AGGREGATE_SERVICE.getErrorPrefix()
-					+ ErrorMessages.SUBREDDIT_RESOURCES_NOT_FOUND.getErrorMessage());
-		}
-
-		List<AggregateDTO> existingAggregate = new ArrayList<>();
-		for (AggregateEntity aggregate : aggregateList) {
-			AggregateDTO aggregateDTO = new AggregateDTO();
-			BeanUtils.copyProperties(aggregate, aggregateDTO);
-			existingAggregate.add(aggregateDTO);
-		}
-
-		return existingAggregate;
-	}
-
-	@Override
 	public List<AggregateDTO> updateAggregateByUserId(UserDTO user) {
 		String userId = user.getUserId();
 		Long startId = aggregateRepository.findMaxStartIdByUserId(userId);
@@ -114,8 +106,8 @@ public class AggregateServiceImpl implements AggregateService {
 		List<SubredditDTO> subredditList = subredditService.updateSubreddits(user);
 		List<MultiredditDTO> multiredditList = multiredditService.updateMultireddits(user);
 		List<AggregateDTO> updatedAggregate = new ArrayList<>();
-		if (subredditList == null && multiredditList == null) {
-			if (aggregateEntities != null) {
+		if ((subredditList == null || subredditList.isEmpty()) && (multiredditList == null || multiredditList.isEmpty())) {
+			if (aggregateEntities == null || !aggregateEntities.isEmpty()) {
 				aggregateRepository.saveAll(aggregateEntities);
 			}
 
@@ -146,7 +138,7 @@ public class AggregateServiceImpl implements AggregateService {
 			List<AggregateEntity> aggregateEntity = aggregateRepository.findByUserIdAndSubredditAndMaxStartId(userId,
 					subreddit, startId);
 
-			if (!aggregateEntity.isEmpty()) {
+			if (aggregateEntity == null || !aggregateEntity.isEmpty()) {
 				for (AggregateEntity aggregateToUpdate : aggregateEntity) {
 					aggregateToUpdate.setIsSubredditAdded(isSubredditAdded);
 					aggregateToUpdate.setLastModified(sharedUtils.getCurrentTime());
@@ -164,7 +156,7 @@ public class AggregateServiceImpl implements AggregateService {
 			List<AggregateEntity> aggregateEntity = aggregateRepository
 					.findByUserIdAndMultiredditAndSubredditAndMaxStartId(userId, multireddit, subreddit, startId);
 
-			if (!aggregateEntity.isEmpty()) {
+			if (aggregateEntity == null || !aggregateEntity.isEmpty()) {
 				for (AggregateEntity aggregateToUpdate : aggregateEntity) {
 					aggregateToUpdate.setIsSubredditAdded(isSubredditAdded);
 					aggregateToUpdate.setLastModified(sharedUtils.getCurrentTime());
