@@ -159,7 +159,7 @@ public class AuthValidationController {
 
 		UserDTO userDTO = userService.getUserByUserId(userId);
 
-		if (userDTO.getRefreshToken() == null) {
+		if (userDTO.getRefreshToken() == null || userDTO.getRefreshToken().isEmpty()) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 			
@@ -206,7 +206,7 @@ public class AuthValidationController {
 		String scopes = response.getScope();
 		String validScopes = "account history mysubreddits read save subscribe vote";
 
-		if (accessToken == null || !scopes.equals(validScopes)) {
+		if (accessToken == null || accessToken.isEmpty() || !scopes.equals(validScopes)) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		} else {
 			userDTO.setToken(accessToken);

@@ -152,7 +152,7 @@ public class SubredditServiceImpl implements SubredditService {
 				startId);
 
 		List<SubredditDTO> existingSubreddits = new ArrayList<>();
-		if (subredditList == null) {
+		if (subredditList == null || subredditList.isEmpty()) {
 			return existingSubreddits;
 		}
 
