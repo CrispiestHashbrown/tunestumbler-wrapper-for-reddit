@@ -11,6 +11,9 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
+
 import ca.tunestumbler.api.io.entity.MultiredditEntity;
 import ca.tunestumbler.api.io.entity.UserEntity;
 import ca.tunestumbler.api.io.repositories.MultiredditRepository;
@@ -30,7 +33,7 @@ public class MultiredditServiceImpl implements MultiredditService {
 
 	@Autowired
 	MultiredditHelpers multiredditHelpers;
-	
+
 	@Autowired
 	SharedUtils sharedUtils;
 
@@ -82,13 +85,17 @@ public class MultiredditServiceImpl implements MultiredditService {
 	public List<MultiredditDTO> updateMultireddits(UserDTO user) {
 		String userId = user.getUserId();
 		Long startId = multiredditRepository.findMaxStartIdByUserId(userId);
+
+//		Get multireddit subreddits and create maps for multiredditEntities and subreddits
 		List<MultiredditEntity> multiredditEntities = multiredditRepository
 				.findSubredditsByUserIdAndMaxStartIdAndCurated(userId, startId);
-
+		Table<String, String, MultiredditEntity> multiredditMap = HashBasedTable.create();
 		for (MultiredditEntity multiredditEntity : multiredditEntities) {
 			multiredditEntity.setIsCurated(false);
+			multiredditMap.put(multiredditEntity.getMultireddit(), multiredditEntity.getSubreddit(), multiredditEntity);
 		}
 
+//		Get user multireddit subreddits and handle the response
 		MultiredditFetchResponseModel[] response = multiredditHelpers.sendGetMultiredditRequest(user);
 		List<MultiredditFetchResponseModel> multiredditModel = Arrays.asList(response);
 		List<MultiredditDTO> multireddits = new ArrayList<>();
@@ -103,39 +110,33 @@ public class MultiredditServiceImpl implements MultiredditService {
 		UserEntity userEntity = new UserEntity();
 		BeanUtils.copyProperties(user, userEntity);
 
+//		Add new or update existing multireddits/subreddits
 		Boolean isCurated = true;
 		List<MultiredditEntity> updatedMultiredditEntities = new ArrayList<>();
 		for (MultiredditFetchResponseModel multiredditData : multiredditModel) {
 			String multireddit = multiredditData.getData().getName();
-//			TODO: turn this into multiredditEntities for loop
-			List<MultiredditEntity> multiredditDataEntity = multiredditRepository
-					.findByUserIdAndMultiredditAndMaxStartId(userId, multireddit, startId);
 			for (MultiredditDataSubredditModel subredditData : multiredditData.getData().getSubreddits()) {
 				String subreddit = subredditData.getName();
-//				TODO: turn this into multiredditEntities for loop
-				MultiredditEntity subredditDataEntity = multiredditRepository
-						.findByUserIdAndSubredditAndMaxStartId(userId, subreddit, startId);
-				if (multiredditDataEntity != null && subredditDataEntity != null) {
+				MultiredditEntity existingMultiredditEntity = multiredditMap.get(multireddit, subreddit);
 
-					subredditDataEntity.setIsCurated(isCurated);
-					subredditDataEntity.setLastModified(sharedUtils.getCurrentTime());
-					updatedMultiredditEntities.add(subredditDataEntity);
-				}
-
-				if (multiredditDataEntity == null && subredditDataEntity == null) {
-					MultiredditEntity newMultiredditEntity = new MultiredditEntity();
+//				If the multireddit/subreddit exists, update it; otherwise, create a new record
+				if (existingMultiredditEntity != null) {
+					existingMultiredditEntity.setIsCurated(isCurated);
+					existingMultiredditEntity.setLastModified(sharedUtils.getCurrentTime());
+					updatedMultiredditEntities.add(existingMultiredditEntity);
+				} else {
+					MultiredditEntity multiredditEntityToAdd = new MultiredditEntity();
 					String multiredditId = sharedUtils.generateMultiredditId(50);
 
-					newMultiredditEntity.setMultiredditId(multiredditId);
-					newMultiredditEntity.setMultireddit(multiredditData.getData().getName());
-					newMultiredditEntity.setSubreddit(subredditData.getName());
-					newMultiredditEntity.setUserEntity(userEntity);
-					newMultiredditEntity.setUserId(userEntity.getUserId());
-					newMultiredditEntity.setStartId(startId);
-					newMultiredditEntity.setIsCurated(isCurated);
-					newMultiredditEntity.setLastModified(sharedUtils.getCurrentTime());
-
-					updatedMultiredditEntities.add(newMultiredditEntity);
+					multiredditEntityToAdd.setMultiredditId(multiredditId);
+					multiredditEntityToAdd.setMultireddit(multireddit);
+					multiredditEntityToAdd.setSubreddit(subredditData.getName());
+					multiredditEntityToAdd.setUserEntity(userEntity);
+					multiredditEntityToAdd.setUserId(userEntity.getUserId());
+					multiredditEntityToAdd.setStartId(startId);
+					multiredditEntityToAdd.setIsCurated(isCurated);
+					multiredditEntityToAdd.setLastModified(sharedUtils.getCurrentTime());
+					updatedMultiredditEntities.add(multiredditEntityToAdd);
 				}
 			}
 		}
