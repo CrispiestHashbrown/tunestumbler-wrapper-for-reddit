@@ -50,7 +50,7 @@ public class ResultsSpecification {
 		if (domain == null || domain.isEmpty()) {
 			return null;
 		} else {
-			return (root, query, criteriaBuilder) -> criteriaBuilder.like(root.get("domain"), domain);
+			return (root, query, criteriaBuilder) -> criteriaBuilder.like(root.get("domain"), "%" + domain + "%");
 		}
 	}
 
@@ -58,7 +58,7 @@ public class ResultsSpecification {
 		if (domain == null || domain.isEmpty()) {
 			return null;
 		} else {
-			return (root, query, criteriaBuilder) -> criteriaBuilder.notLike(root.get("domain"), domain);
+			return (root, query, criteriaBuilder) -> criteriaBuilder.notLike(root.get("domain"), "%" + domain + "%");
 		}
 	}
 
@@ -66,7 +66,7 @@ public class ResultsSpecification {
 		if (keyword == null || keyword.isEmpty()) {
 			return null;
 		} else {
-			return (root, query, criteriaBuilder) -> criteriaBuilder.like(root.get("title"), keyword);
+			return (root, query, criteriaBuilder) -> criteriaBuilder.like(root.get("title"), "%" + keyword + "%");
 		}
 	}
 
@@ -74,7 +74,7 @@ public class ResultsSpecification {
 		if (keyword == null || keyword.isEmpty()) {
 			return null;
 		} else {
-			return (root, query, criteriaBuilder) -> criteriaBuilder.notLike(root.get("title"), keyword);
+			return (root, query, criteriaBuilder) -> criteriaBuilder.notLike(root.get("title"), "%" + keyword +  "%");
 		}
 	}
 
