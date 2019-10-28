@@ -45,15 +45,11 @@ public class FiltersServiceImpl implements FiltersService {
 		}.getType();
 		List<FiltersEntity> newFilters = new ModelMapper().map(filters, entityListType);
 
-		Long userMaxId = filtersRepository.findMaxIdByUserId(user.getUserId());
-		Long maxId = filtersRepository.findMaxId();
-		Long startId = sharedUtils.setStartId(userMaxId, maxId);
 		for (FiltersEntity newFilter : newFilters) {
 			String filtersId = sharedUtils.generateFiltersId(idLength);
 			newFilter.setFiltersId(filtersId);
 			newFilter.setUserEntity(userEntity);
 			newFilter.setUserId(user.getUserId());
-			newFilter.setStartId(startId);
 			newFilter.setIsActive(true);
 			newFilter.setLastModified(sharedUtils.getCurrentTime());
 		}
@@ -68,10 +64,9 @@ public class FiltersServiceImpl implements FiltersService {
 	@Override
 	public List<FiltersDTO> getFiltersByUserId(UserDTO user) {
 		String userId = user.getUserId();
-		Long startId = filtersRepository.findMaxStartIdByUserId(userId);
-		List<FiltersEntity> filtersList = filtersRepository.findFiltersByUserIdAndStartIdAndIsActive(userId, startId);
+		List<FiltersEntity> filtersList = filtersRepository.findFiltersByUserIdAndIsActive(userId);
 
-		if (filtersList == null) {
+		if (filtersList == null || filtersList.isEmpty()) {
 			throw new FiltersNotFoundException(ErrorPrefixes.FILTERS_SERVICE.getErrorPrefix()
 					+ ErrorMessages.FILTER_RESOURCES_NOT_FOUND.getErrorMessage());
 		}
@@ -85,9 +80,7 @@ public class FiltersServiceImpl implements FiltersService {
 	@Override
 	public List<FiltersDTO> updateFilters(UserDTO user, List<FiltersDTO> filters) {
 		String userId = user.getUserId();
-		Long startId = filtersRepository.findMaxStartIdByUserId(userId);
-		List<FiltersEntity> existingFilters = filtersRepository.findFiltersByUserIdAndStartIdAndIsActive(userId,
-				startId);
+		List<FiltersEntity> existingFilters = filtersRepository.findFiltersByUserIdAndIsActive(userId);
 
 		for (FiltersEntity filtersEntity : existingFilters) {
 			filtersEntity.setIsActive(false);
@@ -135,7 +128,6 @@ public class FiltersServiceImpl implements FiltersService {
 				newFilter.setShowByKeyword(filtersDTO.getShowByKeyword());
 				newFilter.setHideByDomain(filtersDTO.getHideByDomain());
 				newFilter.setShowByDomain(filtersDTO.getShowByDomain());
-				newFilter.setStartId(startId);
 				newFilter.setIsActive(true);
 				newFilter.setLastModified(sharedUtils.getCurrentTime());
 				updatedFiltersEntities.add(newFilter);
