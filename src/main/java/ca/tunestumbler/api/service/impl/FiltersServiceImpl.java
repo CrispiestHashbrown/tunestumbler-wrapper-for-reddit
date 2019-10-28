@@ -1,7 +1,7 @@
 package ca.tunestumbler.api.service.impl;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.modelmapper.ModelMapper;
@@ -48,17 +48,15 @@ public class FiltersServiceImpl implements FiltersService {
 		for (FiltersEntity newFilter : newFilters) {
 			String filtersId = sharedUtils.generateFiltersId(idLength);
 			newFilter.setFiltersId(filtersId);
-			newFilter.setUserEntity(userEntity);
 			newFilter.setUserId(user.getUserId());
-			newFilter.setIsActive(true);
 			newFilter.setLastModified(sharedUtils.getCurrentTime());
 		}
 
-		List<FiltersEntity> storedFiltersEntities = filtersRepository.saveAll(newFilters);
+		filtersRepository.saveAll(newFilters);
 		Type dtoListType = new TypeToken<List<FiltersDTO>>() {
 		}.getType();
 
-		return new ModelMapper().map(storedFiltersEntities, dtoListType);
+		return new ModelMapper().map(newFilters, dtoListType);
 	}
 
 	@Override
@@ -81,60 +79,18 @@ public class FiltersServiceImpl implements FiltersService {
 	public List<FiltersDTO> updateFilters(UserDTO user, List<FiltersDTO> filters) {
 		String userId = user.getUserId();
 		List<FiltersEntity> existingFilters = filtersRepository.findFiltersByUserIdAndIsActive(userId);
-
+		HashMap<String, FiltersEntity> filtersMap = new HashMap<>();
 		for (FiltersEntity filtersEntity : existingFilters) {
-			filtersEntity.setIsActive(false);
+			filtersMap.put(filtersEntity.getFiltersId(), filtersEntity);
 		}
 
-		UserEntity userEntity = new UserEntity();
-		BeanUtils.copyProperties(user, userEntity);
-
-		List<FiltersEntity> updatedFiltersEntities = new ArrayList<>();
 		for (FiltersDTO filtersDTO : filters) {
-			String filtersId = filtersDTO.getFiltersId();
-			Boolean isExistingFilter = false;
-			for (FiltersEntity filtersEntity : existingFilters) {
-
-				// If the filter exists, update all filter fields.
-				if (filtersId.equals(filtersEntity.getFiltersId())) {
-					isExistingFilter = true;
-					filtersEntity.setPriority(filtersDTO.getPriority());
-					filtersEntity.setMinScore(filtersDTO.getMinScore());
-					filtersEntity.setAllowNSFWFlag(filtersDTO.getAllowNSFWFlag());
-					filtersEntity.setHideByKeyword(filtersDTO.getHideByKeyword());
-					filtersEntity.setShowByKeyword(filtersDTO.getShowByKeyword());
-					filtersEntity.setHideByDomain(filtersDTO.getHideByDomain());
-					filtersEntity.setShowByDomain(filtersDTO.getShowByDomain());
-					filtersEntity.setIsActive(true);
-					filtersEntity.setLastModified(sharedUtils.getCurrentTime());
-					updatedFiltersEntities.add(filtersEntity);
-					break;
-				}
-			}
-
-			// If the filter does not exist, add the filter
-			if (!isExistingFilter) {
-				FiltersEntity newFilter = new FiltersEntity();
-				String newFiltersId = sharedUtils.generateFiltersId(idLength);
-				newFilter.setFiltersId(newFiltersId);
-				newFilter.setUserEntity(userEntity);
-				newFilter.setUserId(userId);
-				newFilter.setMultireddit(filtersDTO.getMultireddit());
-				newFilter.setSubreddit(filtersDTO.getSubreddit());
-				newFilter.setPriority(filtersDTO.getPriority());
-				newFilter.setMinScore(filtersDTO.getMinScore());
-				newFilter.setAllowNSFWFlag(filtersDTO.getAllowNSFWFlag());
-				newFilter.setHideByKeyword(filtersDTO.getHideByKeyword());
-				newFilter.setShowByKeyword(filtersDTO.getShowByKeyword());
-				newFilter.setHideByDomain(filtersDTO.getHideByDomain());
-				newFilter.setShowByDomain(filtersDTO.getShowByDomain());
-				newFilter.setIsActive(true);
-				newFilter.setLastModified(sharedUtils.getCurrentTime());
-				updatedFiltersEntities.add(newFilter);
-			}
+			FiltersEntity filtersEntity = filtersMap.get(filtersDTO.getFiltersId());
+			BeanUtils.copyProperties(filtersDTO, filtersEntity);
+			filtersEntity.setLastModified(sharedUtils.getCurrentTime());
 		}
 
-		List<FiltersEntity> updatedFilters = filtersRepository.saveAll(updatedFiltersEntities);
+		List<FiltersEntity> updatedFilters = filtersRepository.saveAll(existingFilters);
 		Type dtoListType = new TypeToken<List<FiltersDTO>>() {
 		}.getType();
 
