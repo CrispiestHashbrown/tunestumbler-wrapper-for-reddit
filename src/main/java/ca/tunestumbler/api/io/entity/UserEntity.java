@@ -53,9 +53,6 @@ public class UserEntity implements Serializable {
 	private List<MultiredditEntity> multireddit;
 
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "userEntity")
-	private List<FiltersEntity> filters;
-
-	@OneToMany(cascade = CascadeType.ALL, mappedBy = "userEntity")
 	private List<AggregateEntity> aggregate;
 
 	public String getUserId() {
@@ -160,14 +157,6 @@ public class UserEntity implements Serializable {
 
 	public void setMultireddit(List<MultiredditEntity> multireddit) {
 		this.multireddit = multireddit;
-	}
-
-	public List<FiltersEntity> getFilters() {
-		return filters;
-	}
-
-	public void setFilters(List<FiltersEntity> filters) {
-		this.filters = filters;
 	}
 
 	public List<AggregateEntity> getAggregate() {

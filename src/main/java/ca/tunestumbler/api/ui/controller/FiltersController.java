@@ -1,12 +1,9 @@
 package ca.tunestumbler.api.ui.controller;
 
-import java.lang.reflect.Type;
 import java.util.List;
 
 import javax.validation.Valid;
 
-import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -31,8 +28,6 @@ import ca.tunestumbler.api.shared.dto.UserDTO;
 import ca.tunestumbler.api.ui.model.request.FiltersRequestModel;
 import ca.tunestumbler.api.ui.model.response.ErrorMessages;
 import ca.tunestumbler.api.ui.model.response.ErrorPrefixes;
-import ca.tunestumbler.api.ui.model.response.FiltersResponseModel;
-import ca.tunestumbler.api.ui.model.response.filters.FiltersObjectResponseModel;
 
 @RestController
 @RequestMapping("/filters")
@@ -45,22 +40,14 @@ public class FiltersController {
 	UserService userService;
 
 	@GetMapping(path = "/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public FiltersResponseModel getFilters(@PathVariable String userId) {
+	public List<FiltersDTO> getFilters(@PathVariable String userId) {
 		if (Strings.isNullOrEmpty(userId)) {
 			throw new MissingPathParametersException(ErrorPrefixes.FILTERS_CONTROLLER.getErrorPrefix()
 					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
 		}
 
-		FiltersResponseModel filtersResponse = new FiltersResponseModel();
-
 		UserDTO userDTO = userService.getUserByUserId(userId);
-		List<FiltersDTO> existingFilters = filtersService.getFiltersByUserId(userDTO);
-		Type listType = new TypeToken<List<FiltersObjectResponseModel>>() {
-		}.getType();
-		List<FiltersObjectResponseModel> responseObject = new ModelMapper().map(existingFilters, listType);
-		filtersResponse.setFilters(responseObject);
-
-		return filtersResponse;
+		return filtersService.getFiltersByUserId(userDTO);
 	}
 
 	@PostMapping(path = "/{userId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -76,24 +63,12 @@ public class FiltersController {
 					ErrorPrefixes.FILTERS_CONTROLLER.getErrorPrefix() + ErrorMessages.INVALID_BODY.getErrorMessage());
 		}
 
-		FiltersResponseModel newFiltersResponse = new FiltersResponseModel();
-
 		UserDTO userDTO = userService.getUserByUserId(userId);
-		Type dtoListType = new TypeToken<List<FiltersDTO>>() {
-		}.getType();
-		List<FiltersDTO> filtersDTO = new ModelMapper().map(newFilters.getFilters(), dtoListType);
-		List<FiltersDTO> createdFilters = filtersService.createFilters(userDTO, filtersDTO);
-
-		Type responseListType = new TypeToken<List<FiltersObjectResponseModel>>() {
-		}.getType();
-		List<FiltersObjectResponseModel> responseObject = new ModelMapper().map(createdFilters, responseListType);
-		newFiltersResponse.setFilters(responseObject);
-
-		return new ResponseEntity<>(newFiltersResponse, HttpStatus.CREATED);
+		return new ResponseEntity<>(filtersService.createFilters(userDTO, newFilters.getFilters()), HttpStatus.CREATED);
 	}
 
 	@PutMapping(path = "/{userId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public FiltersResponseModel updateFilters(@PathVariable String userId,
+	public List<FiltersDTO> updateFilters(@PathVariable String userId,
 			@Valid @RequestBody FiltersRequestModel filtersToUpdate, BindingResult bindingResult) {
 		if (Strings.isNullOrEmpty(userId)) {
 			throw new MissingPathParametersException(ErrorPrefixes.FILTERS_CONTROLLER.getErrorPrefix()
@@ -105,20 +80,8 @@ public class FiltersController {
 					ErrorPrefixes.FILTERS_CONTROLLER.getErrorPrefix() + ErrorMessages.INVALID_BODY.getErrorMessage());
 		}
 
-		FiltersResponseModel updatedFiltersResponse = new FiltersResponseModel();
-
 		UserDTO userDTO = userService.getUserByUserId(userId);
-		Type dtoListType = new TypeToken<List<FiltersDTO>>() {
-		}.getType();
-		List<FiltersDTO> filtersDTO = new ModelMapper().map(filtersToUpdate.getFilters(), dtoListType);
-		List<FiltersDTO> updatedFilters = filtersService.updateFilters(userDTO, filtersDTO);
-
-		Type responseListType = new TypeToken<List<FiltersObjectResponseModel>>() {
-		}.getType();
-		List<FiltersObjectResponseModel> responseObject = new ModelMapper().map(updatedFilters, responseListType);
-		updatedFiltersResponse.setFilters(responseObject);
-
-		return updatedFiltersResponse;
+		return filtersService.updateFilters(userDTO, filtersToUpdate.getFilters());
 	}
 
 }

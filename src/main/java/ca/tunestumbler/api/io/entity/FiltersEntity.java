@@ -7,8 +7,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.validation.constraints.Size;
 
 @Entity(name = "filters")
@@ -22,10 +20,6 @@ public class FiltersEntity implements Serializable {
 
 	@Column(nullable = false, unique = true)
 	private String filtersId;
-
-	@ManyToOne
-	@JoinColumn(name = "users_usersId")
-	private UserEntity userEntity;
 
 	@Column()
 	private String userId;
@@ -59,7 +53,7 @@ public class FiltersEntity implements Serializable {
 	private String showByDomain;
 
 	@Column()
-	private Boolean isActive = false;
+	private Boolean isActive;
 
 	@Column(nullable = false)
 	private String lastModified;
@@ -78,14 +72,6 @@ public class FiltersEntity implements Serializable {
 
 	public void setFiltersId(String filtersId) {
 		this.filtersId = filtersId;
-	}
-
-	public UserEntity getUserEntity() {
-		return userEntity;
-	}
-
-	public void setUserEntity(UserEntity userEntity) {
-		this.userEntity = userEntity;
 	}
 
 	public String getUserId() {
