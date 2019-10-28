@@ -21,7 +21,6 @@ public class UserDTO implements Serializable {
 	private List<MultiredditDTO> multireddit;
 	private List<FiltersDTO> filters;
 	private List<AggregateDTO> aggregate;
-	private List<ResultsDTO> results;
 
 	public String getUserId() {
 		return userId;
@@ -149,14 +148,6 @@ public class UserDTO implements Serializable {
 
 	public void setAggregate(List<AggregateDTO> aggregate) {
 		this.aggregate = aggregate;
-	}
-
-	public List<ResultsDTO> getResults() {
-		return results;
-	}
-
-	public void setResults(List<ResultsDTO> results) {
-		this.results = results;
 	}
 
 }

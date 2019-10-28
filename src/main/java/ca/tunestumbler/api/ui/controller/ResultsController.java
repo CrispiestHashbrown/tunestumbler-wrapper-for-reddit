@@ -1,13 +1,7 @@
 package ca.tunestumbler.api.ui.controller;
 
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.validation.Valid;
 
-import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeToken;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -27,14 +21,12 @@ import ca.tunestumbler.api.exceptions.InvalidBodyException;
 import ca.tunestumbler.api.exceptions.MissingPathParametersException;
 import ca.tunestumbler.api.service.ResultsService;
 import ca.tunestumbler.api.service.UserService;
-import ca.tunestumbler.api.shared.dto.ResultsDTO;
 import ca.tunestumbler.api.shared.dto.ResultsRequestDTO;
 import ca.tunestumbler.api.shared.dto.UserDTO;
 import ca.tunestumbler.api.ui.model.request.ResultsRequestModel;
 import ca.tunestumbler.api.ui.model.response.ErrorMessages;
 import ca.tunestumbler.api.ui.model.response.ErrorPrefixes;
 import ca.tunestumbler.api.ui.model.response.ResultsResponseModel;
-import ca.tunestumbler.api.ui.model.response.results.ResultsObjectResponseModel;
 
 @RestController
 @RequestMapping("/results")
@@ -53,17 +45,8 @@ public class ResultsController {
 					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
 		}
 
-		ResultsResponseModel resultsResponse = new ResultsResponseModel();
-
 		UserDTO userDTO = userService.getUserByUserId(userId);
-		List<ResultsDTO> fetchedResults = resultsService.fetchResults(userDTO, orderBy);
-		List<ResultsObjectResponseModel> responseObject = new ArrayList<>();
-		Type listType = new TypeToken<List<ResultsObjectResponseModel>>() {
-		}.getType();
-		responseObject = new ModelMapper().map(fetchedResults, listType);
-		resultsResponse.setResults(responseObject);
-
-		return resultsResponse;
+		return resultsService.fetchResults(userDTO, orderBy);
 	}
 
 	@PostMapping(path = "/fetch/next/{userId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -79,20 +62,13 @@ public class ResultsController {
 					ErrorPrefixes.RESULTS_CONTROLLER.getErrorPrefix() + ErrorMessages.INVALID_BODY.getErrorMessage());
 		}
 
-		ResultsResponseModel resultsResponse = new ResultsResponseModel();
-
 		UserDTO userDTO = userService.getUserByUserId(userId);
 
 		ResultsRequestDTO resultsRequestDTO = new ResultsRequestDTO();
 		BeanUtils.copyProperties(results, resultsRequestDTO);
 
-		List<ResultsDTO> updatedResults = resultsService.fetchNextResults(userDTO, resultsRequestDTO.getNextUri(),
+		ResultsResponseModel resultsResponse = resultsService.fetchNextResults(userDTO, resultsRequestDTO.getNextUri(),
 				resultsRequestDTO.getAfterId());
-		List<ResultsObjectResponseModel> responseObject = new ArrayList<>();
-		Type listType = new TypeToken<List<ResultsObjectResponseModel>>() {
-		}.getType();
-		responseObject = new ModelMapper().map(updatedResults, listType);
-		resultsResponse.setResults(responseObject);
 
 		return new ResponseEntity<>(resultsResponse, HttpStatus.CREATED);
 	}

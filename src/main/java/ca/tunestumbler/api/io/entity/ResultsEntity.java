@@ -32,7 +32,7 @@ public class ResultsEntity implements Serializable {
 	@Column(nullable = false, length = 21)
 	private String subreddit;
 
-	@Column(nullable = false, length = 300)
+	@Column(nullable = false, length = 500)
 	private String title;
 
 	@Column(nullable = false)
@@ -64,12 +64,6 @@ public class ResultsEntity implements Serializable {
 
 	@Column(nullable = false)
 	private String url;
-
-	@Column
-	private String nextUri;
-
-	@Column
-	private String afterId;
 
 	@Column()
 	private Long startId;
@@ -203,22 +197,6 @@ public class ResultsEntity implements Serializable {
 
 	public void setUrl(String url) {
 		this.url = url;
-	}
-
-	public String getNextUri() {
-		return nextUri;
-	}
-
-	public void setNextUri(String nextUri) {
-		this.nextUri = nextUri;
-	}
-
-	public String getAfterId() {
-		return afterId;
-	}
-
-	public void setAfterId(String afterId) {
-		this.afterId = afterId;
 	}
 
 	public Long getStartId() {
