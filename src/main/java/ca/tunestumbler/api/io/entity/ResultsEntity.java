@@ -32,7 +32,7 @@ public class ResultsEntity implements Serializable {
 	@Column(nullable = false, length = 21)
 	private String subreddit;
 
-	@Column(nullable = false, length = 300)
+	@Column(nullable = false, length = 500)
 	private String title;
 
 	@Column(nullable = false)
