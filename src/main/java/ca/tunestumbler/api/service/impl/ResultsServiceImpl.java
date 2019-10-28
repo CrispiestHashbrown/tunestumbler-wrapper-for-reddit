@@ -61,10 +61,7 @@ public class ResultsServiceImpl implements ResultsService {
 	@Override
 	public ResultsResponseModel fetchResults(UserDTO user, String orderBy) {
 		String userId = user.getUserId();
-		Long filtersStartId = filtersRepository.findMaxStartIdByUserId(userId);
-
-		List<FiltersEntity> filters = filtersRepository.findFiltersByUserIdAndStartIdAndIsActive(userId,
-				filtersStartId);
+		List<FiltersEntity> filters = filtersRepository.findFiltersByUserIdAndIsActive(userId);
 		if (filters == null || filters.isEmpty()) {
 			throw new FiltersNotFoundException(ErrorPrefixes.RESULTS_SERVICE.getErrorPrefix()
 					+ ErrorMessages.FILTER_RESOURCES_NOT_FOUND.getErrorMessage());
@@ -139,9 +136,7 @@ public class ResultsServiceImpl implements ResultsService {
 		resultsRepository.saveAll(resultsEntities);
 		
 		List<ResultsEntity> filteredResults = new ArrayList<>();
-		Long filtersStartId = filtersRepository.findMaxStartIdByUserId(userId);
-		List<FiltersEntity> filters = filtersRepository.findFiltersByUserIdAndStartIdAndIsActive(userId,
-				filtersStartId);
+		List<FiltersEntity> filters = filtersRepository.findFiltersByUserIdAndIsActive(userId);
 
 		if (filters == null || filters.isEmpty()) {
 			throw new FiltersNotFoundException(ErrorPrefixes.RESULTS_SERVICE.getErrorPrefix()

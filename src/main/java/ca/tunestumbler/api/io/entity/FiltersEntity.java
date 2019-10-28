@@ -59,9 +59,6 @@ public class FiltersEntity implements Serializable {
 	private String showByDomain;
 
 	@Column()
-	private Long startId;
-
-	@Column()
 	private Boolean isActive = false;
 
 	@Column(nullable = false)
@@ -169,14 +166,6 @@ public class FiltersEntity implements Serializable {
 
 	public void setShowByDomain(String showByDomain) {
 		this.showByDomain = showByDomain;
-	}
-
-	public Long getStartId() {
-		return startId;
-	}
-
-	public void setStartId(Long startId) {
-		this.startId = startId;
 	}
 
 	public Boolean getIsActive() {

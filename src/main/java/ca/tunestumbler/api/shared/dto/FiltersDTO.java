@@ -17,7 +17,6 @@ public class FiltersDTO implements Serializable {
 	private String showByKeyword;
 	private String hideByDomain;
 	private String showByDomain;
-	private Long startId;
 	private Boolean isActive = false;
 	private String lastModified;
 
@@ -123,14 +122,6 @@ public class FiltersDTO implements Serializable {
 
 	public void setShowByDomain(String showByDomain) {
 		this.showByDomain = showByDomain;
-	}
-
-	public Long getStartId() {
-		return startId;
-	}
-
-	public void setStartId(Long startId) {
-		this.startId = startId;
 	}
 
 	public Boolean getIsActive() {
