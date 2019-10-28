@@ -173,12 +173,21 @@ public class ResultsServiceImpl implements ResultsService {
 						.and(ResultsSpecification.withSubreddit(filtersEntity.getSubreddit())
 						.and(ResultsSpecification.withMinScore(filtersEntity.getMinScore()))
 						.and(ResultsSpecification.withNSFW(filtersEntity.getAllowNSFWFlag()))
-						.and(ResultsSpecification.withDomainOnly(filtersEntity.getShowByDomain()))
-						.and(ResultsSpecification.withoutDomain(filtersEntity.getHideByDomain()))
+						.and(ResultsSpecification.withDomainOnly(setYoutubeFilterIfYoutube(filtersEntity.getShowByDomain())))
+						.and(ResultsSpecification.withoutDomain(setYoutubeFilterIfYoutube(filtersEntity.getHideByDomain())))
 						.and(ResultsSpecification.withTitleKeyword(filtersEntity.getShowByKeyword()))
 						.and(ResultsSpecification.withoutTitleKeyword(filtersEntity.getHideByKeyword()))));
 	}
-	
+
+	private String setYoutubeFilterIfYoutube (String domain) {
+		String youtubeFilter = "youtu";
+		if (domain.toLowerCase().contains(youtubeFilter)) {
+			return youtubeFilter;
+		} else {
+			return domain;
+		}
+	}
+
 	private ResultsFetchResponseModel sendGetResultsRequest(UserDTO user, String baseUrl, String uri) {
 		String token = user.getToken();
 		if (token == null || token.isEmpty()) {
