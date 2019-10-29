@@ -21,6 +21,7 @@ import ca.tunestumbler.api.exceptions.InvalidBodyException;
 import ca.tunestumbler.api.exceptions.MissingPathParametersException;
 import ca.tunestumbler.api.service.ResultsService;
 import ca.tunestumbler.api.service.UserService;
+import ca.tunestumbler.api.service.impl.helpers.AuthorizationHelpers;
 import ca.tunestumbler.api.shared.dto.ResultsRequestDTO;
 import ca.tunestumbler.api.shared.dto.UserDTO;
 import ca.tunestumbler.api.ui.model.request.ResultsRequestModel;
@@ -37,6 +38,9 @@ public class ResultsController {
 
 	@Autowired
 	UserService userService;
+	
+	@Autowired
+	AuthorizationHelpers authorizationHelpers;
 
 	@GetMapping(path = "/fetch/{userId}/{orderBy}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResultsResponseModel fetchResults(@PathVariable String userId, @PathVariable String orderBy) {
@@ -44,6 +48,11 @@ public class ResultsController {
 			throw new MissingPathParametersException(ErrorPrefixes.RESULTS_CONTROLLER.getErrorPrefix()
 					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
 		}
+		
+		/*
+		 * Token authorization validation
+		*/		
+		authorizationHelpers.isAuthorized(userId);
 
 		UserDTO userDTO = userService.getUserByUserId(userId);
 		return resultsService.fetchResults(userDTO, orderBy);
@@ -56,6 +65,11 @@ public class ResultsController {
 			throw new MissingPathParametersException(ErrorPrefixes.RESULTS_CONTROLLER.getErrorPrefix()
 					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
 		}
+		
+		/*
+		 * Token authorization validation
+		*/		
+		authorizationHelpers.isAuthorized(userId);
 
 		if (bindingResult.hasErrors()) {
 			throw new InvalidBodyException(

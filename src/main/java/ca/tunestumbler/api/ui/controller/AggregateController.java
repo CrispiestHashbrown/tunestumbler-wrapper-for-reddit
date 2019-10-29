@@ -17,6 +17,7 @@ import com.google.common.base.Strings;
 import ca.tunestumbler.api.exceptions.MissingPathParametersException;
 import ca.tunestumbler.api.service.AggregateService;
 import ca.tunestumbler.api.service.UserService;
+import ca.tunestumbler.api.service.impl.helpers.AuthorizationHelpers;
 import ca.tunestumbler.api.shared.dto.AggregateDTO;
 import ca.tunestumbler.api.shared.dto.UserDTO;
 import ca.tunestumbler.api.ui.model.response.AggregateResponseModel;
@@ -33,6 +34,9 @@ public class AggregateController {
 
 	@Autowired
 	UserService userService;
+	
+	@Autowired
+	AuthorizationHelpers authorizationHelpers;
 
 	@GetMapping(path = "/create/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public AggregateResponseModel createAggregate(@PathVariable String userId) {
@@ -40,6 +44,11 @@ public class AggregateController {
 			throw new MissingPathParametersException(ErrorPrefixes.AGGREGATE_CONTROLLER.getErrorPrefix()
 					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
 		}
+		
+		/*
+		 * Token authorization validation
+		*/		
+		authorizationHelpers.isAuthorized(userId);
 
 		AggregateResponseModel aggregateResponse = new AggregateResponseModel();
 
@@ -59,6 +68,11 @@ public class AggregateController {
 			throw new MissingPathParametersException(ErrorPrefixes.AGGREGATE_CONTROLLER.getErrorPrefix()
 					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
 		}
+		
+		/*
+		 * Token authorization validation
+		*/		
+		authorizationHelpers.isAuthorized(userId);
 
 		AggregateResponseModel updatedAggregateResponse = new AggregateResponseModel();
 
@@ -78,6 +92,11 @@ public class AggregateController {
 			throw new MissingPathParametersException(ErrorPrefixes.AGGREGATE_CONTROLLER.getErrorPrefix()
 					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
 		}
+		
+		/*
+		 * Token authorization validation
+		*/		
+		authorizationHelpers.isAuthorized(userId);
 
 		AggregateResponseModel aggregateResponse = new AggregateResponseModel();
 
