@@ -1,8 +1,5 @@
 package ca.tunestumbler.api.ui.controller;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.validation.Valid;
 
 import org.springframework.beans.BeanUtils;
@@ -18,7 +15,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.base.Strings;
@@ -26,6 +22,7 @@ import com.google.common.base.Strings;
 import ca.tunestumbler.api.exceptions.InvalidBodyException;
 import ca.tunestumbler.api.exceptions.MissingPathParametersException;
 import ca.tunestumbler.api.service.UserService;
+import ca.tunestumbler.api.service.impl.helpers.AuthorizationHelpers;
 import ca.tunestumbler.api.shared.dto.UserDTO;
 import ca.tunestumbler.api.ui.model.request.UserDetailsRequestModel;
 import ca.tunestumbler.api.ui.model.response.ErrorMessages;
@@ -33,11 +30,14 @@ import ca.tunestumbler.api.ui.model.response.ErrorPrefixes;
 import ca.tunestumbler.api.ui.model.response.UserDetailsResponseModel;
 
 @RestController
-@RequestMapping("/users") // http://localhost:8080/users
+@RequestMapping("/users")
 public class UserController {
 
 	@Autowired
 	UserService userService;
+	
+	@Autowired
+	AuthorizationHelpers authorizationHelpers;
 
 	@GetMapping(path = "/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public UserDetailsResponseModel getUser(@PathVariable String userId) {
@@ -45,6 +45,11 @@ public class UserController {
 			throw new MissingPathParametersException(ErrorPrefixes.USER_CONTROLLER.getErrorPrefix()
 					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
 		}
+		
+		/*
+		 * Token authorization validation
+		*/		
+		authorizationHelpers.isAuthorized(userId);
 
 		UserDetailsResponseModel existingUserResponse = new UserDetailsResponseModel();
 
@@ -80,6 +85,11 @@ public class UserController {
 			throw new MissingPathParametersException(ErrorPrefixes.USER_CONTROLLER.getErrorPrefix()
 					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
 		}
+		
+		/*
+		 * Token authorization validation
+		*/		
+		authorizationHelpers.isAuthorized(userId);
 
 		if (bindingResult.hasErrors()) {
 			throw new InvalidBodyException(ErrorPrefixes.USER_CONTROLLER.getErrorPrefix()
@@ -103,6 +113,11 @@ public class UserController {
 			throw new MissingPathParametersException(ErrorPrefixes.USER_CONTROLLER.getErrorPrefix()
 					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
 		}
+		
+		/*
+		 * Token authorization validation
+		*/		
+		authorizationHelpers.isAuthorized(userId);
 
 		userService.clearUserTokens(userId);
 
@@ -115,26 +130,15 @@ public class UserController {
 			throw new MissingPathParametersException(ErrorPrefixes.USER_CONTROLLER.getErrorPrefix()
 					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
 		}
+		
+		/*
+		 * Token authorization validation
+		*/		
+		authorizationHelpers.isAuthorized(userId);
 
 		userService.deleteUser(userId);
 
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-	}
-
-	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-	public List<UserDetailsResponseModel> getUsers(@RequestParam(value = "page", defaultValue = "0") int page,
-			@RequestParam(value = "limit", defaultValue = "30") int limit) {
-		List<UserDetailsResponseModel> existingUsers = new ArrayList<>();
-
-		List<UserDTO> usersDTO = userService.getUsers(page, limit);
-
-		for (UserDTO userDTO : usersDTO) {
-			UserDetailsResponseModel existingUser = new UserDetailsResponseModel();
-			BeanUtils.copyProperties(userDTO, existingUser);
-			existingUsers.add(existingUser);
-		}
-
-		return existingUsers;
 	}
 
 }

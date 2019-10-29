@@ -32,6 +32,7 @@ import ca.tunestumbler.api.exceptions.WebRequestFailedException;
 import ca.tunestumbler.api.security.SecurityConstants;
 import ca.tunestumbler.api.service.AuthValidationService;
 import ca.tunestumbler.api.service.UserService;
+import ca.tunestumbler.api.service.impl.helpers.AuthorizationHelpers;
 import ca.tunestumbler.api.shared.SharedUtils;
 import ca.tunestumbler.api.shared.dto.AuthValidationDTO;
 import ca.tunestumbler.api.shared.dto.UserDTO;
@@ -53,6 +54,9 @@ public class AuthValidationController {
 	@Autowired
 	UserService userService;
 	
+	@Autowired
+	AuthorizationHelpers authorizationHelpers;
+
 	@GetMapping(path = "/connect/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> connectRedditAccount(@PathVariable String userId) {
 		if (Strings.isNullOrEmpty(userId)) {
@@ -60,6 +64,11 @@ public class AuthValidationController {
 					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
 		}
 		
+		/*
+		 * Token authorization validation
+		*/		
+		authorizationHelpers.isAuthorized(userId);
+
 		UserDTO userDTO = userService.getUserByUserId(userId);
 		AuthValidationDTO authValidationDTO = authValidationService.createAuthState(userDTO);
 		
@@ -156,6 +165,11 @@ public class AuthValidationController {
 			throw new MissingPathParametersException(ErrorPrefixes.AUTH_CONTROLLER.getErrorPrefix()
 					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
 		}
+		
+		/*
+		 * Token authorization validation
+		*/		
+		authorizationHelpers.isAuthorized(userId);
 
 		UserDTO userDTO = userService.getUserByUserId(userId);
 

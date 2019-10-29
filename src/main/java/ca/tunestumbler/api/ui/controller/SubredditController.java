@@ -18,6 +18,7 @@ import com.google.common.base.Strings;
 import ca.tunestumbler.api.exceptions.MissingPathParametersException;
 import ca.tunestumbler.api.service.SubredditService;
 import ca.tunestumbler.api.service.UserService;
+import ca.tunestumbler.api.service.impl.helpers.AuthorizationHelpers;
 import ca.tunestumbler.api.shared.dto.SubredditDTO;
 import ca.tunestumbler.api.shared.dto.UserDTO;
 import ca.tunestumbler.api.ui.model.response.ErrorMessages;
@@ -34,6 +35,9 @@ public class SubredditController {
 
 	@Autowired
 	UserService userService;
+	
+	@Autowired
+	AuthorizationHelpers authorizationHelpers;
 
 	@GetMapping(path = "/fetch/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public SubredditResponseModel fetchSubreddits(@PathVariable String userId) {
@@ -41,6 +45,11 @@ public class SubredditController {
 			throw new MissingPathParametersException(ErrorPrefixes.SUBREDDIT_CONTROLLER.getErrorPrefix()
 					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
 		}
+		
+		/*
+		 * Token authorization validation
+		*/		
+		authorizationHelpers.isAuthorized(userId);
 
 		SubredditResponseModel subredditResponse = new SubredditResponseModel();
 
@@ -61,6 +70,11 @@ public class SubredditController {
 			throw new MissingPathParametersException(ErrorPrefixes.SUBREDDIT_CONTROLLER.getErrorPrefix()
 					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
 		}
+		
+		/*
+		 * Token authorization validation
+		*/		
+		authorizationHelpers.isAuthorized(userId);
 
 		SubredditResponseModel subredditResponse = new SubredditResponseModel();
 

@@ -18,6 +18,7 @@ import com.google.common.base.Strings;
 import ca.tunestumbler.api.exceptions.MissingPathParametersException;
 import ca.tunestumbler.api.service.MultiredditService;
 import ca.tunestumbler.api.service.UserService;
+import ca.tunestumbler.api.service.impl.helpers.AuthorizationHelpers;
 import ca.tunestumbler.api.shared.dto.MultiredditDTO;
 import ca.tunestumbler.api.shared.dto.UserDTO;
 import ca.tunestumbler.api.ui.model.response.ErrorMessages;
@@ -34,6 +35,9 @@ public class MultiredditController {
 
 	@Autowired
 	UserService userService;
+	
+	@Autowired
+	AuthorizationHelpers authorizationHelpers;
 
 	@GetMapping(path = "/fetch/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public MultiredditResponseModel fetchMultireddits(@PathVariable String userId) {
@@ -41,6 +45,11 @@ public class MultiredditController {
 			throw new MissingPathParametersException(ErrorPrefixes.MULTIREDDIT_CONTROLLER.getErrorPrefix()
 					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
 		}
+		
+		/*
+		 * Token authorization validation
+		*/		
+		authorizationHelpers.isAuthorized(userId);
 
 		MultiredditResponseModel multiredditResponse = new MultiredditResponseModel();
 
@@ -61,6 +70,11 @@ public class MultiredditController {
 			throw new MissingPathParametersException(ErrorPrefixes.SUBREDDIT_CONTROLLER.getErrorPrefix()
 					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
 		}
+		
+		/*
+		 * Token authorization validation
+		*/		
+		authorizationHelpers.isAuthorized(userId);
 
 		MultiredditResponseModel multiredditResponse = new MultiredditResponseModel();
 

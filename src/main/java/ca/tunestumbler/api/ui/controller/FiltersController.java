@@ -23,6 +23,7 @@ import ca.tunestumbler.api.exceptions.InvalidBodyException;
 import ca.tunestumbler.api.exceptions.MissingPathParametersException;
 import ca.tunestumbler.api.service.FiltersService;
 import ca.tunestumbler.api.service.UserService;
+import ca.tunestumbler.api.service.impl.helpers.AuthorizationHelpers;
 import ca.tunestumbler.api.shared.dto.FiltersDTO;
 import ca.tunestumbler.api.shared.dto.UserDTO;
 import ca.tunestumbler.api.ui.model.request.FiltersRequestModel;
@@ -38,6 +39,9 @@ public class FiltersController {
 
 	@Autowired
 	UserService userService;
+	
+	@Autowired
+	AuthorizationHelpers authorizationHelpers;
 
 	@GetMapping(path = "/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public List<FiltersDTO> getFilters(@PathVariable String userId) {
@@ -45,6 +49,11 @@ public class FiltersController {
 			throw new MissingPathParametersException(ErrorPrefixes.FILTERS_CONTROLLER.getErrorPrefix()
 					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
 		}
+		
+		/*
+		 * Token authorization validation
+		*/		
+		authorizationHelpers.isAuthorized(userId);
 
 		UserDTO userDTO = userService.getUserByUserId(userId);
 		return filtersService.getFiltersByUserId(userDTO);
@@ -57,6 +66,11 @@ public class FiltersController {
 			throw new MissingPathParametersException(ErrorPrefixes.FILTERS_CONTROLLER.getErrorPrefix()
 					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
 		}
+		
+		/*
+		 * Token authorization validation
+		*/		
+		authorizationHelpers.isAuthorized(userId);
 
 		if (bindingResult.hasErrors()) {
 			throw new InvalidBodyException(
@@ -74,6 +88,11 @@ public class FiltersController {
 			throw new MissingPathParametersException(ErrorPrefixes.FILTERS_CONTROLLER.getErrorPrefix()
 					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
 		}
+		
+		/*
+		 * Token authorization validation
+		*/		
+		authorizationHelpers.isAuthorized(userId);
 
 		if (bindingResult.hasErrors()) {
 			throw new InvalidBodyException(

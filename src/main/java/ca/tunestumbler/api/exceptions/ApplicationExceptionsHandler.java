@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 
 import ca.tunestumbler.api.ui.model.response.ErrorMessage;
+import ca.tunestumbler.api.ui.model.response.ErrorMessages;
+import ca.tunestumbler.api.ui.model.response.ErrorPrefixes;
 
 @ControllerAdvice
 public class ApplicationExceptionsHandler {
@@ -42,7 +44,7 @@ public class ApplicationExceptionsHandler {
 			WebRequest request) {
 		ErrorMessage errorMessage = new ErrorMessage(new Date(), exception.getMessage());
 
-		return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.UNAUTHORIZED);
+		return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.BAD_REQUEST);
 	}
 
 	@ExceptionHandler(value = { RedditAccountNotAuthenticatedException.class })
@@ -51,6 +53,12 @@ public class ApplicationExceptionsHandler {
 		ErrorMessage errorMessage = new ErrorMessage(new Date(), exception.getMessage());
 
 		return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.UNAUTHORIZED);
+	}
+	
+	@ExceptionHandler(value = { BadRequestException.class })
+	public ResponseEntity<Object> handleBadRequestException(BadRequestException exception, WebRequest request) {
+		return new ResponseEntity<>(ErrorPrefixes.USER_ERROR.getErrorPrefix() + ErrorMessages.BAD_REQUEST.getErrorMessage(), 
+				new HttpHeaders(), HttpStatus.BAD_REQUEST);
 	}
 
 	@ExceptionHandler(value = { ResourceNotFoundException.class })
