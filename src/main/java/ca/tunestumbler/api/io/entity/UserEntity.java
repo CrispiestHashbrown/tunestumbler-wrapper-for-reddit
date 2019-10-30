@@ -44,9 +44,6 @@ public class UserEntity implements Serializable {
 	private String lastModified;
 
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "userEntity")
-	private List<AuthValidationEntity> validation;
-
-	@OneToMany(cascade = CascadeType.ALL, mappedBy = "userEntity")
 	private List<SubredditEntity> subreddit;
 
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "userEntity")
@@ -133,14 +130,6 @@ public class UserEntity implements Serializable {
 
 	public void setLastModified(String lastModified) {
 		this.lastModified = lastModified;
-	}
-
-	public List<AuthValidationEntity> getValidation() {
-		return validation;
-	}
-
-	public void setValidation(List<AuthValidationEntity> validation) {
-		this.validation = validation;
 	}
 
 	public List<SubredditEntity> getSubreddit() {
