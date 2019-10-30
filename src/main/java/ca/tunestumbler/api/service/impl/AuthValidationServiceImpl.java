@@ -1,40 +1,28 @@
 package ca.tunestumbler.api.service.impl;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.client.reactive.ClientHttpRequest;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.reactive.function.BodyInserter;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import com.google.common.base.Strings;
 
 import ca.tunestumbler.api.exceptions.AuthValidationServiceException;
 import ca.tunestumbler.api.exceptions.ResourceNotFoundException;
-import ca.tunestumbler.api.exceptions.WebRequestFailedException;
 import ca.tunestumbler.api.io.entity.AuthValidationEntity;
 import ca.tunestumbler.api.io.entity.UserEntity;
 import ca.tunestumbler.api.io.repositories.AuthValidationRepository;
 import ca.tunestumbler.api.io.repositories.UserRepository;
-import ca.tunestumbler.api.security.SecurityConstants;
 import ca.tunestumbler.api.service.AuthValidationService;
 import ca.tunestumbler.api.service.UserService;
+import ca.tunestumbler.api.service.impl.helpers.AuthorizationHelpers;
 import ca.tunestumbler.api.shared.SharedUtils;
 import ca.tunestumbler.api.shared.dto.AuthValidationDTO;
 import ca.tunestumbler.api.shared.dto.UserDTO;
 import ca.tunestumbler.api.ui.model.response.ErrorMessages;
-import ca.tunestumbler.api.ui.model.response.ErrorPrefixes;
 import ca.tunestumbler.api.ui.model.response.auth.AuthResponseModel;
 
 @Service
@@ -54,6 +42,9 @@ public class AuthValidationServiceImpl implements AuthValidationService {
 
 	@Autowired
 	SharedUtils sharedUtils;
+
+	@Autowired
+	AuthorizationHelpers authorizationHelpers;
 
 	@Override
 	public AuthValidationDTO createAuthState(UserDTO user) {
@@ -126,7 +117,7 @@ public class AuthValidationServiceImpl implements AuthValidationService {
 
 	@Override
 	public HttpHeaders createHandlerHeaders(String state, String code) {
-		AuthResponseModel response = createRedditTokens(code);
+		AuthResponseModel response = authorizationHelpers.createRedditTokens(code);
 		String accessToken = response.getAccess_token();
 		String refreshToken = response.getRefresh_token();
 		String validScopes = "account history mysubreddits read save subscribe vote";
@@ -150,51 +141,11 @@ public class AuthValidationServiceImpl implements AuthValidationService {
 		
 		return responseHeaders;
 	}
-	
-	private AuthResponseModel createRedditTokens(String code) {
-		String baseUrl = "https://www.reddit.com";
-		String uri = "/api/v1/access_token";
-		String userAgentHeader = "web:ca.tunestumbler.api:v0.0.1 (by /u/CrispiestHashbrown)";
-		String creds = Base64.getEncoder().encodeToString(SecurityConstants.getAuth().getBytes());
-		String authHeader = "Basic " + creds;
-		String redirectUri = "https://www.tunestumbler.com/";
-		WebClient client = WebClient
-				.builder()
-					.baseUrl(baseUrl)
-					.defaultHeader(HttpHeaders.USER_AGENT, userAgentHeader)
-					.defaultHeader(HttpHeaders.AUTHORIZATION, authHeader)
-					.defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-					.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-				.build();
-		WebClient.UriSpec<WebClient.RequestBodySpec> request = client.method(HttpMethod.POST);
-		WebClient.RequestBodySpec requestUri = request.uri(uri);
-		
-		LinkedMultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-		map.add("grant_type", "authorization_code");
-		map.add("code", code);
-		map.add("redirect_uri", redirectUri);
-		BodyInserter<MultiValueMap<String, Object>, ClientHttpRequest> inserter = BodyInserters.fromMultipartData(map);
-		return requestUri
-				.body(inserter)
-					.acceptCharset(StandardCharsets.UTF_8)
-				.exchange()
-				.map(clientResponse -> {
-					if (clientResponse.statusCode().isError()) {
-						throw new WebRequestFailedException(ErrorPrefixes.AUTH_SERVICE.getErrorPrefix()
-								+ ErrorMessages.FAILED_EXTERNAL_WEB_REQUEST.getErrorMessage());
-					}
-
-					return clientResponse;
-			    })
-				.block()
-				.bodyToMono(AuthResponseModel.class)
-				.block();
-	}
 
 	@Override
 	public HttpHeaders createRefreshTokenHeaders(String userId) {
 		UserDTO userDTO = userService.getUserByUserId(userId);
-		AuthResponseModel response = refreshRedditToken(userDTO.getRefreshToken());
+		AuthResponseModel response = authorizationHelpers.refreshRedditToken(userDTO.getRefreshToken());
 		String accessToken = response.getAccess_token();
 		String tokenLifetime = Integer.toString(response.getExpires_in());
 		String validScopes = "account history mysubreddits read save subscribe vote";
@@ -213,45 +164,6 @@ public class AuthValidationServiceImpl implements AuthValidationService {
 		}
 
 		return responseHeaders;
-	}
-
-	private AuthResponseModel refreshRedditToken(String refreshToken) {
-		String baseUrl = "https://www.reddit.com";
-		String uri = "/api/v1/access_token";
-		String userAgentHeader = "web:ca.tunestumbler.api:v0.0.1 (by /u/CrispiestHashbrown)";
-		String creds = Base64.getEncoder().encodeToString(SecurityConstants.getAuth().getBytes());
-		String authHeader = "Basic " + creds;
-
-		WebClient client = WebClient
-				.builder()
-					.baseUrl(baseUrl)
-					.defaultHeader(HttpHeaders.USER_AGENT, userAgentHeader)
-					.defaultHeader(HttpHeaders.AUTHORIZATION, authHeader)
-					.defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-					.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-				.build();
-		WebClient.UriSpec<WebClient.RequestBodySpec> request = client.method(HttpMethod.POST);
-		WebClient.RequestBodySpec requestUri = request.uri(uri);
-		
-		LinkedMultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-		map.add("grant_type", "refresh_token");
-		map.add("refresh_token", refreshToken);
-		BodyInserter<MultiValueMap<String, Object>, ClientHttpRequest> inserter = BodyInserters.fromMultipartData(map);
-		return requestUri
-				.body(inserter)
-					.acceptCharset(StandardCharsets.UTF_8)
-				.exchange()
-				.map(clientResponse -> {
-					if (clientResponse.statusCode().isError()) {
-						throw new WebRequestFailedException(ErrorPrefixes.AUTH_SERVICE.getErrorPrefix()
-								+ ErrorMessages.FAILED_EXTERNAL_WEB_REQUEST.getErrorMessage());
-					}
-
-					return clientResponse;
-			    })
-				.block()
-				.bodyToMono(AuthResponseModel.class)
-				.block();
 	}
 	
 }
