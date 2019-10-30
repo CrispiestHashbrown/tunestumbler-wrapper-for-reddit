@@ -45,7 +45,7 @@ public class AuthValidationController {
 	@GetMapping(path = "/connect/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> connectRedditAccount(@PathVariable String userId) {
 		if (Strings.isNullOrEmpty(userId)) {
-			throw new MissingPathParametersException(ErrorPrefixes.AUTH_CONTROLLER.getErrorPrefix()
+			throw new MissingPathParametersException(ErrorPrefixes.AUTH_SERVICE.getErrorPrefix()
 					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
 		}
 
@@ -67,7 +67,7 @@ public class AuthValidationController {
 	@ResponseBody
 	public ResponseEntity<?> validateStateAndRedirect(@RequestParam String state, @RequestParam String code) {
 		if (Strings.isNullOrEmpty(state) || Strings.isNullOrEmpty(code)) {
-			throw new MissingPathParametersException(ErrorPrefixes.AUTH_CONTROLLER.getErrorPrefix()
+			throw new MissingPathParametersException(ErrorPrefixes.AUTH_SERVICE.getErrorPrefix()
 					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
 		}
 
@@ -83,7 +83,7 @@ public class AuthValidationController {
 	@ResponseBody
 	public ResponseEntity<?> refreshToken(@PathVariable String userId) {
 		if (Strings.isNullOrEmpty(userId)) {
-			throw new MissingPathParametersException(ErrorPrefixes.AUTH_CONTROLLER.getErrorPrefix()
+			throw new MissingPathParametersException(ErrorPrefixes.AUTH_SERVICE.getErrorPrefix()
 					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
 		}
 

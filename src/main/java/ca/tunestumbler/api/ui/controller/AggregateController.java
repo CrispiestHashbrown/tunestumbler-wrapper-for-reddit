@@ -41,7 +41,7 @@ public class AggregateController {
 	@GetMapping(path = "/create/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public AggregateResponseModel createAggregate(@PathVariable String userId) {
 		if (Strings.isNullOrEmpty(userId)) {
-			throw new MissingPathParametersException(ErrorPrefixes.AGGREGATE_CONTROLLER.getErrorPrefix()
+			throw new MissingPathParametersException(ErrorPrefixes.AGGREGATE_SERVICE.getErrorPrefix()
 					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
 		}
 		
@@ -65,7 +65,7 @@ public class AggregateController {
 	@GetMapping(path = "/update/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public AggregateResponseModel updateAggregate(@PathVariable String userId) {
 		if (Strings.isNullOrEmpty(userId)) {
-			throw new MissingPathParametersException(ErrorPrefixes.AGGREGATE_CONTROLLER.getErrorPrefix()
+			throw new MissingPathParametersException(ErrorPrefixes.AGGREGATE_SERVICE.getErrorPrefix()
 					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
 		}
 		
@@ -89,7 +89,7 @@ public class AggregateController {
 	@GetMapping(path = "/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public AggregateResponseModel getAggregate(@PathVariable String userId) {
 		if (Strings.isNullOrEmpty(userId)) {
-			throw new MissingPathParametersException(ErrorPrefixes.AGGREGATE_CONTROLLER.getErrorPrefix()
+			throw new MissingPathParametersException(ErrorPrefixes.AGGREGATE_SERVICE.getErrorPrefix()
 					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
 		}
 		

@@ -180,7 +180,7 @@ public class AuthValidationServiceImpl implements AuthValidationService {
 				.exchange()
 				.map(clientResponse -> {
 					if (clientResponse.statusCode().isError()) {
-						throw new WebRequestFailedException(ErrorPrefixes.AUTH_CONTROLLER.getErrorPrefix()
+						throw new WebRequestFailedException(ErrorPrefixes.AUTH_SERVICE.getErrorPrefix()
 								+ ErrorMessages.FAILED_EXTERNAL_WEB_REQUEST.getErrorMessage());
 					}
 
@@ -243,7 +243,7 @@ public class AuthValidationServiceImpl implements AuthValidationService {
 				.exchange()
 				.map(clientResponse -> {
 					if (clientResponse.statusCode().isError()) {
-						throw new WebRequestFailedException(ErrorPrefixes.AUTH_CONTROLLER.getErrorPrefix()
+						throw new WebRequestFailedException(ErrorPrefixes.AUTH_SERVICE.getErrorPrefix()
 								+ ErrorMessages.FAILED_EXTERNAL_WEB_REQUEST.getErrorMessage());
 					}
 

@@ -45,7 +45,7 @@ public class ResultsController {
 	@GetMapping(path = "/fetch/{userId}/{orderBy}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResultsResponseModel fetchResults(@PathVariable String userId, @PathVariable String orderBy) {
 		if (Strings.isNullOrEmpty(userId) || Strings.isNullOrEmpty(orderBy)) {
-			throw new MissingPathParametersException(ErrorPrefixes.RESULTS_CONTROLLER.getErrorPrefix()
+			throw new MissingPathParametersException(ErrorPrefixes.RESULTS_SERVICE.getErrorPrefix()
 					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
 		}
 		
@@ -62,7 +62,7 @@ public class ResultsController {
 	public ResponseEntity<?> fetchNextResults(@PathVariable String userId,
 			@Valid @RequestBody ResultsRequestModel results, BindingResult bindingResult) {
 		if (Strings.isNullOrEmpty(userId)) {
-			throw new MissingPathParametersException(ErrorPrefixes.RESULTS_CONTROLLER.getErrorPrefix()
+			throw new MissingPathParametersException(ErrorPrefixes.RESULTS_SERVICE.getErrorPrefix()
 					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
 		}
 		
@@ -72,8 +72,8 @@ public class ResultsController {
 		authorizationHelpers.isAuthorized(userId);
 
 		if (bindingResult.hasErrors()) {
-			throw new InvalidBodyException(
-					ErrorPrefixes.RESULTS_CONTROLLER.getErrorPrefix() + ErrorMessages.INVALID_BODY.getErrorMessage());
+			throw new InvalidBodyException(ErrorPrefixes.RESULTS_SERVICE.getErrorPrefix() 
+					+ ErrorMessages.INVALID_BODY.getErrorMessage());
 		}
 
 		UserDTO userDTO = userService.getUserByUserId(userId);

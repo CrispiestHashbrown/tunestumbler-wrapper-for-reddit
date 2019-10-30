@@ -46,7 +46,7 @@ public class FiltersController {
 	@GetMapping(path = "/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public List<FiltersDTO> getFilters(@PathVariable String userId) {
 		if (Strings.isNullOrEmpty(userId)) {
-			throw new MissingPathParametersException(ErrorPrefixes.FILTERS_CONTROLLER.getErrorPrefix()
+			throw new MissingPathParametersException(ErrorPrefixes.FILTERS_SERVICE.getErrorPrefix()
 					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
 		}
 		
@@ -63,7 +63,7 @@ public class FiltersController {
 	public ResponseEntity<?> createFilters(@PathVariable String userId,
 			@Valid @RequestBody FiltersRequestModel newFilters, BindingResult bindingResult) {
 		if (Strings.isNullOrEmpty(userId)) {
-			throw new MissingPathParametersException(ErrorPrefixes.FILTERS_CONTROLLER.getErrorPrefix()
+			throw new MissingPathParametersException(ErrorPrefixes.FILTERS_SERVICE.getErrorPrefix()
 					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
 		}
 		
@@ -74,7 +74,7 @@ public class FiltersController {
 
 		if (bindingResult.hasErrors()) {
 			throw new InvalidBodyException(
-					ErrorPrefixes.FILTERS_CONTROLLER.getErrorPrefix() + ErrorMessages.INVALID_BODY.getErrorMessage());
+					ErrorPrefixes.FILTERS_SERVICE.getErrorPrefix() + ErrorMessages.INVALID_BODY.getErrorMessage());
 		}
 
 		UserDTO userDTO = userService.getUserByUserId(userId);
@@ -85,7 +85,7 @@ public class FiltersController {
 	public List<FiltersDTO> updateFilters(@PathVariable String userId,
 			@Valid @RequestBody FiltersRequestModel filtersToUpdate, BindingResult bindingResult) {
 		if (Strings.isNullOrEmpty(userId)) {
-			throw new MissingPathParametersException(ErrorPrefixes.FILTERS_CONTROLLER.getErrorPrefix()
+			throw new MissingPathParametersException(ErrorPrefixes.FILTERS_SERVICE.getErrorPrefix()
 					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
 		}
 		
@@ -96,7 +96,7 @@ public class FiltersController {
 
 		if (bindingResult.hasErrors()) {
 			throw new InvalidBodyException(
-					ErrorPrefixes.FILTERS_CONTROLLER.getErrorPrefix() + ErrorMessages.INVALID_BODY.getErrorMessage());
+					ErrorPrefixes.FILTERS_SERVICE.getErrorPrefix() + ErrorMessages.INVALID_BODY.getErrorMessage());
 		}
 
 		UserDTO userDTO = userService.getUserByUserId(userId);
