@@ -42,7 +42,7 @@ public class UserController {
 	@GetMapping(path = "/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public UserDetailsResponseModel getUser(@PathVariable String userId) {
 		if (Strings.isNullOrEmpty(userId)) {
-			throw new MissingPathParametersException(ErrorPrefixes.USER_CONTROLLER.getErrorPrefix()
+			throw new MissingPathParametersException(ErrorPrefixes.USER_SERVICE.getErrorPrefix()
 					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
 		}
 		
@@ -63,7 +63,7 @@ public class UserController {
 	public ResponseEntity<?> createUser(@Valid @RequestBody UserDetailsRequestModel userDetails,
 			BindingResult bindingResult) {
 		if (bindingResult.hasErrors()) {
-			throw new InvalidBodyException(ErrorPrefixes.USER_CONTROLLER.getErrorPrefix()
+			throw new InvalidBodyException(ErrorPrefixes.USER_SERVICE.getErrorPrefix()
 					+ ErrorMessages.INVALID_BODY.getErrorMessage());
 		}
 
@@ -82,7 +82,7 @@ public class UserController {
 	public UserDetailsResponseModel updateUser(@PathVariable String userId,
 			@Valid @RequestBody UserDetailsRequestModel userDetails, BindingResult bindingResult) {
 		if (Strings.isNullOrEmpty(userId)) {
-			throw new MissingPathParametersException(ErrorPrefixes.USER_CONTROLLER.getErrorPrefix()
+			throw new MissingPathParametersException(ErrorPrefixes.USER_SERVICE.getErrorPrefix()
 					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
 		}
 		
@@ -92,7 +92,7 @@ public class UserController {
 		authorizationHelpers.isAuthorized(userId);
 
 		if (bindingResult.hasErrors()) {
-			throw new InvalidBodyException(ErrorPrefixes.USER_CONTROLLER.getErrorPrefix()
+			throw new InvalidBodyException(ErrorPrefixes.USER_SERVICE.getErrorPrefix()
 					+ ErrorMessages.INVALID_BODY.getErrorMessage());
 		}
 
@@ -110,7 +110,7 @@ public class UserController {
 	@GetMapping(path = "/{userId}/clear_tokens", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> clearTokens(@PathVariable String userId) {
 		if (Strings.isNullOrEmpty(userId)) {
-			throw new MissingPathParametersException(ErrorPrefixes.USER_CONTROLLER.getErrorPrefix()
+			throw new MissingPathParametersException(ErrorPrefixes.USER_SERVICE.getErrorPrefix()
 					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
 		}
 		
@@ -127,7 +127,7 @@ public class UserController {
 	@DeleteMapping(path = "/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> deleteUser(@PathVariable String userId) {
 		if (Strings.isNullOrEmpty(userId)) {
-			throw new MissingPathParametersException(ErrorPrefixes.USER_CONTROLLER.getErrorPrefix()
+			throw new MissingPathParametersException(ErrorPrefixes.USER_SERVICE.getErrorPrefix()
 					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
 		}
 		
