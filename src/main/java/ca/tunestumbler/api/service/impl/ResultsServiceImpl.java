@@ -245,7 +245,6 @@ public class ResultsServiceImpl implements ResultsService {
 		String userId = userEntity.getUserId();
 
 		resultsEntity.setResultsId(resultsId);
-		resultsEntity.setUserEntity(userEntity);
 		resultsEntity.setUserId(userId);
 		resultsEntity.setSubreddit(data.getSubreddit());
 		resultsEntity.setTitle(data.getTitle());

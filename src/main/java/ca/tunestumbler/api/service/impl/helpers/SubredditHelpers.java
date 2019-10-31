@@ -1,5 +1,6 @@
 package ca.tunestumbler.api.service.impl.helpers;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -8,7 +9,9 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import ca.tunestumbler.api.exceptions.RedditAccountNotAuthenticatedException;
 import ca.tunestumbler.api.exceptions.WebRequestFailedException;
+import ca.tunestumbler.api.io.entity.SubredditEntity;
 import ca.tunestumbler.api.security.SecurityConstants;
+import ca.tunestumbler.api.shared.SharedUtils;
 import ca.tunestumbler.api.shared.dto.UserDTO;
 import ca.tunestumbler.api.ui.model.response.ErrorMessages;
 import ca.tunestumbler.api.ui.model.response.ErrorPrefixes;
@@ -16,6 +19,10 @@ import ca.tunestumbler.api.ui.model.response.subreddit.SubredditFetchResponseMod
 
 @Component
 public class SubredditHelpers {
+	
+	@Autowired
+	SharedUtils sharedUtils;
+
 	public SubredditFetchResponseModel sendGetSubredditRequest(UserDTO user) {
 		String token = user.getToken();
 		if (token == null) {
@@ -53,4 +60,22 @@ public class SubredditHelpers {
 						.bodyToMono(SubredditFetchResponseModel.class)
 						.block();
 	}
+	
+	public SubredditEntity createNewSubredditEntity(String userId, Long startId, String subreddit,
+			SubredditFetchResponseModel response) {
+		SubredditEntity newSubredditEntity = new SubredditEntity();
+		String subredditId = sharedUtils.generateSubredditId(50);
+
+		newSubredditEntity.setSubredditId(subredditId);
+		newSubredditEntity.setSubreddit(subreddit);
+		newSubredditEntity.setUserId(userId);
+		newSubredditEntity.setAfterId(response.getData().getAfter());
+		newSubredditEntity.setBeforeId(response.getData().getBefore());
+		newSubredditEntity.setStartId(startId);
+		newSubredditEntity.setIsSubscribed(true);
+		newSubredditEntity.setLastModified(sharedUtils.getCurrentTime());
+
+		return newSubredditEntity;
+	}
+
 }

@@ -7,8 +7,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 
 @Entity(name = "aggregate")
 public class AggregateEntity implements Serializable {
@@ -21,10 +19,6 @@ public class AggregateEntity implements Serializable {
 
 	@Column(nullable = false, unique = true)
 	private String aggregateId;
-
-	@ManyToOne
-	@JoinColumn(name = "users_userId")
-	private UserEntity userEntity;
 
 	@Column()
 	private String userId;
@@ -64,14 +58,6 @@ public class AggregateEntity implements Serializable {
 
 	public void setAggregateId(String aggregateId) {
 		this.aggregateId = aggregateId;
-	}
-
-	public UserEntity getUserEntity() {
-		return userEntity;
-	}
-
-	public void setUserEntity(UserEntity userEntity) {
-		this.userEntity = userEntity;
 	}
 
 	public String getUserId() {

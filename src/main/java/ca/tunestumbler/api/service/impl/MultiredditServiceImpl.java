@@ -63,7 +63,6 @@ public class MultiredditServiceImpl implements MultiredditService {
 				multiredditEntity.setMultiredditId(multiredditId);
 				multiredditEntity.setMultireddit(multireddit.getData().getName());
 				multiredditEntity.setSubreddit(subreddit.getName());
-				multiredditEntity.setUserEntity(userEntity);
 				multiredditEntity.setUserId(userEntity.getUserId());
 				multiredditEntity.setStartId(startId);
 				multiredditEntity.setIsCurated(isCurated);
@@ -131,7 +130,6 @@ public class MultiredditServiceImpl implements MultiredditService {
 					multiredditEntityToAdd.setMultiredditId(multiredditId);
 					multiredditEntityToAdd.setMultireddit(multireddit);
 					multiredditEntityToAdd.setSubreddit(subredditData.getName());
-					multiredditEntityToAdd.setUserEntity(userEntity);
 					multiredditEntityToAdd.setUserId(userEntity.getUserId());
 					multiredditEntityToAdd.setStartId(startId);
 					multiredditEntityToAdd.setIsCurated(isCurated);
