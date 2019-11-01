@@ -9,19 +9,6 @@ import org.springframework.data.repository.query.Param;
 import ca.tunestumbler.api.io.entity.AggregateEntity;
 
 public interface AggregateRepository extends JpaRepository<AggregateEntity, String> {
-	AggregateEntity findByAggregateId(String aggregateId);
-
-	AggregateEntity findByUserId(String userId);
-
-	@Query(value = "SELECT * FROM aggregate WHERE user_id = :userId AND multireddit = :multireddit AND subreddit = :subreddit AND start_id >= :startId", nativeQuery = true)
-	List<AggregateEntity> findByUserIdAndMultiredditAndSubredditAndMaxStartId(@Param("userId") String userId,
-			@Param("multireddit") String multireddit, @Param("subreddit") String subreddit,
-			@Param("startId") Long startId);
-
-	@Query(value = "SELECT * FROM aggregate WHERE user_id = :userId AND subreddit = :subreddit AND start_id >= :startId", nativeQuery = true)
-	List<AggregateEntity> findByUserIdAndSubredditAndMaxStartId(@Param("userId") String userId,
-			@Param("subreddit") String subreddit, @Param("startId") Long startId);
-
 	@Query(value = "SELECT MAX(id) FROM aggregate", nativeQuery = true)
 	Long findMaxId();
 
@@ -32,10 +19,9 @@ public interface AggregateRepository extends JpaRepository<AggregateEntity, Stri
 	Long findMaxStartIdByUserId(@Param("userId") String userId);
 
 	@Query(value = "SELECT * FROM aggregate WHERE user_id = :userId AND start_id >= :startId", nativeQuery = true)
-	List<AggregateEntity> findAggregateByUserIdAndMaxStartId(@Param("userId") String userId,
-			@Param("startId") Long startId);
+	List<AggregateEntity> findByUserIdAndMaxStartId(@Param("userId") String userId,	@Param("startId") Long startId);
 
 	@Query(value = "SELECT * FROM aggregate WHERE user_id = :userId AND start_id >= :startId AND is_subreddit_added = true", nativeQuery = true)
-	List<AggregateEntity> findAggregateByUserIdAndMaxStartIdAndIsSubredditAdded(@Param("userId") String userId,
+	List<AggregateEntity> findByUserIdAndMaxStartIdAndIsSubredditAdded(@Param("userId") String userId,
 			@Param("startId") Long startId);
 }
