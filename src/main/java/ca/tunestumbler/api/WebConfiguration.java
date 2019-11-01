@@ -9,7 +9,12 @@ public class WebConfiguration implements WebMvcConfigurer {
 
 	@Override
 	public void addCorsMappings(CorsRegistry registry) {
-		registry.addMapping("/**").allowedMethods("*").allowedOrigins("*");
+		registry
+				.addMapping("/**")
+				.allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+				.allowedOrigins("http://www.tunestumbler.com", "https://www.tunestumbler.com", "https://www.reddit.com")
+				.allowedHeaders("Authorization", "Cache-Control", "Content-Type", "X-Requested-With",
+						"Access-Control-Allow-Headers", "Origin", "Accept", "User-Agent");
 	}
 
 }
