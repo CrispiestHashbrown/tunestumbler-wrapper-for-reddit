@@ -72,7 +72,7 @@ public class AuthValidationController {
 		}
 
 		HttpHeaders authHeaders = authValidationService.createHandlerHeaders(state, code);
-		if (authValidationService.getAuthState(state) != null && !authHeaders.isEmpty()) {
+		if (!authHeaders.isEmpty()) {
 			return new ResponseEntity<>(authHeaders, HttpStatus.OK);
 		}
 

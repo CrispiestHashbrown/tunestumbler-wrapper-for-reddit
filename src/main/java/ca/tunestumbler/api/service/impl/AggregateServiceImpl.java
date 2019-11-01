@@ -184,7 +184,6 @@ public class AggregateServiceImpl implements AggregateService {
 		}
 
 		newAggregateEntity.setAggregateId(aggregateId);
-		newAggregateEntity.setUserEntity(userEntity);
 		newAggregateEntity.setUserId(userEntity.getUserId());
 		newAggregateEntity.setSubredditId(subredditDTO.getSubredditId());
 		newAggregateEntity.setSubreddit(subredditDTO.getSubreddit());
@@ -208,7 +207,6 @@ public class AggregateServiceImpl implements AggregateService {
 		}
 
 		newAggregateEntity.setAggregateId(aggregateId);
-		newAggregateEntity.setUserEntity(userEntity);
 		newAggregateEntity.setUserId(userEntity.getUserId());
 		newAggregateEntity.setMultiredditId(multiredditDTO.getMultiredditId());
 		newAggregateEntity.setMultireddit(multiredditDTO.getMultireddit());

@@ -16,8 +16,6 @@ public class UserDTO implements Serializable {
 	private String refreshToken;
 	private String tokenLifetime;
 	private String lastModified;
-	private List<AuthValidationDTO> validation;
-	private List<SubredditDTO> subreddit;
 	private List<MultiredditDTO> multireddit;
 	private List<FiltersDTO> filters;
 	private List<AggregateDTO> aggregate;
@@ -108,22 +106,6 @@ public class UserDTO implements Serializable {
 
 	public void setLastModified(String lastModified) {
 		this.lastModified = lastModified;
-	}
-
-	public List<AuthValidationDTO> getValidation() {
-		return validation;
-	}
-
-	public void setValidation(List<AuthValidationDTO> validation) {
-		this.validation = validation;
-	}
-
-	public List<SubredditDTO> getSubreddit() {
-		return subreddit;
-	}
-
-	public void setSubreddit(List<SubredditDTO> subreddit) {
-		this.subreddit = subreddit;
 	}
 
 	public List<MultiredditDTO> getMultireddit() {

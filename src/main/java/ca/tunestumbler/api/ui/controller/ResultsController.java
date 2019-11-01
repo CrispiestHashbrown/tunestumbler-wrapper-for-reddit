@@ -2,7 +2,6 @@ package ca.tunestumbler.api.ui.controller;
 
 import javax.validation.Valid;
 
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -22,7 +21,6 @@ import ca.tunestumbler.api.exceptions.MissingPathParametersException;
 import ca.tunestumbler.api.service.ResultsService;
 import ca.tunestumbler.api.service.UserService;
 import ca.tunestumbler.api.service.impl.helpers.AuthorizationHelpers;
-import ca.tunestumbler.api.shared.dto.ResultsRequestDTO;
 import ca.tunestumbler.api.shared.dto.UserDTO;
 import ca.tunestumbler.api.ui.model.request.ResultsRequestModel;
 import ca.tunestumbler.api.ui.model.response.ErrorMessages;
@@ -78,11 +76,8 @@ public class ResultsController {
 
 		UserDTO userDTO = userService.getUserByUserId(userId);
 
-		ResultsRequestDTO resultsRequestDTO = new ResultsRequestDTO();
-		BeanUtils.copyProperties(results, resultsRequestDTO);
-
-		ResultsResponseModel resultsResponse = resultsService.fetchNextResults(userDTO, resultsRequestDTO.getNextUri(),
-				resultsRequestDTO.getAfterId());
+		ResultsResponseModel resultsResponse = 
+				resultsService.fetchNextResults(userDTO, results.getNextUri(), results.getAfterId());
 
 		return new ResponseEntity<>(resultsResponse, HttpStatus.CREATED);
 	}

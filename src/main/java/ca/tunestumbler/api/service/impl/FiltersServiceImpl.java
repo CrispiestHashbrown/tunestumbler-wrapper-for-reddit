@@ -10,7 +10,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import ca.tunestumbler.api.exceptions.FiltersNotFoundException;
 import ca.tunestumbler.api.io.entity.FiltersEntity;
 import ca.tunestumbler.api.io.entity.UserEntity;
 import ca.tunestumbler.api.io.repositories.FiltersRepository;
@@ -19,8 +18,6 @@ import ca.tunestumbler.api.service.FiltersService;
 import ca.tunestumbler.api.shared.SharedUtils;
 import ca.tunestumbler.api.shared.dto.FiltersDTO;
 import ca.tunestumbler.api.shared.dto.UserDTO;
-import ca.tunestumbler.api.ui.model.response.ErrorMessages;
-import ca.tunestumbler.api.ui.model.response.ErrorPrefixes;
 
 @Service
 public class FiltersServiceImpl implements FiltersService {
@@ -63,11 +60,6 @@ public class FiltersServiceImpl implements FiltersService {
 	public List<FiltersDTO> getFiltersByUserId(UserDTO user) {
 		String userId = user.getUserId();
 		List<FiltersEntity> filtersList = filtersRepository.findFiltersByUserIdAndIsActive(userId);
-
-		if (filtersList == null || filtersList.isEmpty()) {
-			throw new FiltersNotFoundException(ErrorPrefixes.FILTERS_SERVICE.getErrorPrefix()
-					+ ErrorMessages.FILTER_RESOURCES_NOT_FOUND.getErrorMessage());
-		}
 
 		Type listType = new TypeToken<List<FiltersDTO>>() {
 		}.getType();

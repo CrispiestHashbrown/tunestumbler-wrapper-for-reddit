@@ -15,8 +15,6 @@ public class ResultsObjectResponseModel {
 	private String permalink;
 	private Boolean isStickied;
 	private String url;
-	private String nextUri;
-	private String afterId;
 
 	public String getResultsId() {
 		return resultsId;
@@ -128,22 +126,6 @@ public class ResultsObjectResponseModel {
 
 	public void setUrl(String url) {
 		this.url = url;
-	}
-
-	public String getNextUri() {
-		return nextUri;
-	}
-
-	public void setNextUri(String nextUri) {
-		this.nextUri = nextUri;
-	}
-
-	public String getAfterId() {
-		return afterId;
-	}
-
-	public void setAfterId(String afterId) {
-		this.afterId = afterId;
 	}
 
 }

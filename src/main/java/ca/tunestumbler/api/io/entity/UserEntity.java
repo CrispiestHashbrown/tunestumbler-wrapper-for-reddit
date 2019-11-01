@@ -1,13 +1,10 @@
 package ca.tunestumbler.api.io.entity;
 
 import java.io.Serializable;
-import java.util.List;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
 
 @Entity(name = "users")
 public class UserEntity implements Serializable {
@@ -42,15 +39,6 @@ public class UserEntity implements Serializable {
 
 	@Column(nullable = false)
 	private String lastModified;
-
-	@OneToMany(cascade = CascadeType.ALL, mappedBy = "userEntity")
-	private List<SubredditEntity> subreddit;
-
-	@OneToMany(cascade = CascadeType.ALL, mappedBy = "userEntity")
-	private List<MultiredditEntity> multireddit;
-
-	@OneToMany(cascade = CascadeType.ALL, mappedBy = "userEntity")
-	private List<AggregateEntity> aggregate;
 
 	public String getUserId() {
 		return userId;
@@ -130,30 +118,6 @@ public class UserEntity implements Serializable {
 
 	public void setLastModified(String lastModified) {
 		this.lastModified = lastModified;
-	}
-
-	public List<SubredditEntity> getSubreddit() {
-		return subreddit;
-	}
-
-	public void setSubreddit(List<SubredditEntity> subreddit) {
-		this.subreddit = subreddit;
-	}
-
-	public List<MultiredditEntity> getMultireddit() {
-		return multireddit;
-	}
-
-	public void setMultireddit(List<MultiredditEntity> multireddit) {
-		this.multireddit = multireddit;
-	}
-
-	public List<AggregateEntity> getAggregate() {
-		return aggregate;
-	}
-
-	public void setAggregate(List<AggregateEntity> aggregate) {
-		this.aggregate = aggregate;
 	}
 
 }

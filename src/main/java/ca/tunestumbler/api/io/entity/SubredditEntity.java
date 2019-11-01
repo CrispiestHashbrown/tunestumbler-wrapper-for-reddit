@@ -7,8 +7,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.validation.constraints.Size;
 
 @Entity(name = "subreddit")
@@ -26,10 +24,6 @@ public class SubredditEntity implements Serializable {
 	@Column(nullable = false)
 	@Size(min = 1, max = 21)
 	private String subreddit;
-
-	@ManyToOne
-	@JoinColumn(name = "users_userId")
-	private UserEntity userEntity;
 
 	@Column()
 	private String userId;
@@ -71,14 +65,6 @@ public class SubredditEntity implements Serializable {
 
 	public void setSubreddit(String subreddit) {
 		this.subreddit = subreddit;
-	}
-
-	public UserEntity getUserEntity() {
-		return userEntity;
-	}
-
-	public void setUserEntity(UserEntity userEntity) {
-		this.userEntity = userEntity;
 	}
 
 	public String getUserId() {
