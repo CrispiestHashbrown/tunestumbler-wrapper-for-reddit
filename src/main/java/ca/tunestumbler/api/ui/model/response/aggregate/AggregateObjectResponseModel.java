@@ -2,7 +2,6 @@ package ca.tunestumbler.api.ui.model.response.aggregate;
 
 public class AggregateObjectResponseModel {
 	private String aggregateId;
-	private String userId;
 	private String subredditId;
 	private String subreddit;
 	private String multiredditId;
@@ -15,14 +14,6 @@ public class AggregateObjectResponseModel {
 
 	public void setAggregateId(String aggregateId) {
 		this.aggregateId = aggregateId;
-	}
-
-	public String getUserId() {
-		return userId;
-	}
-
-	public void setUserId(String userId) {
-		this.userId = userId;
 	}
 
 	public String getSubredditId() {
