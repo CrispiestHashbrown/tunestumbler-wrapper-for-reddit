@@ -1,9 +1,12 @@
 package ca.tunestumbler.api.ui.controller;
 
+import java.lang.reflect.Type;
 import java.util.List;
 
 import javax.validation.Valid;
 
+import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -29,6 +32,8 @@ import ca.tunestumbler.api.shared.dto.UserDTO;
 import ca.tunestumbler.api.ui.model.request.FiltersRequestModel;
 import ca.tunestumbler.api.ui.model.response.ErrorMessages;
 import ca.tunestumbler.api.ui.model.response.ErrorPrefixes;
+import ca.tunestumbler.api.ui.model.response.FiltersResponseModel;
+import ca.tunestumbler.api.ui.model.response.filters.FiltersObjectResponseModel;
 
 @RestController
 @RequestMapping("/filters")
@@ -44,7 +49,7 @@ public class FiltersController {
 	AuthorizationHelpers authorizationHelpers;
 
 	@GetMapping(path = "/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public List<FiltersDTO> getFilters(@PathVariable String userId) {
+	public FiltersResponseModel getFilters(@PathVariable String userId) {
 		if (Strings.isNullOrEmpty(userId)) {
 			throw new MissingPathParametersException(ErrorPrefixes.FILTERS_SERVICE.getErrorPrefix()
 					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
@@ -55,8 +60,16 @@ public class FiltersController {
 		*/		
 		authorizationHelpers.isAuthorized(userId);
 
+		FiltersResponseModel filtersResponse = new FiltersResponseModel();
+		
 		UserDTO userDTO = userService.getUserByUserId(userId);
-		return filtersService.getFiltersByUserId(userDTO);
+		List<FiltersDTO> existingFilters = filtersService.getFiltersByUserId(userDTO);
+		Type listType = new TypeToken<List<FiltersObjectResponseModel>>() {	
+		}.getType();	
+		List<FiltersObjectResponseModel> responseObject = new ModelMapper().map(existingFilters, listType);	
+		filtersResponse.setFilters(responseObject);	
+
+		return filtersResponse;
 	}
 
 	@PostMapping(path = "/{userId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -78,11 +91,19 @@ public class FiltersController {
 		}
 
 		UserDTO userDTO = userService.getUserByUserId(userId);
-		return new ResponseEntity<>(filtersService.createFilters(userDTO, newFilters.getFilters()), HttpStatus.CREATED);
+		List<FiltersDTO> createdFilters = filtersService.createFilters(userDTO, newFilters.getFilters());
+
+		Type responseListType = new TypeToken<List<FiltersObjectResponseModel>>() {
+		}.getType();
+		List<FiltersObjectResponseModel> responseObject = new ModelMapper().map(createdFilters, responseListType);
+		FiltersResponseModel newFiltersResponse = new FiltersResponseModel();
+		newFiltersResponse.setFilters(responseObject);
+
+		return new ResponseEntity<>(newFiltersResponse, HttpStatus.CREATED);
 	}
 
 	@PutMapping(path = "/{userId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public List<FiltersDTO> updateFilters(@PathVariable String userId,
+	public FiltersResponseModel updateFilters(@PathVariable String userId,
 			@Valid @RequestBody FiltersRequestModel filtersToUpdate, BindingResult bindingResult) {
 		if (Strings.isNullOrEmpty(userId)) {
 			throw new MissingPathParametersException(ErrorPrefixes.FILTERS_SERVICE.getErrorPrefix()
@@ -100,7 +121,15 @@ public class FiltersController {
 		}
 
 		UserDTO userDTO = userService.getUserByUserId(userId);
-		return filtersService.updateFilters(userDTO, filtersToUpdate.getFilters());
+		List<FiltersDTO> updatedFilters = filtersService.updateFilters(userDTO, filtersToUpdate.getFilters());	
+
+		Type responseListType = new TypeToken<List<FiltersObjectResponseModel>>() {	
+		}.getType();	
+		List<FiltersObjectResponseModel> responseObject = new ModelMapper().map(updatedFilters, responseListType);	
+		FiltersResponseModel updatedFiltersResponse = new FiltersResponseModel();
+		updatedFiltersResponse.setFilters(responseObject);	
+
+		return updatedFiltersResponse;
 	}
 
 }
