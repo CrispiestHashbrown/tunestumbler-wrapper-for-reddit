@@ -1,7 +1,6 @@
 package ca.tunestumbler.api.ui.controller;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.modelmapper.ModelMapper;
@@ -55,10 +54,9 @@ public class MultiredditController {
 
 		UserDTO userDTO = userService.getUserByUserId(userId);
 		List<MultiredditDTO> fetchedMultireddits = multiredditService.fetchMultireddits(userDTO);
-		List<MultiredditObjectResponseModel> responseObject = new ArrayList<>();
 		Type listType = new TypeToken<List<MultiredditObjectResponseModel>>() {
 		}.getType();
-		responseObject = new ModelMapper().map(fetchedMultireddits, listType);
+		List<MultiredditObjectResponseModel> responseObject = new ModelMapper().map(fetchedMultireddits, listType);
 		multiredditResponse.setMultireddits(responseObject);
 
 		return multiredditResponse;
@@ -80,10 +78,9 @@ public class MultiredditController {
 
 		UserDTO userDTO = userService.getUserByUserId(userId);
 		List<MultiredditDTO> updatedMultireddits = multiredditService.updateMultireddits(userDTO);
-		List<MultiredditObjectResponseModel> responseObject = new ArrayList<>();
 		Type listType = new TypeToken<List<MultiredditObjectResponseModel>>() {
 		}.getType();
-		responseObject = new ModelMapper().map(updatedMultireddits, listType);
+		List<MultiredditObjectResponseModel> responseObject = new ModelMapper().map(updatedMultireddits, listType);
 		multiredditResponse.setMultireddits(responseObject);
 
 		return multiredditResponse;

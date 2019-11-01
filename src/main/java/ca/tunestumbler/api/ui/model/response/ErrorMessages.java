@@ -31,11 +31,4 @@ public enum ErrorMessages {
 		return errorMessage;
 	}
 
-	/**
-	 * @param errorMessage the errorMessage to set
-	 */
-	public void setErrorMessage(String errorMessage) {
-		this.errorMessage = errorMessage;
-	}
-
 }

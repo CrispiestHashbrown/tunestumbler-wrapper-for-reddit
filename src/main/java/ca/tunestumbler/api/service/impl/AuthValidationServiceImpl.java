@@ -23,6 +23,7 @@ import ca.tunestumbler.api.shared.SharedUtils;
 import ca.tunestumbler.api.shared.dto.AuthValidationDTO;
 import ca.tunestumbler.api.shared.dto.UserDTO;
 import ca.tunestumbler.api.ui.model.response.ErrorMessages;
+import ca.tunestumbler.api.ui.model.response.ErrorPrefixes;
 import ca.tunestumbler.api.ui.model.response.auth.AuthResponseModel;
 
 @Service
@@ -59,7 +60,8 @@ public class AuthValidationServiceImpl implements AuthValidationService {
 				"?client_id=VvztT4RO6UUmAA" +
 				"&response_type=code" +
 				"&state=" + stateId +
-				"&redirect_uri=https://www.tunestumbler.com/" +
+//				"&redirect_uri=https://www.tunestumbler.com/" +
+				"&redirect_uri=http://localhost:3000/" +
 				"&duration=permanent" +
 				"&scope=read,history,vote,save,account,subscribe,mysubreddits";
 		
@@ -79,22 +81,10 @@ public class AuthValidationServiceImpl implements AuthValidationService {
 	}
 
 	@Override
-	public AuthValidationDTO getAuthState(String stateId) {
-		AuthValidationEntity authValidationEntity = authValidationRepository.findByStateIdAndValidated(stateId, false);
-
-		if (authValidationEntity == null) {
-			throw new AuthValidationServiceException(ErrorMessages.BAD_REQUEST.getErrorMessage());
-		}
-
-		AuthValidationDTO existingAuthValidation = new AuthValidationDTO();
-		BeanUtils.copyProperties(authValidationEntity, existingAuthValidation);
-		return existingAuthValidation;
-	}
-
-	@Override
 	public AuthValidationDTO updateState(String stateId, String code) {
 		if (Strings.isNullOrEmpty(stateId) || Strings.isNullOrEmpty(code)) {
-			throw new AuthValidationServiceException(ErrorMessages.BAD_REQUEST.getErrorMessage());
+			throw new AuthValidationServiceException(ErrorPrefixes.AUTH_SERVICE.getErrorPrefix()
+					+ ErrorMessages.BAD_REQUEST.getErrorMessage());
 		}
 
 		AuthValidationDTO authValiationToUpdate = new AuthValidationDTO();
@@ -102,7 +92,8 @@ public class AuthValidationServiceImpl implements AuthValidationService {
 		AuthValidationEntity authValidationEntity = authValidationRepository.findByStateIdAndValidated(stateId, false);
 
 		if (authValidationEntity == null) {
-			throw new AuthValidationServiceException(ErrorMessages.BAD_REQUEST.getErrorMessage());
+			throw new AuthValidationServiceException(ErrorPrefixes.AUTH_SERVICE.getErrorPrefix()
+					+ ErrorMessages.BAD_REQUEST.getErrorMessage());
 		}
 
 		authValidationEntity.setValidated(true);

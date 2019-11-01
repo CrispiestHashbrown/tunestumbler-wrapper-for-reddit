@@ -9,10 +9,6 @@ import org.springframework.data.repository.query.Param;
 import ca.tunestumbler.api.io.entity.MultiredditEntity;
 
 public interface MultiredditRepository extends JpaRepository<MultiredditEntity, String> {
-	MultiredditEntity findByMultiredditId(String multiredditId);
-
-	MultiredditEntity findByUserId(String userId);
-
 	@Query(value = "SELECT MAX(id) FROM multireddit", nativeQuery = true)
 	Long findMaxId();
 

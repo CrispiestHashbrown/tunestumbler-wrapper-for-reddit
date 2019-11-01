@@ -26,7 +26,7 @@ public enum ErrorPrefixes {
 	/**
 	 * @param errorPrefix the errorPrefix to set
 	 */
-	public void setErrorPrefix(String errorPrefix) {
+	private void setErrorPrefix(String errorPrefix) {
 		this.errorPrefix = errorPrefix;
 	}
 

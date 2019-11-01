@@ -13,10 +13,6 @@ public interface UserRepository extends PagingAndSortingRepository<UserEntity, S
 	
 	UserEntity findByUserId(String userId);
 	
-	UserEntity findByToken(String token);
-	
-	UserEntity findByRefreshToken(String refreshToken);
-	
 	@Query(value = "SELECT email FROM users WHERE user_id = :userId", nativeQuery = true)
 	String findEmailByUserId(@Param("userId") String userId);
 }
