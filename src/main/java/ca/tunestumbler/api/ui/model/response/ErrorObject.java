@@ -1,17 +1,15 @@
 package ca.tunestumbler.api.ui.model.response;
 
-import java.util.Date;
-
 public class ErrorObject {
 	private String status;
 	private String title;
 	private String message;
-	private Date timestamp;
+	private String timestamp;
 
 	public ErrorObject() {
 	}
 
-	public ErrorObject(String status, String title, String message, Date timestamp) {
+	public ErrorObject(String status, String title, String message, String timestamp) {
 		this.status = status;
 		this.title = title;
 		this.message = message;
@@ -42,11 +40,11 @@ public class ErrorObject {
 		this.message = message;
 	}
 
-	public Date getTimestamp() {
+	public String getTimestamp() {
 		return timestamp;
 	}
 
-	public void setTimestamp(Date timestamp) {
+	public void setTimestamp(String timestamp) {
 		this.timestamp = timestamp;
 	}
 

@@ -1,20 +1,24 @@
 package ca.tunestumbler.api.exceptions;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 
+import ca.tunestumbler.api.shared.SharedUtils;
 import ca.tunestumbler.api.ui.model.response.ErrorObject;
 import ca.tunestumbler.api.ui.model.response.ErrorsResponse;
 
 @ControllerAdvice
 public class ApplicationExceptionsHandler {
+
+	@Autowired
+	SharedUtils sharedUtils;
 	
 	@ExceptionHandler(value = { MissingPathParametersException.class })
 	public ResponseEntity<Object> handleMissingPathParameterException(MissingPathParametersException exception,
@@ -24,7 +28,7 @@ public class ApplicationExceptionsHandler {
 				httpStatus.toString(),
 				"MISSING PARAMETER",
 				exception.getMessage(), 
-				new Date());
+				sharedUtils.getCurrentTime());
 
 		return new ResponseEntity<>(createErrorsResponse(errorObject), httpStatus);
 	}
@@ -36,7 +40,7 @@ public class ApplicationExceptionsHandler {
 				httpStatus.toString(),
 				"INVALID REQUEST BODY",
 				exception.getMessage(),
-				new Date());
+				sharedUtils.getCurrentTime());
 
 		return new ResponseEntity<>(createErrorsResponse(errorObject), httpStatus);
 	}
@@ -49,7 +53,7 @@ public class ApplicationExceptionsHandler {
 				httpStatus.toString(),
 				"RECORD ALREADY EXISTS",
 				exception.getMessage(),
-				new Date());
+				sharedUtils.getCurrentTime());
 
 		return new ResponseEntity<>(createErrorsResponse(errorObject), httpStatus);
 	}
@@ -62,7 +66,7 @@ public class ApplicationExceptionsHandler {
 				httpStatus.toString(),
 				"BAD REQUEST",
 				exception.getMessage(),
-				new Date());
+				sharedUtils.getCurrentTime());
 
 		return new ResponseEntity<>(createErrorsResponse(errorObject), httpStatus);
 	}
@@ -75,7 +79,7 @@ public class ApplicationExceptionsHandler {
 				httpStatus.toString(),
 				"UNAUTHORIZED",
 				exception.getMessage(),
-				new Date());
+				sharedUtils.getCurrentTime());
 
 		return new ResponseEntity<>(createErrorsResponse(errorObject), httpStatus);
 	}
@@ -87,7 +91,7 @@ public class ApplicationExceptionsHandler {
 				httpStatus.toString(),
 				"USER ERROR",
 				exception.getMessage(),
-				new Date());
+				sharedUtils.getCurrentTime());
 
 		return new ResponseEntity<>(createErrorsResponse(errorObject), httpStatus);
 	}
@@ -100,7 +104,7 @@ public class ApplicationExceptionsHandler {
 				httpStatus.toString(),
 				"RESOURCE NOT FOUND",
 				exception.getMessage(),
-				new Date());
+				sharedUtils.getCurrentTime());
 
 		return new ResponseEntity<>(createErrorsResponse(errorObject), httpStatus);
 	}
@@ -113,7 +117,7 @@ public class ApplicationExceptionsHandler {
 				httpStatus.toString(),
 				"NO SUBREDDITS SUBSCRIBED OR CURATED",
 				exception.getMessage(),
-				new Date());
+				sharedUtils.getCurrentTime());
 
 		return new ResponseEntity<>(createErrorsResponse(errorObject), httpStatus);
 	}
@@ -126,7 +130,7 @@ public class ApplicationExceptionsHandler {
 				httpStatus.toString(),
 				"NO FILTERS FOUND",
 				exception.getMessage(),
-				new Date());
+				sharedUtils.getCurrentTime());
 
 		return new ResponseEntity<>(createErrorsResponse(errorObject), httpStatus);
 	}
@@ -139,7 +143,7 @@ public class ApplicationExceptionsHandler {
 				httpStatus.toString(),
 				"WEB REQUEST FAILED",
 				exception.getMessage(),
-				new Date());
+				sharedUtils.getCurrentTime());
 
 		return new ResponseEntity<>(createErrorsResponse(errorObject), httpStatus);
 	}
@@ -151,7 +155,7 @@ public class ApplicationExceptionsHandler {
 				httpStatus.toString(),
 				"INTERNAL EXCEPTION",
 				exception.getMessage(),
-				new Date());
+				sharedUtils.getCurrentTime());
 
 		return new ResponseEntity<>(createErrorsResponse(errorObject), httpStatus);
 	}
