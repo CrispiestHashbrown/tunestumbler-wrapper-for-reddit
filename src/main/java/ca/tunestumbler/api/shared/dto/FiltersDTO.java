@@ -4,10 +4,7 @@ import java.io.Serializable;
 
 public class FiltersDTO implements Serializable {
 	private static final long serialVersionUID = -5370336446817047806L;
-	private long id;
 	private String filtersId;
-	private UserDTO userDTO;
-	private String userId;
 	private String multireddit;
 	private String subreddit;
 	private Integer priority = 0;
@@ -17,17 +14,8 @@ public class FiltersDTO implements Serializable {
 	private String showByKeyword;
 	private String hideByDomain;
 	private String showByDomain;
-	private Long startId;
-	private Boolean isActive = false;
+	private Boolean isActive;
 	private String lastModified;
-
-	public long getId() {
-		return id;
-	}
-
-	public void setId(long id) {
-		this.id = id;
-	}
 
 	public String getFiltersId() {
 		return filtersId;
@@ -35,22 +23,6 @@ public class FiltersDTO implements Serializable {
 
 	public void setFiltersId(String filtersId) {
 		this.filtersId = filtersId;
-	}
-
-	public UserDTO getUserDTO() {
-		return userDTO;
-	}
-
-	public void setUserDTO(UserDTO userDTO) {
-		this.userDTO = userDTO;
-	}
-
-	public String getUserId() {
-		return userId;
-	}
-
-	public void setUserId(String userId) {
-		this.userId = userId;
 	}
 
 	public String getMultireddit() {
@@ -123,14 +95,6 @@ public class FiltersDTO implements Serializable {
 
 	public void setShowByDomain(String showByDomain) {
 		this.showByDomain = showByDomain;
-	}
-
-	public Long getStartId() {
-		return startId;
-	}
-
-	public void setStartId(Long startId) {
-		this.startId = startId;
 	}
 
 	public Boolean getIsActive() {

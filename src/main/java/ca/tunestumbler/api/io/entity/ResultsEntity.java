@@ -7,8 +7,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 
 @Entity(name = "results")
 public class ResultsEntity implements Serializable {
@@ -22,17 +20,13 @@ public class ResultsEntity implements Serializable {
 	@Column(nullable = false, unique = true)
 	private String resultsId;
 
-	@ManyToOne
-	@JoinColumn(name = "users_userId")
-	private UserEntity userEntity;
-
 	@Column()
 	private String userId;
 
 	@Column(nullable = false, length = 21)
 	private String subreddit;
 
-	@Column(nullable = false, length = 300)
+	@Column(nullable = false, length = 500)
 	private String title;
 
 	@Column(nullable = false)
@@ -65,12 +59,6 @@ public class ResultsEntity implements Serializable {
 	@Column(nullable = false)
 	private String url;
 
-	@Column
-	private String nextUri;
-
-	@Column
-	private String afterId;
-
 	@Column()
 	private Long startId;
 
@@ -91,14 +79,6 @@ public class ResultsEntity implements Serializable {
 
 	public void setResultsId(String resultsId) {
 		this.resultsId = resultsId;
-	}
-
-	public UserEntity getUserEntity() {
-		return userEntity;
-	}
-
-	public void setUserEntity(UserEntity userEntity) {
-		this.userEntity = userEntity;
 	}
 
 	public String getUserId() {
@@ -203,22 +183,6 @@ public class ResultsEntity implements Serializable {
 
 	public void setUrl(String url) {
 		this.url = url;
-	}
-
-	public String getNextUri() {
-		return nextUri;
-	}
-
-	public void setNextUri(String nextUri) {
-		this.nextUri = nextUri;
-	}
-
-	public String getAfterId() {
-		return afterId;
-	}
-
-	public void setAfterId(String afterId) {
-		this.afterId = afterId;
 	}
 
 	public Long getStartId() {

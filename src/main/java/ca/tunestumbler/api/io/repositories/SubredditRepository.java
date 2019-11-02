@@ -9,14 +9,6 @@ import org.springframework.data.repository.query.Param;
 import ca.tunestumbler.api.io.entity.SubredditEntity;
 
 public interface SubredditRepository extends JpaRepository<SubredditEntity, String> {
-	SubredditEntity findBySubredditId(String subredditId);
-
-	SubredditEntity findByUserId(String userId);
-
-	@Query(value = "SELECT * FROM subreddit WHERE user_id = :userId AND subreddit = :subreddit AND start_id >= :startId", nativeQuery = true)
-	SubredditEntity findByUserIdAndSubredditAndMaxStartId(@Param("userId") String userId,
-			@Param("subreddit") String subreddit, @Param("startId") Long startId);
-
 	@Query(value = "SELECT MAX(id) FROM subreddit", nativeQuery = true)
 	Long findMaxId();
 

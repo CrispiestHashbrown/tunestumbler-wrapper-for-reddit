@@ -2,7 +2,6 @@ package ca.tunestumbler.api.ui.model.response.results;
 
 public class ResultsObjectResponseModel {
 	private String resultsId;
-	private String userId;
 	private String subreddit;
 	private String title;
 	private int score;
@@ -15,8 +14,6 @@ public class ResultsObjectResponseModel {
 	private String permalink;
 	private Boolean isStickied;
 	private String url;
-	private String nextUri;
-	private String afterId;
 
 	public String getResultsId() {
 		return resultsId;
@@ -24,14 +21,6 @@ public class ResultsObjectResponseModel {
 
 	public void setResultsId(String resultsId) {
 		this.resultsId = resultsId;
-	}
-
-	public String getUserId() {
-		return userId;
-	}
-
-	public void setUserId(String userId) {
-		this.userId = userId;
 	}
 
 	public String getSubreddit() {
@@ -128,22 +117,6 @@ public class ResultsObjectResponseModel {
 
 	public void setUrl(String url) {
 		this.url = url;
-	}
-
-	public String getNextUri() {
-		return nextUri;
-	}
-
-	public void setNextUri(String nextUri) {
-		this.nextUri = nextUri;
-	}
-
-	public String getAfterId() {
-		return afterId;
-	}
-
-	public void setAfterId(String afterId) {
-		this.afterId = afterId;
 	}
 
 }

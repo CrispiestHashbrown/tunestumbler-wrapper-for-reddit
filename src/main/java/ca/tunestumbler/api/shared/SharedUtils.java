@@ -1,8 +1,8 @@
 package ca.tunestumbler.api.shared;
 
 import java.security.SecureRandom;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Random;
 
 import org.springframework.stereotype.Component;
@@ -10,12 +10,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class SharedUtils {
 	private final Random RANDOM = new SecureRandom();
-	private final String ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+	private static final String ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
 	public String getCurrentTime() {
-		Date date = new Date();
-		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		return simpleDateFormat.format(date);
+		LocalDateTime date = LocalDateTime.now();
+		DateTimeFormatter dateFormatObject = DateTimeFormatter.ofPattern("MM-dd-yyyy HH:mm:ss");
+		return date.format(dateFormatObject);
 	}
 
 	public Long setStartId(Long userMaxId, Long maxId) {

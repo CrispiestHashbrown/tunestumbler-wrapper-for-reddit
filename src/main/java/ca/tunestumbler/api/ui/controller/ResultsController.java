@@ -1,14 +1,7 @@
 package ca.tunestumbler.api.ui.controller;
 
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.validation.Valid;
 
-import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeToken;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -27,14 +20,12 @@ import ca.tunestumbler.api.exceptions.InvalidBodyException;
 import ca.tunestumbler.api.exceptions.MissingPathParametersException;
 import ca.tunestumbler.api.service.ResultsService;
 import ca.tunestumbler.api.service.UserService;
-import ca.tunestumbler.api.shared.dto.ResultsDTO;
-import ca.tunestumbler.api.shared.dto.ResultsRequestDTO;
+import ca.tunestumbler.api.service.impl.helpers.AuthorizationHelpers;
 import ca.tunestumbler.api.shared.dto.UserDTO;
 import ca.tunestumbler.api.ui.model.request.ResultsRequestModel;
 import ca.tunestumbler.api.ui.model.response.ErrorMessages;
 import ca.tunestumbler.api.ui.model.response.ErrorPrefixes;
 import ca.tunestumbler.api.ui.model.response.ResultsResponseModel;
-import ca.tunestumbler.api.ui.model.response.results.ResultsObjectResponseModel;
 
 @RestController
 @RequestMapping("/results")
@@ -45,54 +36,92 @@ public class ResultsController {
 
 	@Autowired
 	UserService userService;
+	
+	@Autowired
+	AuthorizationHelpers authorizationHelpers;
+
+	@GetMapping(path = "/fetch/myresults/{orderBy}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResultsResponseModel fetchMyResults(@PathVariable String orderBy) {
+		String userId = authorizationHelpers.getUserIdFromAuth();
+		if (Strings.isNullOrEmpty(userId) || Strings.isNullOrEmpty(orderBy)) {
+			throw new MissingPathParametersException(ErrorPrefixes.RESULTS_SERVICE.getErrorPrefix()
+					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
+		}
+		
+		/*
+		 * Token authorization validation
+		*/		
+		authorizationHelpers.isAuthorized(userId);
+
+		UserDTO userDTO = userService.getUserByUserId(userId);
+		return resultsService.fetchResults(userDTO, orderBy);
+	}
 
 	@GetMapping(path = "/fetch/{userId}/{orderBy}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResultsResponseModel fetchResults(@PathVariable String userId, @PathVariable String orderBy) {
 		if (Strings.isNullOrEmpty(userId) || Strings.isNullOrEmpty(orderBy)) {
-			throw new MissingPathParametersException(ErrorPrefixes.RESULTS_CONTROLLER.getErrorPrefix()
+			throw new MissingPathParametersException(ErrorPrefixes.RESULTS_SERVICE.getErrorPrefix()
 					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
 		}
-
-		ResultsResponseModel resultsResponse = new ResultsResponseModel();
+		
+		/*
+		 * Token authorization validation
+		*/		
+		authorizationHelpers.isAuthorized(userId);
 
 		UserDTO userDTO = userService.getUserByUserId(userId);
-		List<ResultsDTO> fetchedResults = resultsService.fetchResults(userDTO, orderBy);
-		List<ResultsObjectResponseModel> responseObject = new ArrayList<>();
-		Type listType = new TypeToken<List<ResultsObjectResponseModel>>() {
-		}.getType();
-		responseObject = new ModelMapper().map(fetchedResults, listType);
-		resultsResponse.setResults(responseObject);
+		return resultsService.fetchResults(userDTO, orderBy);
+	}
 
-		return resultsResponse;
+	@PostMapping(path = "/fetch/next", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> fetchMyNextResults(@Valid @RequestBody ResultsRequestModel results,
+			BindingResult bindingResult) {
+		String userId = authorizationHelpers.getUserIdFromAuth();
+		if (Strings.isNullOrEmpty(userId)) {
+			throw new MissingPathParametersException(ErrorPrefixes.RESULTS_SERVICE.getErrorPrefix()
+					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
+		}
+		
+		/*
+		 * Token authorization validation
+		*/		
+		authorizationHelpers.isAuthorized(userId);
+
+		if (bindingResult.hasErrors()) {
+			throw new InvalidBodyException(ErrorPrefixes.RESULTS_SERVICE.getErrorPrefix() 
+					+ ErrorMessages.INVALID_BODY.getErrorMessage());
+		}
+
+		UserDTO userDTO = userService.getUserByUserId(userId);
+
+		ResultsResponseModel resultsResponse = 
+				resultsService.fetchNextResults(userDTO, results.getNextUri(), results.getAfterId());
+
+		return new ResponseEntity<>(resultsResponse, HttpStatus.CREATED);
 	}
 
 	@PostMapping(path = "/fetch/next/{userId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> fetchNextResults(@PathVariable String userId,
 			@Valid @RequestBody ResultsRequestModel results, BindingResult bindingResult) {
 		if (Strings.isNullOrEmpty(userId)) {
-			throw new MissingPathParametersException(ErrorPrefixes.RESULTS_CONTROLLER.getErrorPrefix()
+			throw new MissingPathParametersException(ErrorPrefixes.RESULTS_SERVICE.getErrorPrefix()
 					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
 		}
+		
+		/*
+		 * Token authorization validation
+		*/		
+		authorizationHelpers.isAuthorized(userId);
 
 		if (bindingResult.hasErrors()) {
-			throw new InvalidBodyException(
-					ErrorPrefixes.RESULTS_CONTROLLER.getErrorPrefix() + ErrorMessages.INVALID_BODY.getErrorMessage());
+			throw new InvalidBodyException(ErrorPrefixes.RESULTS_SERVICE.getErrorPrefix() 
+					+ ErrorMessages.INVALID_BODY.getErrorMessage());
 		}
-
-		ResultsResponseModel resultsResponse = new ResultsResponseModel();
 
 		UserDTO userDTO = userService.getUserByUserId(userId);
 
-		ResultsRequestDTO resultsRequestDTO = new ResultsRequestDTO();
-		BeanUtils.copyProperties(results, resultsRequestDTO);
-
-		List<ResultsDTO> updatedResults = resultsService.fetchNextResults(userDTO, resultsRequestDTO.getNextUri(),
-				resultsRequestDTO.getAfterId());
-		List<ResultsObjectResponseModel> responseObject = new ArrayList<>();
-		Type listType = new TypeToken<List<ResultsObjectResponseModel>>() {
-		}.getType();
-		responseObject = new ModelMapper().map(updatedResults, listType);
-		resultsResponse.setResults(responseObject);
+		ResultsResponseModel resultsResponse = 
+				resultsService.fetchNextResults(userDTO, results.getNextUri(), results.getAfterId());
 
 		return new ResponseEntity<>(resultsResponse, HttpStatus.CREATED);
 	}

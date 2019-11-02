@@ -2,7 +2,6 @@ package ca.tunestumbler.api.ui.model.response.filters;
 
 public class FiltersObjectResponseModel {
 	private String filtersId;
-	private String userId;
 	private String multireddit;
 	private String subreddit;
 	private Integer priority;
@@ -12,6 +11,8 @@ public class FiltersObjectResponseModel {
 	private String showByKeyword;
 	private String hideByDomain;
 	private String showByDomain;
+	private Boolean isActive;
+	private String lastModified;
 
 	public String getFiltersId() {
 		return filtersId;
@@ -19,14 +20,6 @@ public class FiltersObjectResponseModel {
 
 	public void setFiltersId(String filtersId) {
 		this.filtersId = filtersId;
-	}
-
-	public String getUserId() {
-		return userId;
-	}
-
-	public void setUserId(String userId) {
-		this.userId = userId;
 	}
 
 	public String getMultireddit() {
@@ -99,6 +92,22 @@ public class FiltersObjectResponseModel {
 
 	public void setShowByDomain(String showByDomain) {
 		this.showByDomain = showByDomain;
+	}
+
+	public Boolean getIsActive() {
+		return isActive;
+	}
+
+	public void setIsActive(Boolean isActive) {
+		this.isActive = isActive;
+	}
+
+	public String getLastModified() {
+		return lastModified;
+	}
+
+	public void setLastModified(String lastModified) {
+		this.lastModified = lastModified;
 	}
 
 }

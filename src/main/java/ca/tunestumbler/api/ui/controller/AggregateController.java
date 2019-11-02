@@ -17,6 +17,7 @@ import com.google.common.base.Strings;
 import ca.tunestumbler.api.exceptions.MissingPathParametersException;
 import ca.tunestumbler.api.service.AggregateService;
 import ca.tunestumbler.api.service.UserService;
+import ca.tunestumbler.api.service.impl.helpers.AuthorizationHelpers;
 import ca.tunestumbler.api.shared.dto.AggregateDTO;
 import ca.tunestumbler.api.shared.dto.UserDTO;
 import ca.tunestumbler.api.ui.model.response.AggregateResponseModel;
@@ -33,13 +34,22 @@ public class AggregateController {
 
 	@Autowired
 	UserService userService;
+	
+	@Autowired
+	AuthorizationHelpers authorizationHelpers;
 
-	@GetMapping(path = "/create/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public AggregateResponseModel createAggregate(@PathVariable String userId) {
+	@GetMapping(path = "/create/myaggregate", produces = MediaType.APPLICATION_JSON_VALUE)
+	public AggregateResponseModel createMyAggregate() {
+		String userId = authorizationHelpers.getUserIdFromAuth();
 		if (Strings.isNullOrEmpty(userId)) {
-			throw new MissingPathParametersException(ErrorPrefixes.AGGREGATE_CONTROLLER.getErrorPrefix()
+			throw new MissingPathParametersException(ErrorPrefixes.AGGREGATE_SERVICE.getErrorPrefix()
 					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
 		}
+		
+		/*
+		 * Token authorization validation
+		*/		
+		authorizationHelpers.isAuthorized(userId);
 
 		AggregateResponseModel aggregateResponse = new AggregateResponseModel();
 
@@ -53,12 +63,42 @@ public class AggregateController {
 		return aggregateResponse;
 	}
 
-	@GetMapping(path = "/update/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public AggregateResponseModel updateAggregate(@PathVariable String userId) {
+	@GetMapping(path = "/create/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public AggregateResponseModel createAggregate(@PathVariable String userId) {
 		if (Strings.isNullOrEmpty(userId)) {
-			throw new MissingPathParametersException(ErrorPrefixes.AGGREGATE_CONTROLLER.getErrorPrefix()
+			throw new MissingPathParametersException(ErrorPrefixes.AGGREGATE_SERVICE.getErrorPrefix()
 					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
 		}
+		
+		/*
+		 * Token authorization validation
+		*/		
+		authorizationHelpers.isAuthorized(userId);
+
+		AggregateResponseModel aggregateResponse = new AggregateResponseModel();
+
+		UserDTO userDTO = userService.getUserByUserId(userId);
+		List<AggregateDTO> createdAggregate = aggregateService.createAggregateByUserId(userDTO);
+		Type listType = new TypeToken<List<AggregateObjectResponseModel>>() {
+		}.getType();
+		List<AggregateObjectResponseModel> responseObject = new ModelMapper().map(createdAggregate, listType);
+		aggregateResponse.setAggregate(responseObject);
+
+		return aggregateResponse;
+	}
+
+	@GetMapping(path = "/update/myaggregate", produces = MediaType.APPLICATION_JSON_VALUE)
+	public AggregateResponseModel updateMyAggregate() {
+		String userId = authorizationHelpers.getUserIdFromAuth();
+		if (Strings.isNullOrEmpty(userId)) {
+			throw new MissingPathParametersException(ErrorPrefixes.AGGREGATE_SERVICE.getErrorPrefix()
+					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
+		}
+		
+		/*
+		 * Token authorization validation
+		*/		
+		authorizationHelpers.isAuthorized(userId);
 
 		AggregateResponseModel updatedAggregateResponse = new AggregateResponseModel();
 
@@ -72,12 +112,66 @@ public class AggregateController {
 		return updatedAggregateResponse;
 	}
 
+	@GetMapping(path = "/update/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public AggregateResponseModel updateAggregate(@PathVariable String userId) {
+		if (Strings.isNullOrEmpty(userId)) {
+			throw new MissingPathParametersException(ErrorPrefixes.AGGREGATE_SERVICE.getErrorPrefix()
+					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
+		}
+		
+		/*
+		 * Token authorization validation
+		*/		
+		authorizationHelpers.isAuthorized(userId);
+
+		AggregateResponseModel updatedAggregateResponse = new AggregateResponseModel();
+
+		UserDTO userDTO = userService.getUserByUserId(userId);
+		List<AggregateDTO> updatedAggregate = aggregateService.updateAggregateByUserId(userDTO);
+		Type listType = new TypeToken<List<AggregateObjectResponseModel>>() {
+		}.getType();
+		List<AggregateObjectResponseModel> responseObject = new ModelMapper().map(updatedAggregate, listType);
+		updatedAggregateResponse.setAggregate(responseObject);
+
+		return updatedAggregateResponse;
+	}
+
+	@GetMapping(path = "/myaggregate", produces = MediaType.APPLICATION_JSON_VALUE)
+	public AggregateResponseModel getMyAggregate() {
+		String userId = authorizationHelpers.getUserIdFromAuth();
+		if (Strings.isNullOrEmpty(userId)) {
+			throw new MissingPathParametersException(ErrorPrefixes.AGGREGATE_SERVICE.getErrorPrefix()
+					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
+		}
+		
+		/*
+		 * Token authorization validation
+		*/		
+		authorizationHelpers.isAuthorized(userId);
+
+		AggregateResponseModel aggregateResponse = new AggregateResponseModel();
+
+		UserDTO userDTO = userService.getUserByUserId(userId);
+		List<AggregateDTO> existingAggregate = aggregateService.getAggregateByUserId(userDTO);
+		Type listType = new TypeToken<List<AggregateObjectResponseModel>>() {
+		}.getType();
+		List<AggregateObjectResponseModel> responseObject = new ModelMapper().map(existingAggregate, listType);
+		aggregateResponse.setAggregate(responseObject);
+
+		return aggregateResponse;
+	}
+
 	@GetMapping(path = "/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public AggregateResponseModel getAggregate(@PathVariable String userId) {
 		if (Strings.isNullOrEmpty(userId)) {
-			throw new MissingPathParametersException(ErrorPrefixes.AGGREGATE_CONTROLLER.getErrorPrefix()
+			throw new MissingPathParametersException(ErrorPrefixes.AGGREGATE_SERVICE.getErrorPrefix()
 					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
 		}
+		
+		/*
+		 * Token authorization validation
+		*/		
+		authorizationHelpers.isAuthorized(userId);
 
 		AggregateResponseModel aggregateResponse = new AggregateResponseModel();
 

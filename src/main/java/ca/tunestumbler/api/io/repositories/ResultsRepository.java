@@ -8,8 +8,6 @@ import org.springframework.data.repository.query.Param;
 import ca.tunestumbler.api.io.entity.ResultsEntity;
 
 public interface ResultsRepository extends JpaRepository<ResultsEntity, String>, JpaSpecificationExecutor<ResultsEntity> {
-	ResultsEntity findByResultsId(String resultsId);
-
 	@Query(value = "SELECT MAX(id) FROM results", nativeQuery = true)
 	Long findMaxId();
 

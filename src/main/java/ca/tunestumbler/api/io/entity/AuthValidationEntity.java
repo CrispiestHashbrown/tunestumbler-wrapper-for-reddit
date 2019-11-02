@@ -5,8 +5,6 @@ import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 
 @Entity(name = "validation")
 public class AuthValidationEntity implements Serializable {
@@ -24,10 +22,6 @@ public class AuthValidationEntity implements Serializable {
 
 	@Column(nullable = false)
 	private String lastModified;
-
-	@ManyToOne
-	@JoinColumn(name = "users_userId")
-	private UserEntity userEntity;
 
 	@Column()
 	private String userId;
@@ -65,14 +59,6 @@ public class AuthValidationEntity implements Serializable {
 
 	public void setLastModified(String lastModified) {
 		this.lastModified = lastModified;
-	}
-
-	public UserEntity getUserEntity() {
-		return userEntity;
-	}
-
-	public void setUserEntity(UserEntity userEntity) {
-		this.userEntity = userEntity;
 	}
 
 	public String getUserId() {

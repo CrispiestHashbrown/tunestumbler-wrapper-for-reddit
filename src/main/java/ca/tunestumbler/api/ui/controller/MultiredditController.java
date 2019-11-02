@@ -1,7 +1,6 @@
 package ca.tunestumbler.api.ui.controller;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.modelmapper.ModelMapper;
@@ -18,6 +17,7 @@ import com.google.common.base.Strings;
 import ca.tunestumbler.api.exceptions.MissingPathParametersException;
 import ca.tunestumbler.api.service.MultiredditService;
 import ca.tunestumbler.api.service.UserService;
+import ca.tunestumbler.api.service.impl.helpers.AuthorizationHelpers;
 import ca.tunestumbler.api.shared.dto.MultiredditDTO;
 import ca.tunestumbler.api.shared.dto.UserDTO;
 import ca.tunestumbler.api.ui.model.response.ErrorMessages;
@@ -34,22 +34,29 @@ public class MultiredditController {
 
 	@Autowired
 	UserService userService;
+	
+	@Autowired
+	AuthorizationHelpers authorizationHelpers;
 
 	@GetMapping(path = "/fetch/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public MultiredditResponseModel fetchMultireddits(@PathVariable String userId) {
 		if (Strings.isNullOrEmpty(userId)) {
-			throw new MissingPathParametersException(ErrorPrefixes.MULTIREDDIT_CONTROLLER.getErrorPrefix()
+			throw new MissingPathParametersException(ErrorPrefixes.MULTIREDDIT_SERVICE.getErrorPrefix()
 					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
 		}
+		
+		/*
+		 * Token authorization validation
+		*/		
+		authorizationHelpers.isAuthorized(userId);
 
 		MultiredditResponseModel multiredditResponse = new MultiredditResponseModel();
 
 		UserDTO userDTO = userService.getUserByUserId(userId);
 		List<MultiredditDTO> fetchedMultireddits = multiredditService.fetchMultireddits(userDTO);
-		List<MultiredditObjectResponseModel> responseObject = new ArrayList<>();
 		Type listType = new TypeToken<List<MultiredditObjectResponseModel>>() {
 		}.getType();
-		responseObject = new ModelMapper().map(fetchedMultireddits, listType);
+		List<MultiredditObjectResponseModel> responseObject = new ModelMapper().map(fetchedMultireddits, listType);
 		multiredditResponse.setMultireddits(responseObject);
 
 		return multiredditResponse;
@@ -58,18 +65,22 @@ public class MultiredditController {
 	@GetMapping(path = "/update/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public MultiredditResponseModel updateMultireddits(@PathVariable String userId) {
 		if (Strings.isNullOrEmpty(userId)) {
-			throw new MissingPathParametersException(ErrorPrefixes.SUBREDDIT_CONTROLLER.getErrorPrefix()
+			throw new MissingPathParametersException(ErrorPrefixes.SUBREDDIT_SERVICE.getErrorPrefix()
 					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
 		}
+		
+		/*
+		 * Token authorization validation
+		*/		
+		authorizationHelpers.isAuthorized(userId);
 
 		MultiredditResponseModel multiredditResponse = new MultiredditResponseModel();
 
 		UserDTO userDTO = userService.getUserByUserId(userId);
 		List<MultiredditDTO> updatedMultireddits = multiredditService.updateMultireddits(userDTO);
-		List<MultiredditObjectResponseModel> responseObject = new ArrayList<>();
 		Type listType = new TypeToken<List<MultiredditObjectResponseModel>>() {
 		}.getType();
-		responseObject = new ModelMapper().map(updatedMultireddits, listType);
+		List<MultiredditObjectResponseModel> responseObject = new ModelMapper().map(updatedMultireddits, listType);
 		multiredditResponse.setMultireddits(responseObject);
 
 		return multiredditResponse;

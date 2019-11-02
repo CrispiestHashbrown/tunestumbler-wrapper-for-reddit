@@ -9,18 +9,6 @@ import org.springframework.data.repository.query.Param;
 import ca.tunestumbler.api.io.entity.MultiredditEntity;
 
 public interface MultiredditRepository extends JpaRepository<MultiredditEntity, String> {
-	MultiredditEntity findByMultiredditId(String multiredditId);
-
-	MultiredditEntity findByUserId(String userId);
-
-	@Query(value = "SELECT * FROM multireddit WHERE user_id = :userId AND multireddit = :multireddit AND start_id >= :startId", nativeQuery = true)
-	List<MultiredditEntity> findByUserIdAndMultiredditAndMaxStartId(@Param("userId") String userId,
-			@Param("multireddit") String multireddit, @Param("startId") Long startId);
-
-	@Query(value = "SELECT * FROM multireddit WHERE user_id = :userId AND subreddit = :subreddit AND start_id >= :startId", nativeQuery = true)
-	MultiredditEntity findByUserIdAndSubredditAndMaxStartId(@Param("userId") String userId,
-			@Param("subreddit") String subreddit, @Param("startId") Long startId);
-
 	@Query(value = "SELECT MAX(id) FROM multireddit", nativeQuery = true)
 	Long findMaxId();
 
