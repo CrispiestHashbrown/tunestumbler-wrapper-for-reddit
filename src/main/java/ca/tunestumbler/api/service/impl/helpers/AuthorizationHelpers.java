@@ -33,6 +33,11 @@ public class AuthorizationHelpers {
 	@Autowired
 	AuthenticationFacade authenticationFacade;
 
+	public String getUserIdFromAuth() {
+		String authenticationEmail = authenticationFacade.getAuthentication().getName();
+		return userRepository.findUserIdByEmail(authenticationEmail);
+	}
+
 	public void isAuthorized(String userId) {
 		String username = userRepository.findEmailByUserId(userId);
 		String authentication = authenticationFacade.getAuthentication().getName();

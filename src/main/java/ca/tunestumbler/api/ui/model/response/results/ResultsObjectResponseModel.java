@@ -2,7 +2,6 @@ package ca.tunestumbler.api.ui.model.response.results;
 
 public class ResultsObjectResponseModel {
 	private String resultsId;
-	private String userId;
 	private String subreddit;
 	private String title;
 	private int score;
@@ -22,14 +21,6 @@ public class ResultsObjectResponseModel {
 
 	public void setResultsId(String resultsId) {
 		this.resultsId = resultsId;
-	}
-
-	public String getUserId() {
-		return userId;
-	}
-
-	public void setUserId(String userId) {
-		this.userId = userId;
 	}
 
 	public String getSubreddit() {

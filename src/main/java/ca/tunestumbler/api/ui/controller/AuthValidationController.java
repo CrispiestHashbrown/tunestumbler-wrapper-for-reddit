@@ -42,6 +42,28 @@ public class AuthValidationController {
 	@Autowired
 	AuthorizationHelpers authorizationHelpers;
 
+	@GetMapping(path = "/connect", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> connectMyRedditAccount() {
+		String userId = authorizationHelpers.getUserIdFromAuth();
+		if (Strings.isNullOrEmpty(userId)) {
+			throw new MissingPathParametersException(ErrorPrefixes.AUTH_SERVICE.getErrorPrefix()
+					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
+		}
+
+		/*
+		 * Token authorization validation
+		 */
+		authorizationHelpers.isAuthorized(userId);
+
+		UserDTO userDTO = userService.getUserByUserId(userId);
+		AuthValidationDTO authValidationDTO = authValidationService.createAuthState(userDTO);
+
+		AuthConnectResponseModel authConnectResponseModel = new AuthConnectResponseModel();
+		BeanUtils.copyProperties(authValidationDTO, authConnectResponseModel);
+
+		return new ResponseEntity<>(authConnectResponseModel, HttpStatus.CREATED);
+	}
+
 	@GetMapping(path = "/connect/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> connectRedditAccount(@PathVariable String userId) {
 		if (Strings.isNullOrEmpty(userId)) {
@@ -77,6 +99,28 @@ public class AuthValidationController {
 		}
 
 		return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+	}
+
+	@GetMapping(path = "/refresh_token", produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<?> refreshMyToken() {
+		String userId = authorizationHelpers.getUserIdFromAuth();
+		if (Strings.isNullOrEmpty(userId)) {
+			throw new MissingPathParametersException(ErrorPrefixes.AUTH_SERVICE.getErrorPrefix()
+					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
+		}
+
+		/*
+		 * Token authorization validation
+		 */
+		authorizationHelpers.isAuthorized(userId);
+
+		HttpHeaders authHeaders = authValidationService.createRefreshTokenHeaders(userId);
+		if (!authHeaders.isEmpty()) {
+			return new ResponseEntity<>(authHeaders, HttpStatus.OK);			
+		}
+
+		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 	}
 
 	@GetMapping(path = "/refresh_token/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)

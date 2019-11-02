@@ -40,6 +40,23 @@ public class ResultsController {
 	@Autowired
 	AuthorizationHelpers authorizationHelpers;
 
+	@GetMapping(path = "/fetch/myresults/{orderBy}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResultsResponseModel fetchMyResults(@PathVariable String orderBy) {
+		String userId = authorizationHelpers.getUserIdFromAuth();
+		if (Strings.isNullOrEmpty(userId) || Strings.isNullOrEmpty(orderBy)) {
+			throw new MissingPathParametersException(ErrorPrefixes.RESULTS_SERVICE.getErrorPrefix()
+					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
+		}
+		
+		/*
+		 * Token authorization validation
+		*/		
+		authorizationHelpers.isAuthorized(userId);
+
+		UserDTO userDTO = userService.getUserByUserId(userId);
+		return resultsService.fetchResults(userDTO, orderBy);
+	}
+
 	@GetMapping(path = "/fetch/{userId}/{orderBy}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResultsResponseModel fetchResults(@PathVariable String userId, @PathVariable String orderBy) {
 		if (Strings.isNullOrEmpty(userId) || Strings.isNullOrEmpty(orderBy)) {
@@ -54,6 +71,33 @@ public class ResultsController {
 
 		UserDTO userDTO = userService.getUserByUserId(userId);
 		return resultsService.fetchResults(userDTO, orderBy);
+	}
+
+	@PostMapping(path = "/fetch/next", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> fetchMyNextResults(@Valid @RequestBody ResultsRequestModel results,
+			BindingResult bindingResult) {
+		String userId = authorizationHelpers.getUserIdFromAuth();
+		if (Strings.isNullOrEmpty(userId)) {
+			throw new MissingPathParametersException(ErrorPrefixes.RESULTS_SERVICE.getErrorPrefix()
+					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
+		}
+		
+		/*
+		 * Token authorization validation
+		*/		
+		authorizationHelpers.isAuthorized(userId);
+
+		if (bindingResult.hasErrors()) {
+			throw new InvalidBodyException(ErrorPrefixes.RESULTS_SERVICE.getErrorPrefix() 
+					+ ErrorMessages.INVALID_BODY.getErrorMessage());
+		}
+
+		UserDTO userDTO = userService.getUserByUserId(userId);
+
+		ResultsResponseModel resultsResponse = 
+				resultsService.fetchNextResults(userDTO, results.getNextUri(), results.getAfterId());
+
+		return new ResponseEntity<>(resultsResponse, HttpStatus.CREATED);
 	}
 
 	@PostMapping(path = "/fetch/next/{userId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
