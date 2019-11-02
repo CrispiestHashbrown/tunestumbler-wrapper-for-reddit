@@ -8,7 +8,6 @@ public class MultiredditDTO implements Serializable {
 	private String multiredditId;
 	private String multireddit;
 	private String subreddit;
-	private UserDTO userDTO;
 	private String userId;
 	private Boolean isCurated = false;
 	private Long startId;
@@ -44,14 +43,6 @@ public class MultiredditDTO implements Serializable {
 
 	public void setSubreddit(String subreddit) {
 		this.subreddit = subreddit;
-	}
-
-	public UserDTO getUserDTO() {
-		return userDTO;
-	}
-
-	public void setUserDTO(UserDTO userDTO) {
-		this.userDTO = userDTO;
 	}
 
 	public String getUserId() {

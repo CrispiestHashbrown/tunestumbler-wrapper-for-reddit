@@ -7,7 +7,6 @@ public class SubredditDTO implements Serializable {
 	private long id;
 	private String subredditId;
 	private String subreddit;
-	private UserDTO userDTO;
 	private String userId;
 	private String afterId;
 	private String beforeId;
@@ -37,14 +36,6 @@ public class SubredditDTO implements Serializable {
 
 	public void setSubreddit(String subreddit) {
 		this.subreddit = subreddit;
-	}
-
-	public UserDTO getUserDTO() {
-		return userDTO;
-	}
-
-	public void setUserDTO(UserDTO userDTO) {
-		this.userDTO = userDTO;
 	}
 
 	public String getUserId() {

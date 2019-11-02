@@ -1,15 +1,11 @@
 package ca.tunestumbler.api.shared.dto;
 
 import java.io.Serializable;
-import java.util.List;
-
-import ca.tunestumbler.api.io.entity.ResultsEntity;
 
 public class AggregateDTO implements Serializable {
 	private static final long serialVersionUID = -41686199429484255L;
 	private long id;
 	private String aggregateId;
-	private UserDTO userDTO;
 	private String userId;
 	private String subredditId;
 	private String subreddit;
@@ -18,7 +14,6 @@ public class AggregateDTO implements Serializable {
 	private String multireddit;
 	private Long startId;
 	private String lastModified;
-	private List<ResultsEntity> results;
 
 	public long getId() {
 		return id;
@@ -34,14 +29,6 @@ public class AggregateDTO implements Serializable {
 
 	public void setAggregateId(String aggregateId) {
 		this.aggregateId = aggregateId;
-	}
-
-	public UserDTO getUserDTO() {
-		return userDTO;
-	}
-
-	public void setUserDTO(UserDTO userDTO) {
-		this.userDTO = userDTO;
 	}
 
 	public String getUserId() {
@@ -106,14 +93,6 @@ public class AggregateDTO implements Serializable {
 
 	public void setLastModified(String lastModified) {
 		this.lastModified = lastModified;
-	}
-
-	public List<ResultsEntity> getResults() {
-		return results;
-	}
-
-	public void setResults(List<ResultsEntity> results) {
-		this.results = results;
 	}
 
 }

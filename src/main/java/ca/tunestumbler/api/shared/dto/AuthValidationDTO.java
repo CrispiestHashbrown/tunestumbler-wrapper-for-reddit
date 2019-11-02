@@ -8,7 +8,6 @@ public class AuthValidationDTO implements Serializable {
 	private Boolean validated = false;
 	private String code;
 	private String lastModified;
-	private UserDTO userDTO;
 	private String userId;
 	private String authorizationUrl;
 
@@ -42,14 +41,6 @@ public class AuthValidationDTO implements Serializable {
 
 	public void setLastModified(String lastModified) {
 		this.lastModified = lastModified;
-	}
-
-	public UserDTO getUserDTO() {
-		return userDTO;
-	}
-
-	public void setUserDTO(UserDTO userDTO) {
-		this.userDTO = userDTO;
 	}
 
 	public String getUserId() {
