@@ -10,9 +10,12 @@ import ca.tunestumbler.api.io.entity.UserEntity;
 @Repository
 public interface UserRepository extends PagingAndSortingRepository<UserEntity, String> {
 	UserEntity findByEmail(String email);
-	
+
 	UserEntity findByUserId(String userId);
-	
+
 	@Query(value = "SELECT email FROM users WHERE user_id = :userId", nativeQuery = true)
 	String findEmailByUserId(@Param("userId") String userId);
+
+	@Query(value = "SELECT user_id FROM users WHERE email = :email", nativeQuery = true)
+	String findUserIdByEmail(@Param("email") String email);
 }

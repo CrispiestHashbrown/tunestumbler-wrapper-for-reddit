@@ -3,7 +3,6 @@ package ca.tunestumbler.api.ui.model.response.subreddit;
 public class SubredditObjectResponseModel {
 	private String subredditId;
 	private String subreddit;
-	private String userId;
 	private String afterId;
 	private String beforeId;
 	private String lastModified;
@@ -22,14 +21,6 @@ public class SubredditObjectResponseModel {
 
 	public void setSubreddit(String subreddit) {
 		this.subreddit = subreddit;
-	}
-
-	public String getUserId() {
-		return userId;
-	}
-
-	public void setUserId(String userId) {
-		this.userId = userId;
 	}
 
 	public String getAfterId() {

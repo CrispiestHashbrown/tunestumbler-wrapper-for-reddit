@@ -35,9 +35,30 @@ public class UserController {
 
 	@Autowired
 	UserService userService;
-	
+
 	@Autowired
 	AuthorizationHelpers authorizationHelpers;
+
+	@GetMapping(path = "/myprofile", produces = MediaType.APPLICATION_JSON_VALUE)
+	public UserDetailsResponseModel getMyProfile() {
+		String userId = authorizationHelpers.getUserIdFromAuth();
+		if (Strings.isNullOrEmpty(userId)) {
+			throw new MissingPathParametersException(ErrorPrefixes.USER_SERVICE.getErrorPrefix()
+					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
+		}
+		
+		/*
+		 * Token authorization validation
+		*/		
+		authorizationHelpers.isAuthorized(userId);
+
+		UserDetailsResponseModel existingUserResponse = new UserDetailsResponseModel();
+
+		UserDTO userDTO = userService.getUserByUserId(userId);
+		BeanUtils.copyProperties(userDTO, existingUserResponse);
+
+		return existingUserResponse;
+	}
 
 	@GetMapping(path = "/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public UserDetailsResponseModel getUser(@PathVariable String userId) {
@@ -78,6 +99,36 @@ public class UserController {
 		return new ResponseEntity<>(newUserResponse, HttpStatus.CREATED);
 	}
 
+	@PutMapping(path = "/myprofile", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public UserDetailsResponseModel updateMyProfile(@Valid @RequestBody UserDetailsRequestModel userDetails,
+			BindingResult bindingResult) {
+		String userId = authorizationHelpers.getUserIdFromAuth();
+		if (Strings.isNullOrEmpty(userId)) {
+			throw new MissingPathParametersException(ErrorPrefixes.USER_SERVICE.getErrorPrefix()
+					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
+		}
+		
+		/*
+		 * Token authorization validation
+		*/		
+		authorizationHelpers.isAuthorized(userId);
+
+		if (bindingResult.hasErrors()) {
+			throw new InvalidBodyException(ErrorPrefixes.USER_SERVICE.getErrorPrefix()
+					+ ErrorMessages.INVALID_BODY.getErrorMessage());
+		}
+
+		UserDetailsResponseModel updatedUserResponse = new UserDetailsResponseModel();
+
+		UserDTO userDTO = new UserDTO();
+		BeanUtils.copyProperties(userDetails, userDTO);
+
+		UserDTO updatedUser = userService.updateUser(userId, userDTO);
+		BeanUtils.copyProperties(updatedUser, updatedUserResponse);
+
+		return updatedUserResponse;
+	}
+
 	@PutMapping(path = "/{userId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public UserDetailsResponseModel updateUser(@PathVariable String userId,
 			@Valid @RequestBody UserDetailsRequestModel userDetails, BindingResult bindingResult) {
@@ -107,6 +158,24 @@ public class UserController {
 		return updatedUserResponse;
 	}
 
+	@GetMapping(path = "/myprofile/clear_tokens", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> clearMyTokens() {
+		String userId = authorizationHelpers.getUserIdFromAuth();
+		if (Strings.isNullOrEmpty(userId)) {
+			throw new MissingPathParametersException(ErrorPrefixes.USER_SERVICE.getErrorPrefix()
+					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
+		}
+		
+		/*
+		 * Token authorization validation
+		*/		
+		authorizationHelpers.isAuthorized(userId);
+
+		userService.clearUserTokens(userId);
+
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+	
 	@GetMapping(path = "/{userId}/clear_tokens", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> clearTokens(@PathVariable String userId) {
 		if (Strings.isNullOrEmpty(userId)) {
@@ -124,6 +193,24 @@ public class UserController {
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 	
+	@DeleteMapping(path = "/myprofile", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> deleteMyProfile() {
+		String userId = authorizationHelpers.getUserIdFromAuth();
+		if (Strings.isNullOrEmpty(userId)) {
+			throw new MissingPathParametersException(ErrorPrefixes.USER_SERVICE.getErrorPrefix()
+					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
+		}
+		
+		/*
+		 * Token authorization validation
+		*/		
+		authorizationHelpers.isAuthorized(userId);
+
+		userService.deleteUser(userId);
+
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+
 	@DeleteMapping(path = "/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> deleteUser(@PathVariable String userId) {
 		if (Strings.isNullOrEmpty(userId)) {

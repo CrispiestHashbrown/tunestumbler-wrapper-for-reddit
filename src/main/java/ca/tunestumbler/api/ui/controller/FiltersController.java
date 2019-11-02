@@ -48,6 +48,31 @@ public class FiltersController {
 	@Autowired
 	AuthorizationHelpers authorizationHelpers;
 
+	@GetMapping(path = "/myfilters", produces = MediaType.APPLICATION_JSON_VALUE)
+	public FiltersResponseModel getMyFilters() {
+		String userId = authorizationHelpers.getUserIdFromAuth();
+		if (Strings.isNullOrEmpty(userId)) {
+			throw new MissingPathParametersException(ErrorPrefixes.FILTERS_SERVICE.getErrorPrefix()
+					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
+		}
+		
+		/*
+		 * Token authorization validation
+		*/		
+		authorizationHelpers.isAuthorized(userId);
+
+		FiltersResponseModel filtersResponse = new FiltersResponseModel();
+		
+		UserDTO userDTO = userService.getUserByUserId(userId);
+		List<FiltersDTO> existingFilters = filtersService.getFiltersByUserId(userDTO);
+		Type listType = new TypeToken<List<FiltersObjectResponseModel>>() {	
+		}.getType();	
+		List<FiltersObjectResponseModel> responseObject = new ModelMapper().map(existingFilters, listType);	
+		filtersResponse.setFilters(responseObject);	
+
+		return filtersResponse;
+	}
+
 	@GetMapping(path = "/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public FiltersResponseModel getFilters(@PathVariable String userId) {
 		if (Strings.isNullOrEmpty(userId)) {
@@ -70,6 +95,37 @@ public class FiltersController {
 		filtersResponse.setFilters(responseObject);	
 
 		return filtersResponse;
+	}
+
+	@PostMapping(path = "/myfilters", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> createMyFilters(@Valid @RequestBody FiltersRequestModel newFilters,
+			BindingResult bindingResult) {
+		String userId = authorizationHelpers.getUserIdFromAuth();
+		if (Strings.isNullOrEmpty(userId)) {
+			throw new MissingPathParametersException(ErrorPrefixes.FILTERS_SERVICE.getErrorPrefix()
+					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
+		}
+		
+		/*
+		 * Token authorization validation
+		*/		
+		authorizationHelpers.isAuthorized(userId);
+
+		if (bindingResult.hasErrors()) {
+			throw new InvalidBodyException(
+					ErrorPrefixes.FILTERS_SERVICE.getErrorPrefix() + ErrorMessages.INVALID_BODY.getErrorMessage());
+		}
+
+		UserDTO userDTO = userService.getUserByUserId(userId);
+		List<FiltersDTO> createdFilters = filtersService.createFilters(userDTO, newFilters.getFilters());
+
+		Type responseListType = new TypeToken<List<FiltersObjectResponseModel>>() {
+		}.getType();
+		List<FiltersObjectResponseModel> responseObject = new ModelMapper().map(createdFilters, responseListType);
+		FiltersResponseModel newFiltersResponse = new FiltersResponseModel();
+		newFiltersResponse.setFilters(responseObject);
+
+		return new ResponseEntity<>(newFiltersResponse, HttpStatus.CREATED);
 	}
 
 	@PostMapping(path = "/{userId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -100,6 +156,37 @@ public class FiltersController {
 		newFiltersResponse.setFilters(responseObject);
 
 		return new ResponseEntity<>(newFiltersResponse, HttpStatus.CREATED);
+	}
+
+	@PutMapping(path = "/myfilters", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public FiltersResponseModel updateMyFilters(@Valid @RequestBody FiltersRequestModel filtersToUpdate,
+			BindingResult bindingResult) {
+		String userId = authorizationHelpers.getUserIdFromAuth();
+		if (Strings.isNullOrEmpty(userId)) {
+			throw new MissingPathParametersException(ErrorPrefixes.FILTERS_SERVICE.getErrorPrefix()
+					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
+		}
+		
+		/*
+		 * Token authorization validation
+		*/		
+		authorizationHelpers.isAuthorized(userId);
+
+		if (bindingResult.hasErrors()) {
+			throw new InvalidBodyException(
+					ErrorPrefixes.FILTERS_SERVICE.getErrorPrefix() + ErrorMessages.INVALID_BODY.getErrorMessage());
+		}
+
+		UserDTO userDTO = userService.getUserByUserId(userId);
+		List<FiltersDTO> updatedFilters = filtersService.updateFilters(userDTO, filtersToUpdate.getFilters());	
+
+		Type responseListType = new TypeToken<List<FiltersObjectResponseModel>>() {	
+		}.getType();	
+		List<FiltersObjectResponseModel> responseObject = new ModelMapper().map(updatedFilters, responseListType);	
+		FiltersResponseModel updatedFiltersResponse = new FiltersResponseModel();
+		updatedFiltersResponse.setFilters(responseObject);	
+
+		return updatedFiltersResponse;
 	}
 
 	@PutMapping(path = "/{userId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)

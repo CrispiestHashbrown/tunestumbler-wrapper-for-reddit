@@ -4,7 +4,6 @@ public class MultiredditObjectResponseModel {
 	private String multiredditId;
 	private String multireddit;
 	private String subreddit;
-	private String userId;
 	private String lastModified;
 
 	public String getMultiredditId() {
@@ -29,14 +28,6 @@ public class MultiredditObjectResponseModel {
 
 	public void setSubreddit(String subreddit) {
 		this.subreddit = subreddit;
-	}
-
-	public String getUserId() {
-		return userId;
-	}
-
-	public void setUserId(String userId) {
-		this.userId = userId;
 	}
 
 	public String getLastModified() {
