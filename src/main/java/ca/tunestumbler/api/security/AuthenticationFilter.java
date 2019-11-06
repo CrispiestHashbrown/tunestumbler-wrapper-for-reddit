@@ -18,9 +18,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import ca.tunestumbler.api.SpringApplicationContext;
-import ca.tunestumbler.api.service.UserService;
-import ca.tunestumbler.api.shared.dto.UserDTO;
 import ca.tunestumbler.api.ui.model.request.UserLoginRequestModel;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -52,13 +49,10 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 		String token = Jwts.builder().setSubject(userName)
 				.setExpiration(new Date(System.currentTimeMillis() + SecurityConstants.EXPIRATION_TIME))
 				.signWith(SignatureAlgorithm.HS512, SecurityConstants.getTokenSecret()).compact();
-		UserService userService = (UserService) SpringApplicationContext.getBean("userServiceImpl");
-		UserDTO userDTO = userService.getUser(userName);
 
-		res.setHeader("Access-Control-Expose-Headers", SecurityConstants.AUTH_HEADER_STRING + ", " 
-				+ SecurityConstants.USERID_HEADER_STRING + ", " + SecurityConstants.LIFETIME_HEADER_STRING);
+		res.setHeader("Access-Control-Expose-Headers",
+				SecurityConstants.AUTH_HEADER_STRING + ", " + SecurityConstants.LIFETIME_HEADER_STRING);
 		res.addHeader(SecurityConstants.AUTH_HEADER_STRING, SecurityConstants.TOKEN_PREFIX + token);
-		res.addHeader(SecurityConstants.USERID_HEADER_STRING, userDTO.getUserId());
 		res.addHeader(SecurityConstants.LIFETIME_HEADER_STRING, Long.toString(SecurityConstants.EXPIRATION_TIME));
 	}
 }
