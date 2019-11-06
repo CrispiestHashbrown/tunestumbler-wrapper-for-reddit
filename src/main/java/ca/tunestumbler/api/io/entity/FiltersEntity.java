@@ -52,7 +52,7 @@ public class FiltersEntity implements Serializable {
 	@Column(length = 15)
 	private String showByDomain;
 
-	@Column()
+	@Column(nullable = false)
 	private Boolean isActive;
 
 	@Column(nullable = false)

@@ -115,6 +115,10 @@ public class FiltersController {
 			throw new InvalidBodyException(
 					ErrorPrefixes.FILTERS_SERVICE.getErrorPrefix() + ErrorMessages.INVALID_BODY.getErrorMessage());
 		}
+		
+		if (newFilters.getFilters().isEmpty()) {
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		}
 
 		UserDTO userDTO = userService.getUserByUserId(userId);
 		List<FiltersDTO> createdFilters = filtersService.createFilters(userDTO, newFilters.getFilters());
@@ -145,6 +149,10 @@ public class FiltersController {
 			throw new InvalidBodyException(
 					ErrorPrefixes.FILTERS_SERVICE.getErrorPrefix() + ErrorMessages.INVALID_BODY.getErrorMessage());
 		}
+		
+		if (newFilters.getFilters().isEmpty()) {
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		}
 
 		UserDTO userDTO = userService.getUserByUserId(userId);
 		List<FiltersDTO> createdFilters = filtersService.createFilters(userDTO, newFilters.getFilters());
@@ -159,7 +167,7 @@ public class FiltersController {
 	}
 
 	@PutMapping(path = "/myfilters", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public FiltersResponseModel updateMyFilters(@Valid @RequestBody FiltersRequestModel filtersToUpdate,
+	public ResponseEntity<?> updateMyFilters(@Valid @RequestBody FiltersRequestModel filtersToUpdate,
 			BindingResult bindingResult) {
 		String userId = authorizationHelpers.getUserIdFromAuth();
 		if (Strings.isNullOrEmpty(userId)) {
@@ -176,6 +184,10 @@ public class FiltersController {
 			throw new InvalidBodyException(
 					ErrorPrefixes.FILTERS_SERVICE.getErrorPrefix() + ErrorMessages.INVALID_BODY.getErrorMessage());
 		}
+		
+		if (filtersToUpdate.getFilters().isEmpty()) {
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		}
 
 		UserDTO userDTO = userService.getUserByUserId(userId);
 		List<FiltersDTO> updatedFilters = filtersService.updateFilters(userDTO, filtersToUpdate.getFilters());	
@@ -186,11 +198,11 @@ public class FiltersController {
 		FiltersResponseModel updatedFiltersResponse = new FiltersResponseModel();
 		updatedFiltersResponse.setFilters(responseObject);	
 
-		return updatedFiltersResponse;
+		return new ResponseEntity<>(updatedFiltersResponse, HttpStatus.OK);
 	}
 
 	@PutMapping(path = "/{userId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public FiltersResponseModel updateFilters(@PathVariable String userId,
+	public ResponseEntity<?> updateFilters(@PathVariable String userId,
 			@Valid @RequestBody FiltersRequestModel filtersToUpdate, BindingResult bindingResult) {
 		if (Strings.isNullOrEmpty(userId)) {
 			throw new MissingPathParametersException(ErrorPrefixes.FILTERS_SERVICE.getErrorPrefix()
@@ -206,6 +218,10 @@ public class FiltersController {
 			throw new InvalidBodyException(
 					ErrorPrefixes.FILTERS_SERVICE.getErrorPrefix() + ErrorMessages.INVALID_BODY.getErrorMessage());
 		}
+		
+		if (filtersToUpdate.getFilters().isEmpty()) {
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		}
 
 		UserDTO userDTO = userService.getUserByUserId(userId);
 		List<FiltersDTO> updatedFilters = filtersService.updateFilters(userDTO, filtersToUpdate.getFilters());	
@@ -216,7 +232,7 @@ public class FiltersController {
 		FiltersResponseModel updatedFiltersResponse = new FiltersResponseModel();
 		updatedFiltersResponse.setFilters(responseObject);	
 
-		return updatedFiltersResponse;
+		return new ResponseEntity<>(updatedFiltersResponse, HttpStatus.OK);
 	}
 
 }
