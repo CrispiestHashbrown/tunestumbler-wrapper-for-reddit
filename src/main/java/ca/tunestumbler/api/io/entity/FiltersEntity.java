@@ -46,10 +46,10 @@ public class FiltersEntity implements Serializable {
 	@Column(length = 50)
 	private String showByKeyword;
 
-	@Column(length = 15)
+	@Column(length = 50)
 	private String hideByDomain;
 
-	@Column(length = 15)
+	@Column(length = 50)
 	private String showByDomain;
 
 	@Column(nullable = false)
