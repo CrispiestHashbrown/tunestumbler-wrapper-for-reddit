@@ -4,24 +4,12 @@ import java.io.Serializable;
 
 public class AggregateDTO implements Serializable {
 	private static final long serialVersionUID = -41686199429484255L;
-	private long id;
 	private String aggregateId;
 	private String userId;
 	private String subredditId;
 	private String subreddit;
-	private Boolean isSubredditAdded = false;
 	private String multiredditId;
 	private String multireddit;
-	private Long startId;
-	private String lastModified;
-
-	public long getId() {
-		return id;
-	}
-
-	public void setId(long id) {
-		this.id = id;
-	}
 
 	public String getAggregateId() {
 		return aggregateId;
@@ -55,14 +43,6 @@ public class AggregateDTO implements Serializable {
 		this.subreddit = subreddit;
 	}
 
-	public Boolean getIsSubredditAdded() {
-		return isSubredditAdded;
-	}
-
-	public void setIsSubredditAdded(Boolean isSubredditAdded) {
-		this.isSubredditAdded = isSubredditAdded;
-	}
-
 	public String getMultiredditId() {
 		return multiredditId;
 	}
@@ -78,21 +58,4 @@ public class AggregateDTO implements Serializable {
 	public void setMultireddit(String multireddit) {
 		this.multireddit = multireddit;
 	}
-
-	public Long getStartId() {
-		return startId;
-	}
-
-	public void setStartId(Long startId) {
-		this.startId = startId;
-	}
-
-	public String getLastModified() {
-		return lastModified;
-	}
-
-	public void setLastModified(String lastModified) {
-		this.lastModified = lastModified;
-	}
-
 }
