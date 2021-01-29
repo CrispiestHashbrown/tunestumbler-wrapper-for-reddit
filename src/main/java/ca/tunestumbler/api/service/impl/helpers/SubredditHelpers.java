@@ -9,9 +9,9 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import ca.tunestumbler.api.exceptions.RedditAccountNotAuthenticatedException;
 import ca.tunestumbler.api.exceptions.WebRequestFailedException;
-import ca.tunestumbler.api.io.entity.SubredditEntity;
 import ca.tunestumbler.api.security.SecurityConstants;
 import ca.tunestumbler.api.shared.SharedUtils;
+import ca.tunestumbler.api.shared.dto.SubredditDTO;
 import ca.tunestumbler.api.shared.dto.UserDTO;
 import ca.tunestumbler.api.ui.model.response.ErrorMessages;
 import ca.tunestumbler.api.ui.model.response.ErrorPrefixes;
@@ -32,7 +32,7 @@ public class SubredditHelpers {
 
 		String baseUrl = "https://oauth.reddit.com";
 		String uri = "/subreddits/mine/subscriber";
-		String userAgentHeader = "web:ca.tunestumbler.api:v0.0.1 (by /u/CrispiestHashbrown)";
+		String userAgentHeader = "web:ca.tunestumbler.api:v1.0.0 (by /u/CrispiestHashbrown)";
 		String authHeader = SecurityConstants.TOKEN_PREFIX + token;
 
 		WebClient client = WebClient
@@ -61,21 +61,16 @@ public class SubredditHelpers {
 						.block();
 	}
 	
-	public SubredditEntity createNewSubredditEntity(String userId, Long startId, String subreddit,
-			SubredditFetchResponseModel response) {
-		SubredditEntity newSubredditEntity = new SubredditEntity();
+	public SubredditDTO createNewSubredditDTO(String subreddit, SubredditFetchResponseModel response) {
+		SubredditDTO newSubredditDTO = new SubredditDTO();
 		String subredditId = sharedUtils.generateSubredditId(50);
 
-		newSubredditEntity.setSubredditId(subredditId);
-		newSubredditEntity.setSubreddit(subreddit);
-		newSubredditEntity.setUserId(userId);
-		newSubredditEntity.setAfterId(response.getData().getAfter());
-		newSubredditEntity.setBeforeId(response.getData().getBefore());
-		newSubredditEntity.setStartId(startId);
-		newSubredditEntity.setIsSubscribed(true);
-		newSubredditEntity.setLastModified(sharedUtils.getCurrentTime());
+		newSubredditDTO.setSubredditId(subredditId);
+		newSubredditDTO.setSubreddit(subreddit);
+		newSubredditDTO.setAfterId(response.getData().getAfter());
+		newSubredditDTO.setBeforeId(response.getData().getBefore());
 
-		return newSubredditEntity;
+		return newSubredditDTO;
 	}
 
 }
