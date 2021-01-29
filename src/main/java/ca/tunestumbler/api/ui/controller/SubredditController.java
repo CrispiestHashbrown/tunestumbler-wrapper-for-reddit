@@ -60,27 +60,4 @@ public class SubredditController {
 		return subredditResponse;
 	}
 
-	@GetMapping(path = "/update/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public SubredditResponseModel updateSubreddits(@PathVariable String userId) {
-		if (Strings.isNullOrEmpty(userId)) {
-			throw new MissingPathParametersException(ErrorPrefixes.SUBREDDIT_SERVICE.getErrorPrefix()
-					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
-		}
-
-		/*
-		 * Token authorization validation
-		 */
-		authorizationHelpers.isAuthorized(userId);
-
-		UserDTO userDTO = userService.getUserByUserId(userId);
-		Type listType = new TypeToken<List<SubredditObjectResponseModel>>() {
-		}.getType();
-		List<SubredditObjectResponseModel> responseObject = 
-				new ModelMapper().map(subredditService.updateSubreddits(userDTO), listType);
-		SubredditResponseModel subredditResponse = new SubredditResponseModel();
-		subredditResponse.setSubreddits(responseObject);
-
-		return subredditResponse;
-	}
-
 }

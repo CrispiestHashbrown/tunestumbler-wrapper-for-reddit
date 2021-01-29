@@ -62,28 +62,4 @@ public class MultiredditController {
 		return multiredditResponse;
 	}
 
-	@GetMapping(path = "/update/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public MultiredditResponseModel updateMultireddits(@PathVariable String userId) {
-		if (Strings.isNullOrEmpty(userId)) {
-			throw new MissingPathParametersException(ErrorPrefixes.SUBREDDIT_SERVICE.getErrorPrefix()
-					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
-		}
-		
-		/*
-		 * Token authorization validation
-		*/		
-		authorizationHelpers.isAuthorized(userId);
-
-		MultiredditResponseModel multiredditResponse = new MultiredditResponseModel();
-
-		UserDTO userDTO = userService.getUserByUserId(userId);
-		List<MultiredditDTO> updatedMultireddits = multiredditService.updateMultireddits(userDTO);
-		Type listType = new TypeToken<List<MultiredditObjectResponseModel>>() {
-		}.getType();
-		List<MultiredditObjectResponseModel> responseObject = new ModelMapper().map(updatedMultireddits, listType);
-		multiredditResponse.setMultireddits(responseObject);
-
-		return multiredditResponse;
-	}
-
 }
