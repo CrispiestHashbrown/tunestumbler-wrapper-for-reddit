@@ -13,12 +13,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import ca.tunestumbler.api.exceptions.FiltersNotFoundException;
 import ca.tunestumbler.api.exceptions.RedditAccountNotAuthenticatedException;
+import ca.tunestumbler.api.exceptions.TooManyRequestsFailedException;
 import ca.tunestumbler.api.exceptions.WebRequestFailedException;
 import ca.tunestumbler.api.io.entity.FiltersEntity;
 import ca.tunestumbler.api.io.entity.ResultsEntity;
@@ -203,7 +205,11 @@ public class ResultsServiceImpl implements ResultsService {
 		return requestUri
 						.exchange()
 						.map(clientResponse -> {
-							if (clientResponse.statusCode().isError()) {
+							if (clientResponse.statusCode().equals(HttpStatus.TOO_MANY_REQUESTS)) {
+								throw new TooManyRequestsFailedException(ErrorPrefixes.RESULTS_SERVICE.getErrorPrefix()
+										+ ErrorMessages.TOO_MANY_REDDIT_REQUESTS.getErrorMessage() 
+										+ clientResponse.headers().header("x-ratelimit-reset") + " seconds");
+							} else if (clientResponse.statusCode().isError()) {
 								throw new WebRequestFailedException(ErrorPrefixes.RESULTS_SERVICE.getErrorPrefix()
 										+ ErrorMessages.FAILED_EXTERNAL_WEB_REQUEST.getErrorMessage());
 							}

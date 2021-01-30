@@ -16,7 +16,8 @@ public enum ErrorMessages {
 	COULD_NOT_DELETE_RECORD("Could not delete record"),
 	EMAIL_ADDRESS_NOT_VERIFIED("Email address could not be verified"),
 	BAD_REQUEST("Bad request"),
-	COULD_NOT_GENERATE_UNIQUE_STATE("Could not generate unique state. Try again");
+	COULD_NOT_GENERATE_UNIQUE_STATE("Could not generate unique state. Try again"),
+	TOO_MANY_REDDIT_REQUESTS("Too many requests to the Reddit API have been made. Please try again after: ");
 	
 	private String errorMessage;
 

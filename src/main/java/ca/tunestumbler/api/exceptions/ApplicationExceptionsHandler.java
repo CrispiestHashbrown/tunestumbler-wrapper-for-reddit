@@ -135,6 +135,19 @@ public class ApplicationExceptionsHandler {
 		return new ResponseEntity<>(createErrorsResponse(errorObject), httpStatus);
 	}
 
+	@ExceptionHandler(value = { TooManyRequestsFailedException.class })
+	public ResponseEntity<Object> handleTooManyRequestsFailedException(TooManyRequestsFailedException exception,
+			WebRequest request) {
+		HttpStatus httpStatus = HttpStatus.TOO_MANY_REQUESTS;
+		ErrorObject errorObject = new ErrorObject(
+				httpStatus.toString(),
+				"TOO MANY REDDIT REQUESTS",
+				exception.getMessage(),
+				sharedUtils.getCurrentTime());
+
+		return new ResponseEntity<>(createErrorsResponse(errorObject), httpStatus);
+	}
+	
 	@ExceptionHandler(value = { WebRequestFailedException.class })
 	public ResponseEntity<Object> handleWebRequestFailedException(WebRequestFailedException exception,
 			WebRequest request) {
