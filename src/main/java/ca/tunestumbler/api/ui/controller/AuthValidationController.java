@@ -16,12 +16,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.google.common.base.Strings;
 
 import ca.tunestumbler.api.exceptions.MissingPathParametersException;
+import ca.tunestumbler.api.exceptions.ResourceNotFoundException;
 import ca.tunestumbler.api.service.AuthValidationService;
 import ca.tunestumbler.api.service.UserService;
 import ca.tunestumbler.api.service.impl.helpers.AuthorizationHelpers;
 import ca.tunestumbler.api.shared.SharedUtils;
 import ca.tunestumbler.api.shared.dto.AuthValidationDTO;
-import ca.tunestumbler.api.shared.dto.UserDTO;
 import ca.tunestumbler.api.ui.model.response.ErrorMessages;
 import ca.tunestumbler.api.ui.model.response.ErrorPrefixes;
 import ca.tunestumbler.api.ui.model.response.auth.AuthConnectResponseModel;
@@ -55,8 +55,11 @@ public class AuthValidationController {
 		 */
 		authorizationHelpers.isAuthorized(userId);
 
-		UserDTO userDTO = userService.getUserByUserId(userId);
-		AuthValidationDTO authValidationDTO = authValidationService.createAuthState(userDTO);
+		if (userService.getUserByUserId(userId) == null) {
+			throw new ResourceNotFoundException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
+		}
+
+		AuthValidationDTO authValidationDTO = authValidationService.createAuthState(userId);
 
 		AuthConnectResponseModel authConnectResponseModel = new AuthConnectResponseModel();
 		BeanUtils.copyProperties(authValidationDTO, authConnectResponseModel);
@@ -76,8 +79,11 @@ public class AuthValidationController {
 		 */
 		authorizationHelpers.isAuthorized(userId);
 
-		UserDTO userDTO = userService.getUserByUserId(userId);
-		AuthValidationDTO authValidationDTO = authValidationService.createAuthState(userDTO);
+		if (userService.getUserByUserId(userId) == null) {
+			throw new ResourceNotFoundException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
+		}
+		
+		AuthValidationDTO authValidationDTO = authValidationService.createAuthState(userId);
 
 		AuthConnectResponseModel authConnectResponseModel = new AuthConnectResponseModel();
 		BeanUtils.copyProperties(authValidationDTO, authConnectResponseModel);

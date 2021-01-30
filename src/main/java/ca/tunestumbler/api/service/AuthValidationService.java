@@ -3,12 +3,9 @@ package ca.tunestumbler.api.service;
 import org.springframework.http.HttpHeaders;
 
 import ca.tunestumbler.api.shared.dto.AuthValidationDTO;
-import ca.tunestumbler.api.shared.dto.UserDTO;
 
 public interface AuthValidationService {
-	AuthValidationDTO createAuthState(UserDTO user);
-
-	AuthValidationDTO updateState(String stateId, String code);
+	AuthValidationDTO createAuthState(String userId);
 
 	HttpHeaders createHandlerHeaders(String state, String code);
 
