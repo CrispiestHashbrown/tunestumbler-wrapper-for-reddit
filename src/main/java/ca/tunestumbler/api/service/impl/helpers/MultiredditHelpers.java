@@ -1,5 +1,6 @@
 package ca.tunestumbler.api.service.impl.helpers;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -9,13 +10,19 @@ import org.springframework.web.reactive.function.client.WebClient;
 import ca.tunestumbler.api.exceptions.RedditAccountNotAuthenticatedException;
 import ca.tunestumbler.api.exceptions.WebRequestFailedException;
 import ca.tunestumbler.api.security.SecurityConstants;
+import ca.tunestumbler.api.shared.SharedUtils;
+import ca.tunestumbler.api.shared.dto.MultiredditDTO;
 import ca.tunestumbler.api.shared.dto.UserDTO;
 import ca.tunestumbler.api.ui.model.response.ErrorMessages;
 import ca.tunestumbler.api.ui.model.response.ErrorPrefixes;
+import ca.tunestumbler.api.ui.model.response.multireddit.MultiredditDataSubredditModel;
 import ca.tunestumbler.api.ui.model.response.multireddit.MultiredditFetchResponseModel;
 
 @Component
 public class MultiredditHelpers {
+	
+	@Autowired
+	SharedUtils sharedUtils;
 
 	public MultiredditFetchResponseModel[] sendGetMultiredditRequest(UserDTO user) {
 		String token = user.getToken();
@@ -26,7 +33,7 @@ public class MultiredditHelpers {
 
 		String baseUrl = "https://oauth.reddit.com";
 		String uri = "/api/multi/mine";
-		String userAgentHeader = "web:ca.tunestumbler.api:v0.0.1 (by /u/CrispiestHashbrown)";
+		String userAgentHeader = "web:ca.tunestumbler.api:v1.0.0 (by /u/CrispiestHashbrown)";
 		String authHeader = SecurityConstants.TOKEN_PREFIX + token;
 
 		WebClient client = WebClient
@@ -53,6 +60,18 @@ public class MultiredditHelpers {
 						.block()
 						.bodyToMono(MultiredditFetchResponseModel[].class)
 						.block();
+	}
+	
+	public MultiredditDTO createNewMultiredditDTO(MultiredditFetchResponseModel multiredditResponse, 
+			MultiredditDataSubredditModel subreddit) {
+		MultiredditDTO multiredditDTO = new MultiredditDTO();
+		String multiredditId = sharedUtils.generateMultiredditId(50);
+
+		multiredditDTO.setMultiredditId(multiredditId);
+		multiredditDTO.setMultireddit(multiredditResponse.getData().getName());
+		multiredditDTO.setSubreddit(subreddit.getName());
+
+		return multiredditDTO;
 	}
 	
 }
