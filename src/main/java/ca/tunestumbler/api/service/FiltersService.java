@@ -11,4 +11,6 @@ public interface FiltersService {
 	List<FiltersDTO> getFiltersByUserId(UserDTO user);
 
 	List<FiltersDTO> updateFilters(UserDTO user, List<FiltersDTO> filters);
+
+	void deleteFilters(String userId, List<String> filters);
 }

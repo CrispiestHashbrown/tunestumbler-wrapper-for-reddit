@@ -89,4 +89,11 @@ public class FiltersServiceImpl implements FiltersService {
 		return new ModelMapper().map(updatedFilters, dtoListType);
 	}
 
+	@Override
+	public void deleteFilters(String userId, List<String> filters) {
+		if (!filters.isEmpty()) {
+			filtersRepository.deleteAll(filtersRepository.findAllFiltersByFiltersId(filters));
+		}
+	}
+
 }

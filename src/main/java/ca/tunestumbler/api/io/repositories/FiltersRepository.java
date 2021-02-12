@@ -11,4 +11,7 @@ import ca.tunestumbler.api.io.entity.FiltersEntity;
 public interface FiltersRepository extends JpaRepository<FiltersEntity, String> {
 	@Query(value = "SELECT * FROM filters WHERE user_id = :userId AND is_active = true", nativeQuery = true)
 	List<FiltersEntity> findFiltersByUserIdAndIsActive(@Param("userId") String userId);
+
+	@Query(value = "SELECT * FROM filters WHERE filters_id in :filters", nativeQuery = true)
+	List<FiltersEntity> findAllFiltersByFiltersId(@Param("filters") List<String> filters);
 }
