@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,6 +30,7 @@ import ca.tunestumbler.api.service.UserService;
 import ca.tunestumbler.api.service.impl.helpers.AuthorizationHelpers;
 import ca.tunestumbler.api.shared.dto.FiltersDTO;
 import ca.tunestumbler.api.shared.dto.UserDTO;
+import ca.tunestumbler.api.ui.model.request.FiltersDeleteRequestModel;
 import ca.tunestumbler.api.ui.model.request.FiltersRequestModel;
 import ca.tunestumbler.api.ui.model.response.ErrorMessages;
 import ca.tunestumbler.api.ui.model.response.ErrorPrefixes;
@@ -233,6 +235,30 @@ public class FiltersController {
 		updatedFiltersResponse.setFilters(responseObject);	
 
 		return new ResponseEntity<>(updatedFiltersResponse, HttpStatus.OK);
+	}
+
+	@DeleteMapping(path = "/myfilters", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> deleteFilters(@Valid @RequestBody FiltersDeleteRequestModel filtersToDelete,
+			BindingResult bindingResult) {
+		String userId = authorizationHelpers.getUserIdFromAuth();
+		if (Strings.isNullOrEmpty(userId)) {
+			throw new MissingPathParametersException(ErrorPrefixes.FILTERS_SERVICE.getErrorPrefix()
+					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
+		}
+
+		/*
+		 * Token authorization validation
+		 */
+		authorizationHelpers.isAuthorized(userId);
+
+		if (bindingResult.hasErrors()) {
+			throw new InvalidBodyException(
+					ErrorPrefixes.FILTERS_SERVICE.getErrorPrefix() + ErrorMessages.INVALID_BODY.getErrorMessage());
+		}
+
+		filtersService.deleteFilters(userId, filtersToDelete.getFilters());
+
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 
 }
