@@ -7,5 +7,5 @@ import ca.tunestumbler.api.io.entity.AuthValidationEntity;
 
 @Repository
 public interface AuthValidationRepository extends CrudRepository<AuthValidationEntity, String> {
-	AuthValidationEntity findByStateIdAndValidated(String stateId, Boolean validated);
+	AuthValidationEntity findByStateIdAndUserIdAndValidated(String stateId, String userId, Boolean validated);
 }
