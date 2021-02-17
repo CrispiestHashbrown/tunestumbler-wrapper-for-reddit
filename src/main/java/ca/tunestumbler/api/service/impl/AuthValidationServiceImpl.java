@@ -41,13 +41,13 @@ public class AuthValidationServiceImpl implements AuthValidationService {
 	}
 
 	@Override
-	public HttpHeaders createHandlerHeaders(String state, String code) {
-		AuthValidationEntity authValidationEntity = authorizationHelpers.updateState(state, code);
+	public HttpHeaders createHandlerHeaders(String userId, String state, String code) {
+		AuthValidationEntity authValidationEntity = authorizationHelpers.updateState(userId, state, code);
 
 		AuthResponseModel response = authorizationHelpers.createRedditTokens(code);
 		String tokenLifetime = Integer.toString(response.getExpires_in());
 
-		if (response.getAccess_token() != null && response.getRefresh_token() != null 
+		if (response.getAccess_token() != null && response.getRefresh_token() != null
 				&& authorizationHelpers.isScopesValid(response.getScope())) {
 			UserDTO userDTO = userService.getUserByUserId(authValidationEntity.getUserId());
 			userDTO.setToken(response.getAccess_token());
@@ -57,7 +57,7 @@ public class AuthValidationServiceImpl implements AuthValidationService {
 
 			return authorizationHelpers.createResponseHeaders(tokenLifetime);
 		}
-		
+
 		return new HttpHeaders();
 	}
 
@@ -66,17 +66,17 @@ public class AuthValidationServiceImpl implements AuthValidationService {
 		UserDTO userDTO = userService.getUserByUserId(userId);
 		AuthResponseModel response = authorizationHelpers.refreshRedditToken(userDTO.getRefreshToken());
 		String tokenLifetime = Integer.toString(response.getExpires_in());
-		
-		if (response.getAccess_token() != null && !response.getAccess_token().isEmpty() 
+
+		if (response.getAccess_token() != null && !response.getAccess_token().isEmpty()
 				&& authorizationHelpers.isScopesValid(response.getScope())) {
 			userDTO.setToken(response.getAccess_token());
 			userDTO.setTokenLifetime(tokenLifetime);
 			userService.voidUpdateUser(userId, userDTO);
-			
+
 			return authorizationHelpers.createResponseHeaders(tokenLifetime);
 		}
 
 		return new HttpHeaders();
 	}
-	
+
 }

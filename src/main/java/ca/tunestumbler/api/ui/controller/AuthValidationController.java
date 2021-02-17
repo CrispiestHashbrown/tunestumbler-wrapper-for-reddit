@@ -82,7 +82,7 @@ public class AuthValidationController {
 		if (userService.getUserByUserId(userId) == null) {
 			throw new ResourceNotFoundException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
 		}
-		
+
 		AuthValidationDTO authValidationDTO = authValidationService.createAuthState(userId);
 
 		AuthConnectResponseModel authConnectResponseModel = new AuthConnectResponseModel();
@@ -94,12 +94,18 @@ public class AuthValidationController {
 	@GetMapping(path = "/handler", produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ResponseEntity<?> validateStateAndRedirect(@RequestParam String state, @RequestParam String code) {
+		String userId = authorizationHelpers.getUserIdFromAuth();
 		if (Strings.isNullOrEmpty(state) || Strings.isNullOrEmpty(code)) {
 			throw new MissingPathParametersException(ErrorPrefixes.AUTH_SERVICE.getErrorPrefix()
 					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
 		}
 
-		HttpHeaders authHeaders = authValidationService.createHandlerHeaders(state, code);
+		/*
+		 * Token authorization validation
+		 */
+		authorizationHelpers.isAuthorized(userId);
+
+		HttpHeaders authHeaders = authValidationService.createHandlerHeaders(userId, state, code);
 		if (!authHeaders.isEmpty()) {
 			return new ResponseEntity<>(authHeaders, HttpStatus.OK);
 		}
@@ -123,7 +129,7 @@ public class AuthValidationController {
 
 		HttpHeaders authHeaders = authValidationService.createRefreshTokenHeaders(userId);
 		if (!authHeaders.isEmpty()) {
-			return new ResponseEntity<>(authHeaders, HttpStatus.OK);			
+			return new ResponseEntity<>(authHeaders, HttpStatus.OK);
 		}
 
 		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -144,7 +150,7 @@ public class AuthValidationController {
 
 		HttpHeaders authHeaders = authValidationService.createRefreshTokenHeaders(userId);
 		if (!authHeaders.isEmpty()) {
-			return new ResponseEntity<>(authHeaders, HttpStatus.OK);			
+			return new ResponseEntity<>(authHeaders, HttpStatus.OK);
 		}
 
 		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
