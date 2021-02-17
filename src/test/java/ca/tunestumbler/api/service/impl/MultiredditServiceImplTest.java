@@ -31,16 +31,16 @@ public class MultiredditServiceImplTest {
 
 	@Mock
 	SharedUtils sharedUtils;
-	
+
 	UserDTO userDTO;
 	List<MultiredditDTO> multiredditDTOs;
 	MultiredditDTO multiredditDTO;
 	MultiredditFetchResponseModel[] response;
-	
+
 	@BeforeEach
 	void setUp() throws Exception {
 		MockitoAnnotations.initMocks(this);
-		
+
 		userDTO = new UserDTO();
 		userDTO.setUserId("userId");
 		userDTO.setEmail("test@test");
@@ -56,32 +56,34 @@ public class MultiredditServiceImplTest {
 		multiredditDTO.setSubreddit("subreddit");
 		multiredditDTOs = new ArrayList<>();
 		multiredditDTOs.add(multiredditDTO);
-		
+
 		MultiredditDataSubredditModel subreddits = new MultiredditDataSubredditModel();
 		subreddits.setName("someSubreddit");
-		List<MultiredditDataSubredditModel> subredditsList = new ArrayList<>();		
+		List<MultiredditDataSubredditModel> subredditsList = new ArrayList<>();
 		subredditsList.add(subreddits);
-		
+
 		MultiredditDataModel data = new MultiredditDataModel();
 		data.setName("multiredditName");
 		data.setSubreddits(subredditsList);
-		
+
 		MultiredditFetchResponseModel multiredditData = new MultiredditFetchResponseModel();
 		multiredditData.setData(data);
-		
-		response = new MultiredditFetchResponseModel[]{multiredditData};
+
+		response = new MultiredditFetchResponseModel[] { multiredditData };
 	}
 
 	@Test
 	void testFetchMultireddits() {
 		when(multiredditHelpers.sendGetMultiredditRequest(ArgumentMatchers.any(UserDTO.class))).thenReturn(response);
+		when(multiredditHelpers.createNewMultiredditDTO(ArgumentMatchers.any(MultiredditFetchResponseModel.class),
+				ArgumentMatchers.any(MultiredditDataSubredditModel.class))).thenReturn(multiredditDTO);
 
 		UserDTO userDTO = new UserDTO();
 		List<MultiredditDTO> multireddits = multiredditService.fetchMultireddits(userDTO);
-		
+
 		assertEquals(multiredditDTOs.get(0).getMultiredditId(), multireddits.get(0).getMultiredditId());
 		assertEquals(multiredditDTOs.get(0).getMultireddit(), multireddits.get(0).getMultireddit());
 		assertEquals(multiredditDTOs.get(0).getSubreddit(), multireddits.get(0).getSubreddit());
 	}
-	
+
 }

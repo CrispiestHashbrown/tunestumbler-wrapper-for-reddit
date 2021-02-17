@@ -1,6 +1,7 @@
 package ca.tunestumbler.api.service.impl;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -28,18 +29,19 @@ public class SubredditServiceImplTest {
 
 	@Mock
 	SubredditHelpers subredditHelpers;
-	
+
 	UserDTO userDTO;
 	String afterId = "afterId";
 	String beforeId = "beforeId";
 	List<SubredditDTO> subredditDTOs;
 	SubredditDTO subredditDTO;
+	String subreddit = "subreddit";
 	SubredditFetchResponseModel response;
-	
+
 	@BeforeEach
 	void setUp() throws Exception {
 		MockitoAnnotations.initMocks(this);
-		
+
 		userDTO = new UserDTO();
 		userDTO.setUserId("userId");
 		userDTO.setEmail("test@test");
@@ -48,30 +50,29 @@ public class SubredditServiceImplTest {
 		userDTO.setRefreshToken("123");
 		userDTO.setTokenLifetime("3600");
 		userDTO.setLastModified("July 1, 2020 00:00:00");
-		
+
 		subredditDTOs = new ArrayList<>();
 		subredditDTO = new SubredditDTO();
 		subredditDTO.setSubredditId("subredditId");
 		subredditDTO.setAfterId(afterId);
 		subredditDTO.setBeforeId(beforeId);
-		subredditDTO.setSubreddit("subreddit");
+		subredditDTO.setSubreddit(subreddit);
 		subredditDTOs.add(subredditDTO);
-		
 
 		SubredditDataChildrenDataModel dataProperties = new SubredditDataChildrenDataModel();
 		dataProperties.setDisplay_name("testSubreddit");
-		
+
 		SubredditDataChildrenModel data = new SubredditDataChildrenModel();
 		data.setData(dataProperties);
-		
+
 		List<SubredditDataChildrenModel> children = new ArrayList<>();
 		children.add(data);
-		
+
 		SubredditDataModel responseData = new SubredditDataModel();
 		responseData.setAfter(afterId);
 		responseData.setBefore(beforeId);
 		responseData.setChildren(children);
-		
+
 		response = new SubredditFetchResponseModel();
 		response.setData(responseData);
 	}
@@ -79,9 +80,11 @@ public class SubredditServiceImplTest {
 	@Test
 	void testFetchSubreddits() {
 		when(subredditHelpers.sendGetSubredditRequest(ArgumentMatchers.any(UserDTO.class))).thenReturn(response);
+		when(subredditHelpers.createNewSubredditDTO(anyString(),
+				ArgumentMatchers.any(SubredditFetchResponseModel.class))).thenReturn(subredditDTO);
 
-		List<SubredditDTO> subreddits = subredditServiceImpl.fetchSubreddits(userDTO); 
-		
+		List<SubredditDTO> subreddits = subredditServiceImpl.fetchSubreddits(userDTO);
+
 		assertEquals(subredditDTOs.get(0).getSubredditId(), subreddits.get(0).getSubredditId());
 		assertEquals(subredditDTOs.get(0).getAfterId(), subreddits.get(0).getAfterId());
 		assertEquals(subredditDTOs.get(0).getBeforeId(), subreddits.get(0).getBeforeId());
