@@ -21,10 +21,10 @@ import ca.tunestumbler.api.ui.model.response.subreddit.SubredditDataModel;
 import ca.tunestumbler.api.ui.model.response.subreddit.SubredditFetchResponseModel;
 
 public class SubredditHelpersTest {
-	
+
 	@InjectMocks
 	SubredditHelpers subredditHelpers;
-	
+
 	@Mock
 	SharedUtils sharedUtils;
 
@@ -34,43 +34,45 @@ public class SubredditHelpersTest {
 	String afterId = "afterId";
 	String beforeId = "beforeId";
 	SubredditFetchResponseModel response;
-	
+
 	@BeforeEach
 	void setUp() throws Exception {
 		MockitoAnnotations.initMocks(this);
 
+		subredditDTO = new SubredditDTO();
 		subredditDTO.setSubredditId(subredditId);
 		subredditDTO.setSubreddit(subreddit);
 		subredditDTO.setAfterId(afterId);
 		subredditDTO.setBeforeId(beforeId);
-		
+
 		SubredditDataChildrenDataModel data = new SubredditDataChildrenDataModel();
 		data.setDisplay_name(subreddit);
-		
+
 		SubredditDataChildrenModel child = new SubredditDataChildrenModel();
 		child.setData(data);
-		
+
 		List<SubredditDataChildrenModel> children = new ArrayList<>();
 		children.add(child);
-		
+
 		SubredditDataModel subredditData = new SubredditDataModel();
 		subredditData.setChildren(children);
 		subredditData.setAfter(afterId);
 		subredditData.setBefore(beforeId);
-		
-		response.setData(subredditData);		
+
+		response = new SubredditFetchResponseModel();
+		response.setData(subredditData);
 	}
-	
+
 	@Test
 	void testCreateNewSubredditDTO() {
 		when(sharedUtils.generateSubredditId(anyInt())).thenReturn(subredditId);
-		
+
 		SubredditDTO newSubredditDTO = subredditHelpers.createNewSubredditDTO(subreddit, response);
-		
+
 		assertEquals(subredditDTO.getSubredditId(), newSubredditDTO.getSubredditId());
 		assertEquals(subredditDTO.getSubreddit(), newSubredditDTO.getSubreddit());
 		assertEquals(subredditDTO.getAfterId(), newSubredditDTO.getAfterId());
 		assertEquals(subredditDTO.getBeforeId(), newSubredditDTO.getBeforeId());
 	}
-	
+
 }
