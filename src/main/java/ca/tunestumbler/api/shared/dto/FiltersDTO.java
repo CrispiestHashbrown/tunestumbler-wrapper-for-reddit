@@ -1,21 +1,18 @@
 package ca.tunestumbler.api.shared.dto;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class FiltersDTO implements Serializable {
 	private static final long serialVersionUID = -5370336446817047806L;
 	private String filtersId;
-	private String multireddit;
 	private String subreddit;
-	private Integer priority = 0;
 	private Integer minScore = 1;
 	private Boolean allowNSFWFlag = false;
-	private String hideByKeyword;
-	private String showByKeyword;
-	private String hideByDomain;
-	private String showByDomain;
-	private Boolean isActive;
-	private String lastModified;
+	private List<ExcludedDomainDTO> excludedDomains;
+	private List<ExcludedKeywordDTO> excludedKeywords;
+	private List<SelectedDomainDTO> selectedDomains;
+	private List<SelectedKeywordDTO> selectedKeywords;
 
 	public String getFiltersId() {
 		return filtersId;
@@ -25,28 +22,12 @@ public class FiltersDTO implements Serializable {
 		this.filtersId = filtersId;
 	}
 
-	public String getMultireddit() {
-		return multireddit;
-	}
-
-	public void setMultireddit(String multireddit) {
-		this.multireddit = multireddit;
-	}
-
 	public String getSubreddit() {
 		return subreddit;
 	}
 
 	public void setSubreddit(String subreddit) {
 		this.subreddit = subreddit;
-	}
-
-	public Integer getPriority() {
-		return priority;
-	}
-
-	public void setPriority(Integer priority) {
-		this.priority = priority;
 	}
 
 	public Integer getMinScore() {
@@ -65,52 +46,36 @@ public class FiltersDTO implements Serializable {
 		this.allowNSFWFlag = allowNSFWFlag;
 	}
 
-	public String getHideByKeyword() {
-		return hideByKeyword;
+	public List<ExcludedDomainDTO> getExcludedDomains() {
+		return excludedDomains;
 	}
 
-	public void setHideByKeyword(String hideByKeyword) {
-		this.hideByKeyword = hideByKeyword;
+	public void setExcludedDomains(List<ExcludedDomainDTO> excludedDomains) {
+		this.excludedDomains = excludedDomains;
 	}
 
-	public String getShowByKeyword() {
-		return showByKeyword;
+	public List<ExcludedKeywordDTO> getExcludedKeywords() {
+		return excludedKeywords;
 	}
 
-	public void setShowByKeyword(String showByKeyword) {
-		this.showByKeyword = showByKeyword;
+	public void setExcludedKeywords(List<ExcludedKeywordDTO> excludedKeywords) {
+		this.excludedKeywords = excludedKeywords;
 	}
 
-	public String getHideByDomain() {
-		return hideByDomain;
+	public List<SelectedDomainDTO> getSelectedDomains() {
+		return selectedDomains;
 	}
 
-	public void setHideByDomain(String hideByDomain) {
-		this.hideByDomain = hideByDomain;
+	public void setSelectedDomains(List<SelectedDomainDTO> selectedDomains) {
+		this.selectedDomains = selectedDomains;
 	}
 
-	public String getShowByDomain() {
-		return showByDomain;
+	public List<SelectedKeywordDTO> getSelectedKeywords() {
+		return selectedKeywords;
 	}
 
-	public void setShowByDomain(String showByDomain) {
-		this.showByDomain = showByDomain;
-	}
-
-	public Boolean getIsActive() {
-		return isActive;
-	}
-
-	public void setIsActive(Boolean isActive) {
-		this.isActive = isActive;
-	}
-
-	public String getLastModified() {
-		return lastModified;
-	}
-
-	public void setLastModified(String lastModified) {
-		this.lastModified = lastModified;
+	public void setSelectedKeywords(List<SelectedKeywordDTO> selectedKeywords) {
+		this.selectedKeywords = selectedKeywords;
 	}
 
 }

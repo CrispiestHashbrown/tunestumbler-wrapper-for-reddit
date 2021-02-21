@@ -1,8 +1,8 @@
-package ca.tunestumbler.api.ui.model.response;
+package ca.tunestumbler.api.ui.model.response.filter;
 
 import java.util.List;
 
-import ca.tunestumbler.api.ui.model.response.filters.FiltersObjectResponseModel;
+import ca.tunestumbler.api.ui.model.response.filter.object.FiltersObjectResponseModel;
 
 public class FiltersResponseModel {
 	private List<FiltersObjectResponseModel> filters;
