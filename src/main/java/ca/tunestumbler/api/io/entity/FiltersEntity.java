@@ -1,12 +1,17 @@
 package ca.tunestumbler.api.io.entity;
 
 import java.io.Serializable;
+import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.validation.constraints.Size;
 
 @Entity(name = "filters")
@@ -18,21 +23,15 @@ public class FiltersEntity implements Serializable {
 	@Column(nullable = false, unique = true)
 	private long id;
 
-	@Column(nullable = false, unique = true)
+	@Column(name = "filters_id", nullable = false, unique = true)
 	private String filtersId;
 
 	@Column()
 	private String userId;
 
-	@Column(length = 50)
-	private String multireddit;
-
 	@Column(nullable = false)
 	@Size(min = 1, max = 21)
 	private String subreddit;
-
-	@Column(nullable = false)
-	private Integer priority = 0;
 
 	@Column()
 	private Integer minScore = 1;
@@ -40,23 +39,21 @@ public class FiltersEntity implements Serializable {
 	@Column(nullable = false)
 	private Boolean allowNSFWFlag = false;
 
-	@Column(length = 50)
-	private String hideByKeyword;
+	@OneToMany(orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@JoinColumn(name = "parent_filters_id", referencedColumnName = "filters_id")
+	private List<ExcludedDomainEntity> excludedDomains;
 
-	@Column(length = 50)
-	private String showByKeyword;
+	@OneToMany(orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@JoinColumn(name = "parent_filters_id", referencedColumnName = "filters_id")
+	private List<ExcludedKeywordEntity> excludedKeywords;
 
-	@Column(length = 50)
-	private String hideByDomain;
+	@OneToMany(orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@JoinColumn(name = "parent_filters_id", referencedColumnName = "filters_id")
+	private List<SelectedDomainEntity> selectedDomains;
 
-	@Column(length = 50)
-	private String showByDomain;
-
-	@Column(nullable = false)
-	private Boolean isActive;
-
-	@Column(nullable = false)
-	private String lastModified;
+	@OneToMany(orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@JoinColumn(name = "parent_filters_id", referencedColumnName = "filters_id")
+	private List<SelectedKeywordEntity> selectedKeywords;
 
 	public long getId() {
 		return id;
@@ -82,28 +79,12 @@ public class FiltersEntity implements Serializable {
 		this.userId = userId;
 	}
 
-	public String getMultireddit() {
-		return multireddit;
-	}
-
-	public void setMultireddit(String multireddit) {
-		this.multireddit = multireddit;
-	}
-
 	public String getSubreddit() {
 		return subreddit;
 	}
 
 	public void setSubreddit(String subreddit) {
 		this.subreddit = subreddit;
-	}
-
-	public Integer getPriority() {
-		return priority;
-	}
-
-	public void setPriority(Integer priority) {
-		this.priority = priority;
 	}
 
 	public Integer getMinScore() {
@@ -122,52 +103,36 @@ public class FiltersEntity implements Serializable {
 		this.allowNSFWFlag = allowNSFWFlag;
 	}
 
-	public String getHideByKeyword() {
-		return hideByKeyword;
+	public List<ExcludedDomainEntity> getExcludedDomains() {
+		return excludedDomains;
 	}
 
-	public void setHideByKeyword(String hideByKeyword) {
-		this.hideByKeyword = hideByKeyword;
+	public void setExcludedDomains(List<ExcludedDomainEntity> excludedDomains) {
+		this.excludedDomains = excludedDomains;
 	}
 
-	public String getShowByKeyword() {
-		return showByKeyword;
+	public List<ExcludedKeywordEntity> getExcludedKeywords() {
+		return excludedKeywords;
 	}
 
-	public void setShowByKeyword(String showByKeyword) {
-		this.showByKeyword = showByKeyword;
+	public void setExcludedKeywords(List<ExcludedKeywordEntity> excludedKeywords) {
+		this.excludedKeywords = excludedKeywords;
 	}
 
-	public String getHideByDomain() {
-		return hideByDomain;
+	public List<SelectedDomainEntity> getSelectedDomains() {
+		return selectedDomains;
 	}
 
-	public void setHideByDomain(String hideByDomain) {
-		this.hideByDomain = hideByDomain;
+	public void setSelectedDomains(List<SelectedDomainEntity> selectedDomains) {
+		this.selectedDomains = selectedDomains;
 	}
 
-	public String getShowByDomain() {
-		return showByDomain;
+	public List<SelectedKeywordEntity> getSelectedKeywords() {
+		return selectedKeywords;
 	}
 
-	public void setShowByDomain(String showByDomain) {
-		this.showByDomain = showByDomain;
-	}
-
-	public Boolean getIsActive() {
-		return isActive;
-	}
-
-	public void setIsActive(Boolean isActive) {
-		this.isActive = isActive;
-	}
-
-	public String getLastModified() {
-		return lastModified;
-	}
-
-	public void setLastModified(String lastModified) {
-		this.lastModified = lastModified;
+	public void setSelectedKeywords(List<SelectedKeywordEntity> selectedKeywords) {
+		this.selectedKeywords = selectedKeywords;
 	}
 
 }
