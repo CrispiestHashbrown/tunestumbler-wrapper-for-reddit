@@ -202,10 +202,10 @@ public class ResultsServiceImpl implements ResultsService {
 		resultsSpec.add(new SearchCriteria(filter.getAllowNSFWFlag(), "isNsfw", SearchOperation.EQUAL));
 		for (ExcludedKeywordEntity excludedKeyword : filter.getExcludedKeywords()) {
 			resultsSpec
-					.add(new SearchCriteria(excludedKeyword.getExcludedKeyword(), "keyword", SearchOperation.NOT_LIKE));
+					.add(new SearchCriteria(excludedKeyword.getExcludedKeyword(), "title", SearchOperation.NOT_LIKE));
 		}
 		for (SelectedKeywordEntity selectedKeyword : filter.getSelectedKeywords()) {
-			resultsSpec.add(new SearchCriteria(selectedKeyword.getSelectedKeyword(), "keyword", SearchOperation.LIKE));
+			resultsSpec.add(new SearchCriteria(selectedKeyword.getSelectedKeyword(), "title", SearchOperation.LIKE));
 		}
 	}
 
