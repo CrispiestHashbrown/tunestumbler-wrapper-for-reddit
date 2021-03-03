@@ -1,4 +1,4 @@
-package ca.tunestumbler.api.shared;
+package ca.tunestumbler.api.io.repositories.specification;
 
 import java.util.Comparator;
 

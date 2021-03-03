@@ -22,7 +22,8 @@ import ca.tunestumbler.api.service.ResultsService;
 import ca.tunestumbler.api.service.UserService;
 import ca.tunestumbler.api.service.impl.helpers.AuthorizationHelpers;
 import ca.tunestumbler.api.shared.dto.UserDTO;
-import ca.tunestumbler.api.ui.model.request.ResultsRequestModel;
+import ca.tunestumbler.api.shared.mapper.ResultsMapper;
+import ca.tunestumbler.api.ui.model.request.NextResultsRequestModel;
 import ca.tunestumbler.api.ui.model.response.ErrorMessages;
 import ca.tunestumbler.api.ui.model.response.ErrorPrefixes;
 import ca.tunestumbler.api.ui.model.response.ResultsResponseModel;
@@ -36,37 +37,24 @@ public class ResultsController {
 
 	@Autowired
 	UserService userService;
-	
+
 	@Autowired
 	AuthorizationHelpers authorizationHelpers;
+
+	@Autowired
+	ResultsMapper resultsMapper;
 
 	@GetMapping(path = "/fetch/myresults/{orderBy}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResultsResponseModel fetchMyResults(@PathVariable String orderBy) {
 		String userId = authorizationHelpers.getUserIdFromAuth();
-		if (Strings.isNullOrEmpty(userId) || Strings.isNullOrEmpty(orderBy)) {
+		if (Strings.isNullOrEmpty(orderBy)) {
 			throw new MissingPathParametersException(ErrorPrefixes.RESULTS_SERVICE.getErrorPrefix()
 					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
 		}
-		
+
 		/*
 		 * Token authorization validation
-		*/		
-		authorizationHelpers.isAuthorized(userId);
-
-		UserDTO userDTO = userService.getUserByUserId(userId);
-		return resultsService.fetchResults(userDTO, orderBy);
-	}
-
-	@GetMapping(path = "/fetch/{userId}/{orderBy}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResultsResponseModel fetchResults(@PathVariable String userId, @PathVariable String orderBy) {
-		if (Strings.isNullOrEmpty(userId) || Strings.isNullOrEmpty(orderBy)) {
-			throw new MissingPathParametersException(ErrorPrefixes.RESULTS_SERVICE.getErrorPrefix()
-					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
-		}
-		
-		/*
-		 * Token authorization validation
-		*/		
+		 */
 		authorizationHelpers.isAuthorized(userId);
 
 		UserDTO userDTO = userService.getUserByUserId(userId);
@@ -74,54 +62,23 @@ public class ResultsController {
 	}
 
 	@PostMapping(path = "/fetch/next", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> fetchMyNextResults(@Valid @RequestBody ResultsRequestModel results,
+	public ResponseEntity<?> fetchMyNextResults(@Valid @RequestBody NextResultsRequestModel request,
 			BindingResult bindingResult) {
 		String userId = authorizationHelpers.getUserIdFromAuth();
-		if (Strings.isNullOrEmpty(userId)) {
-			throw new MissingPathParametersException(ErrorPrefixes.RESULTS_SERVICE.getErrorPrefix()
-					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
-		}
-		
+
 		/*
 		 * Token authorization validation
-		*/		
+		 */
 		authorizationHelpers.isAuthorized(userId);
 
 		if (bindingResult.hasErrors()) {
-			throw new InvalidBodyException(ErrorPrefixes.RESULTS_SERVICE.getErrorPrefix() 
-					+ ErrorMessages.INVALID_BODY.getErrorMessage());
+			throw new InvalidBodyException(
+					ErrorPrefixes.RESULTS_SERVICE.getErrorPrefix() + ErrorMessages.INVALID_BODY.getErrorMessage());
 		}
 
 		UserDTO userDTO = userService.getUserByUserId(userId);
-
-		ResultsResponseModel resultsResponse = 
-				resultsService.fetchNextResults(userDTO, results.getNextUri(), results.getAfterId());
-
-		return new ResponseEntity<>(resultsResponse, HttpStatus.CREATED);
-	}
-
-	@PostMapping(path = "/fetch/next/{userId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> fetchNextResults(@PathVariable String userId,
-			@Valid @RequestBody ResultsRequestModel results, BindingResult bindingResult) {
-		if (Strings.isNullOrEmpty(userId)) {
-			throw new MissingPathParametersException(ErrorPrefixes.RESULTS_SERVICE.getErrorPrefix()
-					+ ErrorMessages.MISSING_REQUIRED_PATH_FIELD.getErrorMessage());
-		}
-		
-		/*
-		 * Token authorization validation
-		*/		
-		authorizationHelpers.isAuthorized(userId);
-
-		if (bindingResult.hasErrors()) {
-			throw new InvalidBodyException(ErrorPrefixes.RESULTS_SERVICE.getErrorPrefix() 
-					+ ErrorMessages.INVALID_BODY.getErrorMessage());
-		}
-
-		UserDTO userDTO = userService.getUserByUserId(userId);
-
-		ResultsResponseModel resultsResponse = 
-				resultsService.fetchNextResults(userDTO, results.getNextUri(), results.getAfterId());
+		ResultsResponseModel resultsResponse = resultsService.fetchNextResults(userDTO,
+				resultsMapper.nextResultsRequestToDTO(request));
 
 		return new ResponseEntity<>(resultsResponse, HttpStatus.CREATED);
 	}

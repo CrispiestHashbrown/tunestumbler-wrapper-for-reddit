@@ -72,7 +72,7 @@ public class ApplicationExceptionsHandler {
 	}
 
 	@ExceptionHandler(value = { RedditAccountNotAuthenticatedException.class })
-	public ResponseEntity<Object> handleAuthValidationServiceException(RedditAccountNotAuthenticatedException exception,
+	public ResponseEntity<Object> handleRedditAccountNotAuthenticatedException(RedditAccountNotAuthenticatedException exception,
 			WebRequest request) {
 		HttpStatus httpStatus = HttpStatus.UNAUTHORIZED;
 		ErrorObject errorObject = new ErrorObject(
