@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import ca.tunestumbler.api.exceptions.FiltersNotFoundException;
+import ca.tunestumbler.api.exceptions.NoResultsFoundForNonexistingSubredditException;
 import ca.tunestumbler.api.exceptions.RedditAccountNotAuthenticatedException;
 import ca.tunestumbler.api.exceptions.TooManyRequestsFailedException;
 import ca.tunestumbler.api.exceptions.WebRequestFailedException;
@@ -30,14 +31,13 @@ import ca.tunestumbler.api.service.ResultsService;
 import ca.tunestumbler.api.shared.SharedUtils;
 import ca.tunestumbler.api.shared.dto.NextResultsRequestDTO;
 import ca.tunestumbler.api.shared.dto.ResultsDTO;
+import ca.tunestumbler.api.shared.dto.ResultsResponseDTO;
 import ca.tunestumbler.api.shared.dto.UserDTO;
 import ca.tunestumbler.api.shared.mapper.ResultsMapper;
 import ca.tunestumbler.api.ui.model.response.ErrorMessages;
 import ca.tunestumbler.api.ui.model.response.ErrorPrefixes;
-import ca.tunestumbler.api.ui.model.response.ResultsResponseModel;
 import ca.tunestumbler.api.ui.model.response.results.ResultsDataChildrenModel;
 import ca.tunestumbler.api.ui.model.response.results.ResultsFetchResponseModel;
-import ca.tunestumbler.api.ui.model.response.results.ResultsObjectResponseModel;
 import ca.tunestumbler.api.io.repositories.specification.ResultsSpecification;
 import ca.tunestumbler.api.io.repositories.specification.SearchCriteria;
 import ca.tunestumbler.api.io.repositories.specification.SearchOperation;
@@ -62,7 +62,7 @@ public class ResultsServiceImpl implements ResultsService {
 	ResultsMapper resultsMapper;
 
 	@Override
-	public ResultsResponseModel fetchResults(UserDTO user, String orderBy) {
+	public ResultsResponseDTO fetchResults(UserDTO user, String orderBy) {
 		String userId = user.getUserId();
 		List<FiltersEntity> filters = filtersRepository.findFiltersByUserId(userId);
 		if (filters == null || filters.isEmpty()) {
@@ -72,23 +72,14 @@ public class ResultsServiceImpl implements ResultsService {
 
 		String uri = filtersUriBuilder(filters, orderBy);
 		ResultsFetchResponseModel response = sendGetResultsRequest(user, uri);
-		List<ResultsDataChildrenModel> resultsModel = response.getData().getChildren();
-		if (resultsModel == null || resultsModel.isEmpty()
-				|| resultsModel.size() < 2 && resultsModel.get(0).getData().getStickied()) {
-			return new ResultsResponseModel();
-		}
-
-		List<ResultsDTO> resultDTOs = resultsMapper.resultsDataChildrenListToResultsDTOlist(resultsModel);
 		Long maxId = setResultsStartId(userId);
-		resultsRepository.saveAll(resultsMapper.resultsDTOlistToResultsEntityList(resultDTOs, userId, maxId));
+		persistRedditSearchResults(response.getData().getChildren(), userId, maxId);
 
-		String afterId = response.getData().getAfter();
-		List<ResultsObjectResponseModel> responseObjects = buildFilteredResultObjects(filters, maxId);
-		return resultsMapper.buildResponseModel(responseObjects, afterId, uri);
+		return buildFilteredResultObjects(filters, maxId, response.getData().getAfter(), uri);
 	}
 
 	@Override
-	public ResultsResponseModel fetchNextResults(UserDTO user, NextResultsRequestDTO nextResultsRequestDTO) {
+	public ResultsResponseDTO fetchNextResults(UserDTO user, NextResultsRequestDTO nextResultsRequestDTO) {
 		String userId = user.getUserId();
 		List<FiltersEntity> filters = filtersRepository.findFiltersByUserId(userId);
 		if (filters == null || filters.isEmpty()) {
@@ -98,22 +89,98 @@ public class ResultsServiceImpl implements ResultsService {
 
 		String fullUri = nextResultsRequestDTO.getNextUri() + "&after=" + nextResultsRequestDTO.getAfterId();
 		ResultsFetchResponseModel response = sendGetResultsRequest(user, fullUri);
-		List<ResultsDataChildrenModel> resultsModel = response.getData().getChildren();
-		if (resultsModel == null || resultsModel.isEmpty()
-				|| resultsModel.size() < 2 && resultsModel.get(0).getData().getStickied()) {
-			return new ResultsResponseModel();
+		Long newStartId = setResultsStartId(userId);
+		persistRedditSearchResults(response.getData().getChildren(), userId, newStartId);
+
+		return buildFilteredResultObjects(filters, newStartId, response.getData().getAfter(),
+				nextResultsRequestDTO.getNextUri());
+	}
+
+	@Override
+	public List<String> fetchYoutubePlaylists(UserDTO user) {
+		String userId = user.getUserId();
+		List<FiltersEntity> filters = filtersRepository.findFiltersByUserId(userId);
+		if (filters == null || filters.isEmpty()) {
+			throw new FiltersNotFoundException(ErrorPrefixes.RESULTS_SERVICE.getErrorPrefix()
+					+ ErrorMessages.FILTER_RESOURCES_NOT_FOUND.getErrorMessage());
 		}
 
-		Long newStartId = setResultsStartId(userId);
-		List<ResultsDTO> resultDTOs = resultsMapper.resultsDataChildrenListToResultsDTOlist(resultsModel);
-		resultsRepository.saveAll(resultsMapper.resultsDTOlistToResultsEntityList(resultDTOs, userId, newStartId));
+		return generatePlaylists(filters, user);
+	}
 
-		String nextAfterId = response.getData().getAfter();
-		List<ResultsObjectResponseModel> responseObjects = buildFilteredResultObjects(filters, newStartId);
-		return resultsMapper.buildResponseModel(responseObjects, nextAfterId, nextResultsRequestDTO.getNextUri());
+	private Long setResultsStartId(String userId) {
+		Long userMaxId = resultsRepository.findMaxIdByUserId(userId);
+		Long maxId = resultsRepository.findMaxId();
+		return sharedUtils.setStartId(userMaxId, maxId);
+	}
+
+	private ResultsResponseDTO buildFilteredResultObjects(List<FiltersEntity> filters, long maxId, String afterId,
+			String uri) {
+		List<ResultsEntity> filteredResultEntities = getFilteredResults(filters, maxId);
+		List<ResultsDTO> filteredResultDTOs = resultsMapper.resultsEntityListToResultsDTOlist(filteredResultEntities);
+		return resultsMapper.resultsDTOlistToResultsResponseDTO(filteredResultDTOs, afterId, uri);
+	}
+
+	private List<String> generatePlaylists(List<FiltersEntity> filters, UserDTO user) {
+		double playlistCount = 10;
+		int playlistSize = 50;
+
+		int numOfSubredditsPerSearch;
+		int numOfFilteredResultsPerSearch;
+		if (filters.size() <= playlistCount) {
+			numOfSubredditsPerSearch = 1;
+			numOfFilteredResultsPerSearch = (int) (playlistCount / filters.size()) * playlistSize;
+		} else {
+			numOfSubredditsPerSearch = (int) Math.ceil(filters.size() / playlistCount);
+			numOfFilteredResultsPerSearch = playlistSize;
+		}
+
+		List<String> playlists = new ArrayList<>();
+		Long startId = setResultsStartId(user.getUserId());
+		for (int count = 0; count < filters.size(); count += numOfSubredditsPerSearch) {
+			List<FiltersEntity> filtersGroup = filters.subList(count, count + numOfSubredditsPerSearch);
+			String uri = filtersUriBuilder(filtersGroup, "hot", "youtu");
+			ResultsFetchResponseModel response = sendGetResultsRequest(user, uri);
+			if (response == null) {
+				return new ArrayList<>();
+			}
+			persistRedditSearchResults(response.getData().getChildren(), user.getUserId(), startId);
+			getAndPersistNextRedditSearchResults(response, user, filtersGroup, startId, numOfFilteredResultsPerSearch,
+					uri);
+
+			List<String> playlistIds = getFilteredResultIdsForPlaylists(filtersGroup, startId);
+			playlists.addAll(createFilterGroupPlaylists(playlistIds, numOfFilteredResultsPerSearch, playlistSize));
+		}
+
+		return playlists;
 	}
 
 	private String filtersUriBuilder(List<FiltersEntity> filters, String orderBy) {
+		StringBuilder subreddits = subredditUriBuilder(filters);
+		String limit = "limit=100";
+		StringBuilder uri = new StringBuilder("/");
+		if (subreddits.length() != 0) {
+			uri.append("r/").append(subreddits).append("/").append(orderBy).append("/?").append(limit);
+		}
+
+		return uri.toString();
+	}
+
+	private String filtersUriBuilder(List<FiltersEntity> filters, String orderBy, String domainParameter) {
+		StringBuilder subreddits = subredditUriBuilder(filters);
+		String limit = "&limit=100";
+		String redditSearchApiUri = "/search/?restrict_sr=on" + limit + "&sort=";
+		String domainQuery = "&q=site:";
+		StringBuilder uri = new StringBuilder("/");
+		if (subreddits.length() != 0) {
+			uri.append("r/").append(subreddits).append(redditSearchApiUri).append(orderBy).append(domainQuery)
+					.append(domainParameter);
+		}
+
+		return uri.toString();
+	}
+
+	private StringBuilder subredditUriBuilder(List<FiltersEntity> filters) {
 		StringBuilder subreddits = new StringBuilder("");
 		for (FiltersEntity filtersEntity : filters) {
 			if (!filtersEntity.getSubreddit().isEmpty()) {
@@ -124,13 +191,110 @@ public class ResultsServiceImpl implements ResultsService {
 			}
 		}
 
-		String limit = "limit=100";
-		StringBuilder uri = new StringBuilder("/");
-		if (subreddits.length() != 0) {
-			uri.append("r/").append(subreddits).append("/").append(orderBy).append("/?").append(limit);
+		return subreddits;
+	}
+
+	private List<ResultsEntity> getFilteredResults(List<FiltersEntity> filters, Long startId) {
+		List<ResultsEntity> filteredResults = new ArrayList<>();
+		for (FiltersEntity filter : filters) {
+			ResultsSpecification resultsSpec = createCommonResultsSpecification(filter, startId);
+			createDomainFilterResultsSpecification(filter, resultsSpec);
+			filteredResults.addAll(resultsRepository.findAll(resultsSpec));
 		}
 
-		return uri.toString();
+		Collections.sort(filteredResults, new SortResultsById());
+		return filteredResults;
+	}
+
+	private void persistRedditSearchResults(List<ResultsDataChildrenModel> resultsModel, String userId, Long maxId) {
+		List<ResultsDTO> resultDTOs = resultsMapper.resultsDataChildrenListToResultsDTOlist(resultsModel);
+		if (!resultDTOs.isEmpty()) {
+			resultsRepository.saveAll(resultsMapper.resultsDTOlistToResultsEntityList(resultDTOs, userId, maxId));
+		}
+	}
+
+	private void getAndPersistNextRedditSearchResults(ResultsFetchResponseModel response, UserDTO user,
+			List<FiltersEntity> filtersGroup, Long startId, int numOfFilteredResultsPerSearch, String uri) {
+		String afterId = response.getData().getAfter();
+		if (getFilteredResultsCount(filtersGroup, startId) < numOfFilteredResultsPerSearch) {
+			for (int idCount = 0; idCount < numOfFilteredResultsPerSearch
+					|| afterId == null; idCount = getFilteredResultsCount(filtersGroup, startId)) {
+				String nextUri = uri + "&after=" + afterId;
+				ResultsFetchResponseModel nextResponse = sendGetResultsRequest(user, nextUri);
+				if (nextResponse == null) {
+					break;
+				}
+
+				afterId = nextResponse.getData().getAfter();
+				persistRedditSearchResults(nextResponse.getData().getChildren(), user.getUserId(), startId);
+			}
+		}
+	}
+
+	private List<String> getFilteredResultIdsForPlaylists(List<FiltersEntity> filters, Long startId) {
+		List<ResultsEntity> filteredResults = new ArrayList<>();
+		for (FiltersEntity filter : filters) {
+			ResultsSpecification resultsSpec = createCommonResultsSpecification(filter, startId);
+			filteredResults.addAll(resultsRepository.findAll(resultsSpec));
+		}
+
+		Collections.sort(filteredResults, new SortResultsById());
+
+		return generateYoutubeIds(filteredResults);
+	}
+
+	private List<String> createFilterGroupPlaylists(List<String> playlistIds, int numOfFilteredResultsPerSearch,
+			int playlistSize) {
+		List<String> playlists = new ArrayList<>();
+		StringBuilder playlistUrl = new StringBuilder();
+		playlistUrl.append("http://www.youtube.com/watch_videos?video_ids=");
+		int defaultUrlLength = playlistUrl.length();
+		for (int id = 0; id <= numOfFilteredResultsPerSearch; id++) {
+			if (id > 0 && id % playlistSize == 0) {
+				playlists.add(playlistUrl.toString());
+				playlistUrl.setLength(defaultUrlLength);
+			}
+			playlistUrl.append(playlistIds.get(id) + ",");
+		}
+		return playlists;
+	}
+
+	private int getFilteredResultsCount(List<FiltersEntity> filters, Long startId) {
+		int count = 0;
+		for (FiltersEntity filter : filters) {
+			count += resultsRepository.count(createCommonResultsSpecification(filter, startId));
+		}
+
+		return count;
+	}
+
+	private ResultsSpecification createCommonResultsSpecification(FiltersEntity filter, Long startId) {
+		ResultsSpecification resultsSpec = new ResultsSpecification();
+		resultsSpec.add(new SearchCriteria(filter.getUserId(), "userId", SearchOperation.EQUAL));
+		resultsSpec.add(new SearchCriteria(startId, "startId", SearchOperation.GREATER_THAN_OR_EQUAL));
+		resultsSpec.add(new SearchCriteria(filter.getSubreddit(), "subreddit", SearchOperation.EQUAL));
+		resultsSpec.add(new SearchCriteria(filter.getMinScore(), "score", SearchOperation.GREATER_THAN_OR_EQUAL));
+		resultsSpec.add(new SearchCriteria(filter.getAllowNSFWFlag(), "isNsfw", SearchOperation.EQUAL));
+		for (ExcludedKeywordEntity excludedKeyword : filter.getExcludedKeywords()) {
+			resultsSpec
+					.add(new SearchCriteria(excludedKeyword.getExcludedKeyword(), "title", SearchOperation.NOT_LIKE));
+		}
+		for (SelectedKeywordEntity selectedKeyword : filter.getSelectedKeywords()) {
+			resultsSpec.add(new SearchCriteria(selectedKeyword.getSelectedKeyword(), "title", SearchOperation.LIKE));
+		}
+
+		return resultsSpec;
+	}
+
+	private void createDomainFilterResultsSpecification(FiltersEntity filter, ResultsSpecification resultsSpec) {
+		for (ExcludedDomainEntity excludedDomain : filter.getExcludedDomains()) {
+			resultsSpec.add(new SearchCriteria(setYoutubeFilterIfYoutubeDomain(excludedDomain.getExcludedDomain()),
+					"domain", SearchOperation.NOT_LIKE));
+		}
+		for (SelectedDomainEntity selectedDomain : filter.getSelectedDomains()) {
+			resultsSpec.add(new SearchCriteria(setYoutubeFilterIfYoutubeDomain(selectedDomain.getSelectedDomain()),
+					"domain", SearchOperation.LIKE));
+		}
 	}
 
 	private ResultsFetchResponseModel sendGetResultsRequest(UserDTO user, String uri) {
@@ -144,80 +308,48 @@ public class ResultsServiceImpl implements ResultsService {
 		String authHeader = SecurityConstants.TOKEN_PREFIX + token;
 		String baseUrl = "https://oauth.reddit.com";
 
-		WebClient client = WebClient.builder().baseUrl(baseUrl).defaultHeader(HttpHeaders.USER_AGENT, userAgentHeader)
+		return WebClient.builder().baseUrl(baseUrl).defaultHeader(HttpHeaders.USER_AGENT, userAgentHeader)
 				.defaultHeader(HttpHeaders.AUTHORIZATION, authHeader)
 				.defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-				.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE).build();
-		WebClient.UriSpec<WebClient.RequestBodySpec> request = client.method(HttpMethod.GET);
-		WebClient.RequestBodySpec requestUri = request.uri(uri);
+				.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE).build().method(HttpMethod.GET)
+				.uri(uri).exchange().map(clientResponse -> {
+					if (clientResponse.statusCode().equals(HttpStatus.FOUND)) {
+						throw new NoResultsFoundForNonexistingSubredditException(
+								ErrorPrefixes.RESULTS_SERVICE.getErrorPrefix()
+								+ ErrorMessages.NO_SEARCH_REULTS_FOUND_FOR_NON_EXISTING_SUBREDDITS.getErrorMessage()
+								+ "url: " + baseUrl + uri);
+					} else if (clientResponse.statusCode().equals(HttpStatus.UNAUTHORIZED)) {
+						throw new RedditAccountNotAuthenticatedException(ErrorPrefixes.RESULTS_SERVICE.getErrorPrefix()
+								+ ErrorMessages.REDDIT_ACCOUNT_NOT_AUTHENTICATED.getErrorMessage());
+					} else if (clientResponse.statusCode().equals(HttpStatus.TOO_MANY_REQUESTS)) {
+						throw new TooManyRequestsFailedException(ErrorPrefixes.RESULTS_SERVICE.getErrorPrefix()
+								+ ErrorMessages.TOO_MANY_REDDIT_REQUESTS.getErrorMessage()
+								+ clientResponse.headers().header("x-ratelimit-reset") + " seconds");
+					} else if (clientResponse.statusCode().isError()) {
+						throw new WebRequestFailedException(ErrorPrefixes.RESULTS_SERVICE.getErrorPrefix()
+								+ ErrorMessages.FAILED_EXTERNAL_WEB_REQUEST.getErrorMessage());
+					}
+					return clientResponse;
+				}).block().bodyToMono(ResultsFetchResponseModel.class).block();
+	}
 
-		return requestUri.exchange().map(clientResponse -> {
-			if (clientResponse.statusCode().equals(HttpStatus.UNAUTHORIZED)) {
-				throw new RedditAccountNotAuthenticatedException(ErrorPrefixes.RESULTS_SERVICE.getErrorPrefix()
-						+ ErrorMessages.REDDIT_ACCOUNT_NOT_AUTHENTICATED.getErrorMessage());
-			} else if (clientResponse.statusCode().equals(HttpStatus.TOO_MANY_REQUESTS)) {
-				throw new TooManyRequestsFailedException(ErrorPrefixes.RESULTS_SERVICE.getErrorPrefix()
-						+ ErrorMessages.TOO_MANY_REDDIT_REQUESTS.getErrorMessage()
-						+ clientResponse.headers().header("x-ratelimit-reset") + " seconds");
-			} else if (clientResponse.statusCode().isError()) {
-				throw new WebRequestFailedException(ErrorPrefixes.RESULTS_SERVICE.getErrorPrefix()
-						+ ErrorMessages.FAILED_EXTERNAL_WEB_REQUEST.getErrorMessage());
+	private List<String> generateYoutubeIds(List<ResultsEntity> filteredResults) {
+		List<String> ids = new ArrayList<>();
+		String domainPrecursor = "v=";
+		int youtubeIdLength = 11;
+		String youtubeShortDomain = "youtu.be/";
+		for (ResultsEntity entity : filteredResults) {
+			if (entity.getUrl().contains(youtubeShortDomain)) {
+				ids.add(entity.getUrl().substring(
+						entity.getUrl().indexOf(youtubeShortDomain) + youtubeShortDomain.length(),
+						entity.getUrl().indexOf(youtubeShortDomain) + youtubeShortDomain.length() + youtubeIdLength));
+			} else {
+				ids.add(entity.getUrl().substring(entity.getUrl().indexOf(domainPrecursor) + domainPrecursor.length(),
+						entity.getUrl().indexOf(domainPrecursor) + domainPrecursor.length() + youtubeIdLength));
 			}
-
-			return clientResponse;
-		}).block().bodyToMono(ResultsFetchResponseModel.class).block();
-	}
-
-	private Long setResultsStartId(String userId) {
-		Long userMaxId = resultsRepository.findMaxIdByUserId(userId);
-		Long maxId = resultsRepository.findMaxId();
-		return sharedUtils.setStartId(userMaxId, maxId);
-	}
-
-	private List<ResultsObjectResponseModel> buildFilteredResultObjects(List<FiltersEntity> filters, long maxId) {
-		List<ResultsEntity> filteredResultEntities = getFilteredResults(filters, maxId);
-		List<ResultsDTO> filteredResultDTOs = resultsMapper.resultsEntityListToResultsDTOlist(filteredResultEntities);
-		return resultsMapper.resultsDTOlistToResultsResponseObjectList(filteredResultDTOs);
-	}
-
-	private List<ResultsEntity> getFilteredResults(List<FiltersEntity> filters, Long startId) {
-		List<ResultsEntity> filteredResults = new ArrayList<>();
-		for (FiltersEntity filter : filters) {
-			ResultsSpecification resultsSpec = new ResultsSpecification();
-			createCommonResultsSpecification(filter, startId, resultsSpec);
-			createDomainFilterResultsSpecification(filter, resultsSpec);
-			filteredResults.addAll(resultsRepository.findAll(resultsSpec));
 		}
 
-		Collections.sort(filteredResults, new SortResultsById());
-		return filteredResults;
-	}
-
-	private void createCommonResultsSpecification(FiltersEntity filter, Long startId,
-			ResultsSpecification resultsSpec) {
-		resultsSpec.add(new SearchCriteria(filter.getUserId(), "userId", SearchOperation.EQUAL));
-		resultsSpec.add(new SearchCriteria(startId, "startId", SearchOperation.GREATER_THAN_OR_EQUAL));
-		resultsSpec.add(new SearchCriteria(filter.getSubreddit(), "subreddit", SearchOperation.EQUAL));
-		resultsSpec.add(new SearchCriteria(filter.getMinScore(), "score", SearchOperation.GREATER_THAN_OR_EQUAL));
-		resultsSpec.add(new SearchCriteria(filter.getAllowNSFWFlag(), "isNsfw", SearchOperation.EQUAL));
-		for (ExcludedKeywordEntity excludedKeyword : filter.getExcludedKeywords()) {
-			resultsSpec
-					.add(new SearchCriteria(excludedKeyword.getExcludedKeyword(), "title", SearchOperation.NOT_LIKE));
-		}
-		for (SelectedKeywordEntity selectedKeyword : filter.getSelectedKeywords()) {
-			resultsSpec.add(new SearchCriteria(selectedKeyword.getSelectedKeyword(), "title", SearchOperation.LIKE));
-		}
-	}
-
-	private void createDomainFilterResultsSpecification(FiltersEntity filter, ResultsSpecification resultsSpec) {
-		for (ExcludedDomainEntity excludedDomain : filter.getExcludedDomains()) {
-			resultsSpec.add(new SearchCriteria(setYoutubeFilterIfYoutubeDomain(excludedDomain.getExcludedDomain()),
-					"domain", SearchOperation.NOT_LIKE));
-		}
-		for (SelectedDomainEntity selectedDomain : filter.getSelectedDomains()) {
-			resultsSpec.add(new SearchCriteria(setYoutubeFilterIfYoutubeDomain(selectedDomain.getSelectedDomain()),
-					"domain", SearchOperation.LIKE));
-		}
+		return ids;
 	}
 
 	private String setYoutubeFilterIfYoutubeDomain(String domain) {

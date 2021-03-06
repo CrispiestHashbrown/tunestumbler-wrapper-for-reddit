@@ -10,6 +10,7 @@ import ca.tunestumbler.api.io.entity.ResultsEntity;
 import ca.tunestumbler.api.shared.SharedUtils;
 import ca.tunestumbler.api.shared.dto.NextResultsRequestDTO;
 import ca.tunestumbler.api.shared.dto.ResultsDTO;
+import ca.tunestumbler.api.shared.dto.ResultsResponseDTO;
 import ca.tunestumbler.api.shared.mapper.ResultsMapper;
 import ca.tunestumbler.api.ui.model.request.NextResultsRequestModel;
 import ca.tunestumbler.api.ui.model.response.ResultsResponseModel;
@@ -141,20 +142,6 @@ public class ResultsMapperImpl implements ResultsMapper {
 	}
 
 	@Override
-	public ResultsResponseModel buildResponseModel(List<ResultsObjectResponseModel> responseObjects, String afterId, String uri) {
-		if (responseObjects == null || responseObjects.isEmpty()) {
-			return new ResultsResponseModel();
-		}
-
-		ResultsResponseModel responseModel = new ResultsResponseModel();
-		responseModel.setResults(responseObjects);
-		responseModel.setAfterId(afterId);
-		responseModel.setNextUri(uri);
-
-		return responseModel;
-	}
-
-	@Override
 	public List<ResultsDTO> resultsDataChildrenListToResultsDTOlist(List<ResultsDataChildrenModel> resultDataList) {
 		if (resultDataList == null || resultDataList.isEmpty()) {
 			return new ArrayList<>();
@@ -204,6 +191,34 @@ public class ResultsMapperImpl implements ResultsMapper {
 		}
 
 		return list;
+	}
+
+	@Override
+	public ResultsResponseDTO resultsDTOlistToResultsResponseDTO(List<ResultsDTO> dtoList, String afterId, String uri) {
+		if (dtoList == null || dtoList.isEmpty()) {
+			return new ResultsResponseDTO();
+		}
+
+		ResultsResponseDTO dto = new ResultsResponseDTO();
+		dto.setResults(dtoList);
+		dto.setAfterId(afterId);
+		dto.setNextUri(uri);
+
+		return dto;
+	}
+
+	@Override
+	public ResultsResponseModel resultsReponseDTOtoResultsResponseModel(ResultsResponseDTO dto) {
+		if (dto == null) {
+			return null;
+		}
+
+		ResultsResponseModel resultsResponseModel = new ResultsResponseModel();
+		resultsResponseModel.setResults(resultsDTOlistToResultsResponseObjectList(dto.getResults()));
+		resultsResponseModel.setNextUri(dto.getNextUri());
+		resultsResponseModel.setAfterId(dto.getAfterId());
+
+		return resultsResponseModel;
 	}
 
 }

@@ -19,7 +19,7 @@ public class ApplicationExceptionsHandler {
 
 	@Autowired
 	SharedUtils sharedUtils;
-	
+
 	@ExceptionHandler(value = { MissingPathParametersException.class })
 	public ResponseEntity<Object> handleMissingPathParameterException(MissingPathParametersException exception,
 			WebRequest request) {
@@ -129,6 +129,19 @@ public class ApplicationExceptionsHandler {
 		ErrorObject errorObject = new ErrorObject(
 				httpStatus.toString(),
 				"NO FILTERS FOUND",
+				exception.getMessage(),
+				sharedUtils.getCurrentTime());
+
+		return new ResponseEntity<>(createErrorsResponse(errorObject), httpStatus);
+	}
+
+	@ExceptionHandler(value = { NoResultsFoundForNonexistingSubredditException.class })
+	public ResponseEntity<Object> handleNoResultsFoundForNonexistingSubredditException(
+			NoResultsFoundForNonexistingSubredditException exception, WebRequest request) {
+		HttpStatus httpStatus = HttpStatus.NOT_FOUND;
+		ErrorObject errorObject = new ErrorObject(
+				httpStatus.toString(),
+				"NO RESULTS FOUND. SUBREDDIT(S) MAY NOT EXIST",
 				exception.getMessage(),
 				sharedUtils.getCurrentTime());
 

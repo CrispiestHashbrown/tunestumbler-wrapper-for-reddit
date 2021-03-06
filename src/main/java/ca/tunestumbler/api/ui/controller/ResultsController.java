@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.base.Strings;
 
+import ca.tunestumbler.api.exceptions.BadRequestException;
 import ca.tunestumbler.api.exceptions.InvalidBodyException;
 import ca.tunestumbler.api.exceptions.MissingPathParametersException;
 import ca.tunestumbler.api.service.ResultsService;
@@ -27,6 +28,7 @@ import ca.tunestumbler.api.ui.model.request.NextResultsRequestModel;
 import ca.tunestumbler.api.ui.model.response.ErrorMessages;
 import ca.tunestumbler.api.ui.model.response.ErrorPrefixes;
 import ca.tunestumbler.api.ui.model.response.ResultsResponseModel;
+import ca.tunestumbler.api.ui.model.response.PlaylistResponseModel;
 
 @RestController
 @RequestMapping("/results")
@@ -58,7 +60,7 @@ public class ResultsController {
 		authorizationHelpers.isAuthorized(userId);
 
 		UserDTO userDTO = userService.getUserByUserId(userId);
-		return resultsService.fetchResults(userDTO, orderBy);
+		return resultsMapper.resultsReponseDTOtoResultsResponseModel(resultsService.fetchResults(userDTO, orderBy));
 	}
 
 	@PostMapping(path = "/fetch/next", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -77,10 +79,28 @@ public class ResultsController {
 		}
 
 		UserDTO userDTO = userService.getUserByUserId(userId);
-		ResultsResponseModel resultsResponse = resultsService.fetchNextResults(userDTO,
-				resultsMapper.nextResultsRequestToDTO(request));
+		ResultsResponseModel resultsResponse = resultsMapper.resultsReponseDTOtoResultsResponseModel(
+				resultsService.fetchNextResults(userDTO, resultsMapper.nextResultsRequestToDTO(request)));
 
 		return new ResponseEntity<>(resultsResponse, HttpStatus.CREATED);
+	}
+
+	@GetMapping(path = "/fetch/youtubeplaylists", produces = MediaType.APPLICATION_JSON_VALUE)
+	public PlaylistResponseModel fetchYoutubePlaylists() {
+		String userId = authorizationHelpers.getUserIdFromAuth();
+		if (Strings.isNullOrEmpty(userId)) {
+			throw new BadRequestException();
+		}
+
+		/*
+		 * Token authorization validation
+		 */
+		authorizationHelpers.isAuthorized(userId);
+
+		UserDTO userDTO = userService.getUserByUserId(userId);
+		PlaylistResponseModel response = new PlaylistResponseModel();
+		response.setPlaylists(resultsService.fetchYoutubePlaylists(userDTO));
+		return response;
 	}
 
 }

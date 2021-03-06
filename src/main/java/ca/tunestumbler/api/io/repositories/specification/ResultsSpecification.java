@@ -15,7 +15,7 @@ import ca.tunestumbler.api.io.entity.ResultsEntity;
 public class ResultsSpecification implements Specification<ResultsEntity> {
 	private static final long serialVersionUID = -244093893557352665L;
 
-	private List<SearchCriteria> list;
+	private transient List<SearchCriteria> list;
 
 	public ResultsSpecification() {
 		this.list = new ArrayList<>();

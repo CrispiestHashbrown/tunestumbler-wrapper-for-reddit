@@ -1,11 +1,15 @@
 package ca.tunestumbler.api.service;
 
+import java.util.List;
+
 import ca.tunestumbler.api.shared.dto.NextResultsRequestDTO;
+import ca.tunestumbler.api.shared.dto.ResultsResponseDTO;
 import ca.tunestumbler.api.shared.dto.UserDTO;
-import ca.tunestumbler.api.ui.model.response.ResultsResponseModel;
 
 public interface ResultsService {
-	ResultsResponseModel fetchResults(UserDTO user, String orderBy);
+	ResultsResponseDTO fetchResults(UserDTO user, String orderBy);
 
-	ResultsResponseModel fetchNextResults(UserDTO user, NextResultsRequestDTO nextResultsRequestDTO);
+	ResultsResponseDTO fetchNextResults(UserDTO user, NextResultsRequestDTO nextResultsRequestDTO);
+
+	List<String> fetchYoutubePlaylists(UserDTO user);
 }

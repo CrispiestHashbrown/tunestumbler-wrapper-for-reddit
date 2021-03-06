@@ -5,6 +5,7 @@ import java.util.List;
 import ca.tunestumbler.api.io.entity.ResultsEntity;
 import ca.tunestumbler.api.shared.dto.NextResultsRequestDTO;
 import ca.tunestumbler.api.shared.dto.ResultsDTO;
+import ca.tunestumbler.api.shared.dto.ResultsResponseDTO;
 import ca.tunestumbler.api.ui.model.request.NextResultsRequestModel;
 import ca.tunestumbler.api.ui.model.response.ResultsResponseModel;
 import ca.tunestumbler.api.ui.model.response.results.ResultsDataChildrenDataModel;
@@ -23,8 +24,6 @@ public interface ResultsMapper {
 
 	ResultsObjectResponseModel resultsDTOtoResultsResponseObject(ResultsDTO dto);
 
-	ResultsResponseModel buildResponseModel(List<ResultsObjectResponseModel> responseObjects, String afterId, String uri);
-
 	List<ResultsDTO> resultsDataChildrenListToResultsDTOlist(List<ResultsDataChildrenModel> resultDataList);
 
 	List<ResultsEntity> resultsDTOlistToResultsEntityList(List<ResultsDTO> dtoList, String userId, long startId);
@@ -32,5 +31,9 @@ public interface ResultsMapper {
 	List<ResultsDTO> resultsEntityListToResultsDTOlist(List<ResultsEntity> entityList);
 
 	List<ResultsObjectResponseModel> resultsDTOlistToResultsResponseObjectList(List<ResultsDTO> dtoList);
+
+	ResultsResponseDTO resultsDTOlistToResultsResponseDTO(List<ResultsDTO> dtoList, String afterId, String uri);
+
+	ResultsResponseModel resultsReponseDTOtoResultsResponseModel(ResultsResponseDTO dto);
 
 }
