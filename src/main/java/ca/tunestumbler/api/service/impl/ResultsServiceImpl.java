@@ -247,7 +247,7 @@ public class ResultsServiceImpl implements ResultsService {
 			int playlistSize) {
 		List<String> playlists = new ArrayList<>();
 		StringBuilder playlistUrl = new StringBuilder();
-		playlistUrl.append("http://www.youtube.com/watch_videos?video_ids=");
+		playlistUrl.append("https://www.youtube.com/watch_videos?video_ids=");
 		int defaultUrlLength = playlistUrl.length();
 		for (int id = 0; id <= numOfFilteredResultsPerSearch; id++) {
 			if (id > 0 && id % playlistSize == 0) {
@@ -304,7 +304,7 @@ public class ResultsServiceImpl implements ResultsService {
 					+ ErrorMessages.REDDIT_ACCOUNT_NOT_AUTHENTICATED.getErrorMessage());
 		}
 
-		String userAgentHeader = "web:ca.tunestumbler.api:v1.0.0 (by /u/CrispiestHashbrown)";
+		String userAgentHeader = "web:ca.tunestumbler.api:v2.0.0 (by /u/CrispiestHashbrown)";
 		String authHeader = SecurityConstants.TOKEN_PREFIX + token;
 		String baseUrl = "https://oauth.reddit.com";
 
