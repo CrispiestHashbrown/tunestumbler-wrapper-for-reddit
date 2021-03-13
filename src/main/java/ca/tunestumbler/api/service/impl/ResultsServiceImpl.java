@@ -217,8 +217,9 @@ public class ResultsServiceImpl implements ResultsService {
 			List<FiltersEntity> filtersGroup, Long startId, int numOfFilteredResultsPerSearch, String uri) {
 		String afterId = response.getData().getAfter();
 		if (getFilteredResultsCount(filtersGroup, startId) < numOfFilteredResultsPerSearch) {
-			for (int idCount = 0; idCount < numOfFilteredResultsPerSearch
-					|| afterId == null; idCount = getFilteredResultsCount(filtersGroup, startId)) {
+			for (int idCount = getFilteredResultsCount(filtersGroup, startId); afterId != null
+					&& idCount < numOfFilteredResultsPerSearch; idCount = getFilteredResultsCount(filtersGroup,
+							startId)) {
 				String nextUri = uri + "&after=" + afterId;
 				ResultsFetchResponseModel nextResponse = sendGetResultsRequest(user, nextUri);
 				if (nextResponse == null) {
@@ -250,9 +251,12 @@ public class ResultsServiceImpl implements ResultsService {
 		playlistUrl.append("https://www.youtube.com/watch_videos?video_ids=");
 		int defaultUrlLength = playlistUrl.length();
 		for (int id = 0; id <= numOfFilteredResultsPerSearch; id++) {
-			if (id > 0 && id % playlistSize == 0) {
+			if (id > 0 && id % playlistSize == 0 || id >= playlistIds.size()) {
 				playlists.add(playlistUrl.toString());
 				playlistUrl.setLength(defaultUrlLength);
+			}
+			if (id >= playlistIds.size()) {
+				break;
 			}
 			playlistUrl.append(playlistIds.get(id) + ",");
 		}
