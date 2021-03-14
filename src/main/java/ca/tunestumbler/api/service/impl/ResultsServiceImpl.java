@@ -105,7 +105,10 @@ public class ResultsServiceImpl implements ResultsService {
 					+ ErrorMessages.FILTER_RESOURCES_NOT_FOUND.getErrorMessage());
 		}
 
-		return generatePlaylists(filters, user);
+		List<String> playlists = new ArrayList<>();
+		playlists.addAll(generatePlaylists(filters, user, "youtube"));
+		playlists.addAll(generatePlaylists(filters, user, "youtu"));
+		return playlists;
 	}
 
 	private Long setResultsStartId(String userId) {
@@ -121,9 +124,9 @@ public class ResultsServiceImpl implements ResultsService {
 		return resultsMapper.resultsDTOlistToResultsResponseDTO(filteredResultDTOs, afterId, uri);
 	}
 
-	private List<String> generatePlaylists(List<FiltersEntity> filters, UserDTO user) {
-		double playlistCount = 10;
-		int playlistSize = 50;
+	private List<String> generatePlaylists(List<FiltersEntity> filters, UserDTO user, String domain) {
+		double playlistCount = 5;
+		int playlistSize = 100;
 
 		int numOfSubredditsPerSearch;
 		int numOfFilteredResultsPerSearch;
@@ -139,7 +142,7 @@ public class ResultsServiceImpl implements ResultsService {
 		Long startId = setResultsStartId(user.getUserId());
 		for (int count = 0; count < filters.size(); count += numOfSubredditsPerSearch) {
 			List<FiltersEntity> filtersGroup = filters.subList(count, count + numOfSubredditsPerSearch);
-			String uri = filtersUriBuilder(filtersGroup, "hot", "youtu");
+			String uri = filtersUriBuilder(filtersGroup, "hot", domain);
 			ResultsFetchResponseModel response = sendGetResultsRequest(user, uri);
 			if (response == null) {
 				return new ArrayList<>();
@@ -247,19 +250,24 @@ public class ResultsServiceImpl implements ResultsService {
 	private List<String> createFilterGroupPlaylists(List<String> playlistIds, int numOfFilteredResultsPerSearch,
 			int playlistSize) {
 		List<String> playlists = new ArrayList<>();
-		StringBuilder playlistUrl = new StringBuilder();
-		playlistUrl.append("https://www.youtube.com/watch_videos?video_ids=");
-		int defaultUrlLength = playlistUrl.length();
-		for (int id = 0; id <= numOfFilteredResultsPerSearch; id++) {
-			if (id > 0 && id % playlistSize == 0 || id >= playlistIds.size()) {
-				playlists.add(playlistUrl.toString());
-				playlistUrl.setLength(defaultUrlLength);
+		if (!playlistIds.isEmpty()) {
+			StringBuilder playlistUrl = new StringBuilder();
+			playlistUrl.append("https://www.youtube.com/embed/?playlist=");
+			int defaultUrlLength = playlistUrl.length();
+			String embedUrlParameters = "&version=3&feature=oembed&enablejsapi=1";
+			for (int id = 0; id <= numOfFilteredResultsPerSearch; id++) {
+				if (id > 0 && id % playlistSize == 0 || id >= playlistIds.size()) {
+					playlistUrl.append(embedUrlParameters);
+					playlists.add(playlistUrl.toString());
+					playlistUrl.setLength(defaultUrlLength);
+					if (id >= playlistIds.size()) {
+						break;
+					}
+				}
+				playlistUrl.append(playlistIds.get(id) + ",");
 			}
-			if (id >= playlistIds.size()) {
-				break;
-			}
-			playlistUrl.append(playlistIds.get(id) + ",");
 		}
+
 		return playlists;
 	}
 
