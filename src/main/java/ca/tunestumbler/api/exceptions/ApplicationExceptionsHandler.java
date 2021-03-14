@@ -180,7 +180,7 @@ public class ApplicationExceptionsHandler {
 		ErrorObject errorObject = new ErrorObject(
 				httpStatus.toString(),
 				"INTERNAL EXCEPTION",
-				exception.getMessage(),
+				exception.toString(),
 				sharedUtils.getCurrentTime());
 
 		return new ResponseEntity<>(createErrorsResponse(errorObject), httpStatus);
