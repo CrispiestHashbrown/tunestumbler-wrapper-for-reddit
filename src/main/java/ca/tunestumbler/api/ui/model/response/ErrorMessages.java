@@ -4,6 +4,7 @@ public enum ErrorMessages {
 	MISSING_REQUIRED_PATH_FIELD("Missing required path field. "),
 	INVALID_BODY("Invalid body."),
 	REDDIT_ACCOUNT_NOT_AUTHENTICATED("Reddit account not authenticated. Please refresh authentication token. "),
+	SUBREDDIT_HAS_GONE_PRIVATE("Subreddit has turned private. Unable to get results. "),
 	FAILED_EXTERNAL_WEB_REQUEST("External request has failed. Please try again later. "),
 	RECORD_ALREADY_EXISTS("Record already exists. "),
 	INTERNAL_SERVER_ERROR("Internal server error. "),

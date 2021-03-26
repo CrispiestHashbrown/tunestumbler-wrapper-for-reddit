@@ -335,6 +335,10 @@ public class ResultsServiceImpl implements ResultsService {
 					} else if (clientResponse.statusCode().equals(HttpStatus.UNAUTHORIZED)) {
 						throw new RedditAccountNotAuthenticatedException(ErrorPrefixes.RESULTS_SERVICE.getErrorPrefix()
 								+ ErrorMessages.REDDIT_ACCOUNT_NOT_AUTHENTICATED.getErrorMessage());
+					} else if (clientResponse.statusCode().equals(HttpStatus.FORBIDDEN)) {
+						throw new RedditAccountNotAuthenticatedException(ErrorPrefixes.RESULTS_SERVICE.getErrorPrefix()
+								+ ErrorMessages.SUBREDDIT_HAS_GONE_PRIVATE.getErrorMessage()
+								+ "url: " + baseUrl + uri);
 					} else if (clientResponse.statusCode().equals(HttpStatus.TOO_MANY_REQUESTS)) {
 						throw new TooManyRequestsFailedException(ErrorPrefixes.RESULTS_SERVICE.getErrorPrefix()
 								+ ErrorMessages.TOO_MANY_REDDIT_REQUESTS.getErrorMessage()
