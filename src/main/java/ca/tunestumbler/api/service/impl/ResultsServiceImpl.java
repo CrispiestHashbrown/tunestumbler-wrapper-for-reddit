@@ -292,7 +292,8 @@ public class ResultsServiceImpl implements ResultsService {
 					.add(new SearchCriteria(excludedKeyword.getExcludedKeyword(), "title", SearchOperation.NOT_LIKE));
 		}
 		for (SelectedKeywordEntity selectedKeyword : filter.getSelectedKeywords()) {
-			resultsSpec.add(new SearchCriteria(selectedKeyword.getSelectedKeyword(), "title", SearchOperation.LIKE));
+			resultsSpec.addLikeSelectedKeywords(
+					new SearchCriteria(selectedKeyword.getSelectedKeyword(), "title", SearchOperation.LIKE));
 		}
 
 		return resultsSpec;
@@ -304,8 +305,9 @@ public class ResultsServiceImpl implements ResultsService {
 					"domain", SearchOperation.NOT_LIKE));
 		}
 		for (SelectedDomainEntity selectedDomain : filter.getSelectedDomains()) {
-			resultsSpec.add(new SearchCriteria(setYoutubeFilterIfYoutubeDomain(selectedDomain.getSelectedDomain()),
-					"domain", SearchOperation.LIKE));
+			resultsSpec.addLikeSelectedDomains(
+					new SearchCriteria(setYoutubeFilterIfYoutubeDomain(selectedDomain.getSelectedDomain()), "domain",
+							SearchOperation.LIKE));
 		}
 	}
 
