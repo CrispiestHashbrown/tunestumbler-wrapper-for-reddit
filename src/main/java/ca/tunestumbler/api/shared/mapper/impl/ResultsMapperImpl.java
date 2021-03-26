@@ -9,11 +9,14 @@ import org.springframework.stereotype.Component;
 import ca.tunestumbler.api.io.entity.ResultsEntity;
 import ca.tunestumbler.api.shared.SharedUtils;
 import ca.tunestumbler.api.shared.dto.NextResultsRequestDTO;
+import ca.tunestumbler.api.shared.dto.PlaylistDTO;
 import ca.tunestumbler.api.shared.dto.ResultsDTO;
 import ca.tunestumbler.api.shared.dto.ResultsResponseDTO;
 import ca.tunestumbler.api.shared.mapper.ResultsMapper;
 import ca.tunestumbler.api.ui.model.request.NextResultsRequestModel;
 import ca.tunestumbler.api.ui.model.response.ResultsResponseModel;
+import ca.tunestumbler.api.ui.model.response.playlist.PlaylistModel;
+import ca.tunestumbler.api.ui.model.response.playlist.PlaylistResponseModel;
 import ca.tunestumbler.api.ui.model.response.results.ResultsDataChildrenDataModel;
 import ca.tunestumbler.api.ui.model.response.results.ResultsDataChildrenModel;
 import ca.tunestumbler.api.ui.model.response.results.ResultsObjectResponseModel;
@@ -142,6 +145,34 @@ public class ResultsMapperImpl implements ResultsMapper {
 	}
 
 	@Override
+	public PlaylistDTO createPlaylistDTO(String subreddits, String url) {
+		if (subreddits == null || subreddits.isEmpty() || url.isEmpty() || url == null) {
+			return null;
+		}
+
+		PlaylistDTO dto = new PlaylistDTO();
+
+		dto.setSubreddits(subreddits);
+		dto.setUrl(url);
+
+		return dto;
+	}
+
+	@Override
+	public PlaylistModel playlistDTOtoPlaylistModel(PlaylistDTO dto) {
+		if (dto == null) {
+			return null;
+		}
+
+		PlaylistModel model = new PlaylistModel();
+
+		model.setSubreddits(dto.getSubreddits());
+		model.setUrl(dto.getUrl());
+
+		return model;
+	}
+
+	@Override
 	public List<ResultsDTO> resultsDataChildrenListToResultsDTOlist(List<ResultsDataChildrenModel> resultDataList) {
 		if (resultDataList == null || resultDataList.isEmpty()) {
 			return new ArrayList<>();
@@ -219,6 +250,31 @@ public class ResultsMapperImpl implements ResultsMapper {
 		resultsResponseModel.setAfterId(dto.getAfterId());
 
 		return resultsResponseModel;
+	}
+
+	@Override
+	public List<PlaylistModel> playlistDTOlistToPlaylistModelList(List<PlaylistDTO> dtoList) {
+		if (dtoList == null || dtoList.isEmpty()) {
+			return new ArrayList<>();
+		}
+		List<PlaylistModel> list = new ArrayList<>(dtoList.size());
+		for (PlaylistDTO dto : dtoList) {
+			list.add(playlistDTOtoPlaylistModel(dto));
+		}
+
+		return list;
+	}
+
+	@Override
+	public PlaylistResponseModel playlistDTOlistToPlaylistResponseModel(List<PlaylistDTO> dtoList) {
+		if (dtoList == null || dtoList.isEmpty()) {
+			return new PlaylistResponseModel();
+		}
+
+		PlaylistResponseModel playlistResponseModel = new PlaylistResponseModel();
+		playlistResponseModel.setPlaylists(playlistDTOlistToPlaylistModelList(dtoList));
+
+		return playlistResponseModel;
 	}
 
 }

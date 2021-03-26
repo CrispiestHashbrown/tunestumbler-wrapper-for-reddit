@@ -30,6 +30,7 @@ import ca.tunestumbler.api.security.SecurityConstants;
 import ca.tunestumbler.api.service.ResultsService;
 import ca.tunestumbler.api.shared.SharedUtils;
 import ca.tunestumbler.api.shared.dto.NextResultsRequestDTO;
+import ca.tunestumbler.api.shared.dto.PlaylistDTO;
 import ca.tunestumbler.api.shared.dto.ResultsDTO;
 import ca.tunestumbler.api.shared.dto.ResultsResponseDTO;
 import ca.tunestumbler.api.shared.dto.UserDTO;
@@ -97,7 +98,7 @@ public class ResultsServiceImpl implements ResultsService {
 	}
 
 	@Override
-	public List<String> fetchYoutubePlaylists(UserDTO user) {
+	public List<PlaylistDTO> fetchYoutubePlaylists(UserDTO user) {
 		String userId = user.getUserId();
 		List<FiltersEntity> filters = filtersRepository.findFiltersByUserId(userId);
 		if (filters == null || filters.isEmpty()) {
@@ -105,7 +106,7 @@ public class ResultsServiceImpl implements ResultsService {
 					+ ErrorMessages.FILTER_RESOURCES_NOT_FOUND.getErrorMessage());
 		}
 
-		List<String> playlists = new ArrayList<>();
+		List<PlaylistDTO> playlists = new ArrayList<>();
 		playlists.addAll(generatePlaylists(filters, user, "youtube"));
 		playlists.addAll(generatePlaylists(filters, user, "youtu"));
 		return playlists;
@@ -124,7 +125,7 @@ public class ResultsServiceImpl implements ResultsService {
 		return resultsMapper.resultsDTOlistToResultsResponseDTO(filteredResultDTOs, afterId, uri);
 	}
 
-	private List<String> generatePlaylists(List<FiltersEntity> filters, UserDTO user, String domain) {
+	private List<PlaylistDTO> generatePlaylists(List<FiltersEntity> filters, UserDTO user, String domain) {
 		double playlistCount = 5;
 		int playlistSize = 100;
 
@@ -138,11 +139,12 @@ public class ResultsServiceImpl implements ResultsService {
 			numOfFilteredResultsPerSearch = playlistSize;
 		}
 
-		List<String> playlists = new ArrayList<>();
+		List<PlaylistDTO> playlistDTOs = new ArrayList<>();
 		Long startId = setResultsStartId(user.getUserId());
 		for (int count = 0; count < filters.size(); count += numOfSubredditsPerSearch) {
 			List<FiltersEntity> filtersGroup = filters.subList(count, count + numOfSubredditsPerSearch);
-			String uri = filtersUriBuilder(filtersGroup, "hot", domain);
+			StringBuilder subreddits = subredditUriBuilder(filtersGroup);
+			String uri = filtersUriBuilder(subreddits, "hot", domain);
 			ResultsFetchResponseModel response = sendGetResultsRequest(user, uri);
 			if (response == null) {
 				return new ArrayList<>();
@@ -152,10 +154,14 @@ public class ResultsServiceImpl implements ResultsService {
 					uri);
 
 			List<String> playlistIds = getFilteredResultIdsForPlaylists(filtersGroup, startId);
-			playlists.addAll(createFilterGroupPlaylists(playlistIds, numOfFilteredResultsPerSearch, playlistSize));
+			List<String> playlists = createFilterGroupPlaylists(playlistIds, numOfFilteredResultsPerSearch,
+					playlistSize);
+			for (String playlist : playlists) {
+				playlistDTOs.add(resultsMapper.createPlaylistDTO(subreddits.toString(), playlist));
+			}
 		}
 
-		return playlists;
+		return playlistDTOs;
 	}
 
 	private String filtersUriBuilder(List<FiltersEntity> filters, String orderBy) {
@@ -169,8 +175,7 @@ public class ResultsServiceImpl implements ResultsService {
 		return uri.toString();
 	}
 
-	private String filtersUriBuilder(List<FiltersEntity> filters, String orderBy, String domainParameter) {
-		StringBuilder subreddits = subredditUriBuilder(filters);
+	private String filtersUriBuilder(StringBuilder subreddits, String orderBy, String domainParameter) {
 		String limit = "&limit=100";
 		String redditSearchApiUri = "/search/?restrict_sr=on" + limit + "&sort=";
 		String domainQuery = "&q=site:";

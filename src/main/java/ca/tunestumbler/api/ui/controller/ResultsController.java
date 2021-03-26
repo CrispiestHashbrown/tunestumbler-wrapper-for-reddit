@@ -28,7 +28,7 @@ import ca.tunestumbler.api.ui.model.request.NextResultsRequestModel;
 import ca.tunestumbler.api.ui.model.response.ErrorMessages;
 import ca.tunestumbler.api.ui.model.response.ErrorPrefixes;
 import ca.tunestumbler.api.ui.model.response.ResultsResponseModel;
-import ca.tunestumbler.api.ui.model.response.PlaylistResponseModel;
+import ca.tunestumbler.api.ui.model.response.playlist.PlaylistResponseModel;
 
 @RestController
 @RequestMapping("/results")
@@ -98,9 +98,7 @@ public class ResultsController {
 		authorizationHelpers.isAuthorized(userId);
 
 		UserDTO userDTO = userService.getUserByUserId(userId);
-		PlaylistResponseModel response = new PlaylistResponseModel();
-		response.setPlaylists(resultsService.fetchYoutubePlaylists(userDTO));
-		return response;
+		return resultsMapper.playlistDTOlistToPlaylistResponseModel(resultsService.fetchYoutubePlaylists(userDTO));
 	}
 
 }
