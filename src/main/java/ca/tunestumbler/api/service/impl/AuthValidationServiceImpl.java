@@ -1,7 +1,10 @@
 package ca.tunestumbler.api.service.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +37,7 @@ public class AuthValidationServiceImpl implements AuthValidationService {
 
 	@Autowired
 	UserService userService;
-	
+
 	@Autowired
 	AuthValidationRepository authValidationRepository;
 
@@ -46,6 +49,9 @@ public class AuthValidationServiceImpl implements AuthValidationService {
 
 	@Autowired
 	AuthorizationHelpers authorizationHelpers;
+
+	private Set<String> validScope = new HashSet<>(
+			Arrays.asList("account", "read", "mysubreddits", "subscribe", "vote", "save", "history"));
 
 	@Override
 	public AuthValidationDTO createAuthState(UserDTO user) {
@@ -63,7 +69,6 @@ public class AuthValidationServiceImpl implements AuthValidationService {
 				"&redirect_uri=https://www.tunestumbler.com/" +
 				"&duration=permanent" +
 				"&scope=read,history,vote,save,account,subscribe,mysubreddits";
-		
 		AuthValidationEntity authValidationEntity = new AuthValidationEntity();
 
 		authValidationEntity.setStateId(stateId);
@@ -82,8 +87,8 @@ public class AuthValidationServiceImpl implements AuthValidationService {
 	@Override
 	public AuthValidationDTO updateState(String stateId, String code) {
 		if (Strings.isNullOrEmpty(stateId) || Strings.isNullOrEmpty(code)) {
-			throw new AuthValidationServiceException(ErrorPrefixes.AUTH_SERVICE.getErrorPrefix()
-					+ ErrorMessages.BAD_REQUEST.getErrorMessage());
+			throw new AuthValidationServiceException(
+					ErrorPrefixes.AUTH_SERVICE.getErrorPrefix() + ErrorMessages.BAD_REQUEST.getErrorMessage());
 		}
 
 		AuthValidationDTO authValiationToUpdate = new AuthValidationDTO();
@@ -91,8 +96,8 @@ public class AuthValidationServiceImpl implements AuthValidationService {
 		AuthValidationEntity authValidationEntity = authValidationRepository.findByStateIdAndValidated(stateId, false);
 
 		if (authValidationEntity == null) {
-			throw new AuthValidationServiceException(ErrorPrefixes.AUTH_SERVICE.getErrorPrefix()
-					+ ErrorMessages.BAD_REQUEST.getErrorMessage());
+			throw new AuthValidationServiceException(
+					ErrorPrefixes.AUTH_SERVICE.getErrorPrefix() + ErrorMessages.BAD_REQUEST.getErrorMessage());
 		}
 
 		authValidationEntity.setValidated(true);
@@ -107,14 +112,22 @@ public class AuthValidationServiceImpl implements AuthValidationService {
 
 	@Override
 	public HttpHeaders createHandlerHeaders(String state, String code) {
+		return createHandlerHeadersHelper(state, code, validScope);
+	}
+
+	@Override
+	public HttpHeaders createRefreshTokenHeaders(String userId) {
+		return createRefreshTokenHeadersHelper(userId, validScope);
+	}
+
+	private HttpHeaders createHandlerHeadersHelper(String state, String code, Set<String> validScope) {
 		AuthResponseModel response = authorizationHelpers.createRedditTokens(code);
 		String accessToken = response.getAccess_token();
 		String refreshToken = response.getRefresh_token();
-		String validScopes = "account history mysubreddits read save subscribe vote";
 
 		AuthValidationDTO updatedAuthValidationDTO = authValidationService.updateState(state, code);
 		HttpHeaders responseHeaders = new HttpHeaders();
-		if (accessToken != null && refreshToken != null	&& response.getScope().equals(validScopes)) {
+		if (accessToken != null && refreshToken != null && isScopeValid(validScope, response.getScope())) {
 			UserDTO userDTO = userService.getUserByUserId(updatedAuthValidationDTO.getUserId());
 
 			userDTO.setToken(accessToken);
@@ -128,20 +141,18 @@ public class AuthValidationServiceImpl implements AuthValidationService {
 			UserDTO updatedUser = userService.updateUser(userDTO.getUserId(), userDTO);
 			responseHeaders.set(redditLifetimeHeader, updatedUser.getTokenLifetime());
 		}
-		
+
 		return responseHeaders;
 	}
 
-	@Override
-	public HttpHeaders createRefreshTokenHeaders(String userId) {
+	private HttpHeaders createRefreshTokenHeadersHelper(String userId, Set<String> validScope) {
 		UserDTO userDTO = userService.getUserByUserId(userId);
 		AuthResponseModel response = authorizationHelpers.refreshRedditToken(userDTO.getRefreshToken());
 		String accessToken = response.getAccess_token();
 		String tokenLifetime = Integer.toString(response.getExpires_in());
-		String validScopes = "account history mysubreddits read save subscribe vote";
 
 		HttpHeaders responseHeaders = new HttpHeaders();
-		if (accessToken != null && !accessToken.isEmpty() && response.getScope().equals(validScopes)) {
+		if (accessToken != null && !accessToken.isEmpty() && isScopeValid(validScope, response.getScope())) {
 			userDTO.setToken(accessToken);
 			userDTO.setTokenLifetime(tokenLifetime);
 			userService.voidUpdateUser(userId, userDTO);
@@ -156,4 +167,16 @@ public class AuthValidationServiceImpl implements AuthValidationService {
 		return responseHeaders;
 	}
 	
+	private boolean isScopeValid(Set<String> validScopes, String responseScope) {
+		boolean isValid = true;
+		String[] scopeToCheck = responseScope.split(" ");
+		for (String scope : scopeToCheck) {
+			if (!validScopes.contains(scope)) {
+				isValid = false;
+				break;
+			}
+		}
+		return isValid;
+	}
+
 }
