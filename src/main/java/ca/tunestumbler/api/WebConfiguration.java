@@ -14,7 +14,7 @@ public class WebConfiguration implements WebMvcConfigurer {
 				.allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
 				.allowedOrigins("http://www.tunestumbler.com", "https://www.tunestumbler.com", "https://www.reddit.com")
 				.allowedHeaders("Authorization", "Cache-Control", "Content-Type", "X-Requested-With",
-						"Access-Control-Allow-Headers", "Origin", "Accept", "User-Agent");
+						"Access-Control-Allow-Headers", "Access-Control-Allow-Origin", "Origin", "Accept", "User-Agent");
 	}
 
 }
