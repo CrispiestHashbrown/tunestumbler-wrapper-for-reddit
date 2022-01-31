@@ -2,6 +2,7 @@ package ca.tunestumbler.api.security;
 
 import java.util.Arrays;
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -49,6 +50,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 		return filter;
 	}
 
+	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		final CorsConfiguration configuration = new CorsConfiguration();
 
